@@ -444,3 +444,57 @@ def get_user_mall_used_vouchers(user_id):
         return jsonify(used_vouchers), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@voucher_bp.route('/<int:voucher_id>/redeemed_customers', methods=['GET'])
+def get_redeemed_customers(voucher_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT user_id, redeemed_at, points_spent, redemption_code
+            FROM Voucher_Redemption
+            WHERE voucher_id = %s
+            ORDER BY redeemed_at DESC
+        """, (voucher_id,))
+        redemptions = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return jsonify({"redemptions": redemptions}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+@voucher_bp.route('/get_reward_detail/<int:voucher_id>', methods=['GET'])
+def get_reward_detail(voucher_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT
+                v.voucher_id AS reward_id,
+                v.title AS name,
+                v.description,
+                v.points_required AS points,
+                v.discount_amount AS discount,
+                v.start_at,
+                v.end_at,
+                CASE
+                    WHEN NOW() BETWEEN v.start_at AND v.end_at THEN 'Đang hoạt động'
+                    ELSE 'Hết hạn'
+                END AS status,
+                v.stock,
+                v.initial_stock
+            FROM Voucher v
+            WHERE v.voucher_id = %s
+        """, (voucher_id,))
+        reward = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if not reward:
+            return jsonify({"error": "Không tìm thấy voucher"}), 404
+
+        return jsonify({"reward": reward}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
