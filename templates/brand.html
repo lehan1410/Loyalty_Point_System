@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Dashboard - Hệ Thống Tích Điểm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        integrity="sha512-pHF8jYxRMqZxIz1IYdMQNUYmZ7lW+owcDjeMJkDA4XeZVfSwKfe1coCGsYfD1KbZf6C1EezgwKAhZd6MwRQyIA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Gradient background for header and banner */
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        }
+
+        /* Hover effect for cards */
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Smooth transitions */
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        /* Style for active tab */
+        .tab-active {
+            border-bottom: 3px solid #1e40af;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        /* Container for charts to ensure responsiveness */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            /* Adjust height as needed */
+            width: 100%;
+        }
+
+        /* Placeholder for loading/error states */
+        .placeholder-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80px;
+            /* Adjust as needed */
+            color: #6b7280;
+            /* gray-500 */
+            font-style: italic;
+            text-align: center;
+        }
+
+        .error-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80px;
+            /* Adjust as needed */
+            color: #ef4444;
+            /* red-500 */
+            font-style: italic;
+            text-align: center;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #1e40af;
+            /* blue-800 */
+            animation: spin 1s ease infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-overlay {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80px;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 font-sans">
+    <header class="gradient-bg text-white shadow-lg w-full">
+        <div class="w-full px-4 py-4 flex justify-between items-center">
+            <!-- Logo và tiêu đề -->
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-store text-2xl"></i>
+                <h1 class="text-xl font-bold">Brand Management</h1>
+            </div>
+
+            <!-- Khu vực bên phải: Thông báo + Tài khoản -->
+            <div class="flex items-center space-x-6">
+                <!-- Biểu tượng thông báo -->
+                <div class="relative group">
+                    <button id="notificationBtn" class="relative">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span
+                            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                            1
+                        </span>
+                    </button>
+                    <!-- Dropdown thông báo -->
+                    <div id="notificationDropdown"
+                        class="hidden absolute right-0 mt-2 w-64 bg-white text-black rounded-md shadow-lg z-50">
+                        <div class="p-4 border-b">
+                            <h3 class="font-bold text-gray-800">Thông báo</h3>
+                        </div>
+                        <div class="divide-y divide-gray-200">
+                            <a href="#" class="block px-4 py-3 hover:bg-gray-100">
+                                <p class="text-sm font-medium text-gray-900">2 người dùng vừa đăng ký tài khoản</p>
+                                <p class="text-xs text-gray-500">1 ngày trước</p>
+                            </a>
+                        </div>
+                        <div class="p-2 text-center bg-gray-50">
+                            <a href="#" class="text-sm text-blue-600 font-medium">Xem tất cả</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tài khoản -->
+                <div class="relative group">
+                    <button id="profileBtn" class="flex items-center space-x-2">
+                        <span class="font-medium hidden md:block">{{ user.user_name }}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <!-- Dropdown tài khoản -->
+                    <div id="profileDropdown"
+                        class="hidden absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-50">
+                        <div class="p-4 border-b">
+                            <h3 class="font-bold text-gray-800">{{ user.user_name }}</h3>
+                        </div>
+                        <div class="py-1">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Hồ sơ</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cài đặt</a>
+                        </div>
+                        <div class="py-1 border-t">
+                            <a href="/user/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Đăng
+                                xuất</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <main class="container mx-auto px-4 py-8">
+        <section aria-labelledby="welcome-heading"
+            class="gradient-bg rounded-xl text-white p-6 mb-8 shadow-lg flex flex-col md:flex-row justify-between items-center">
+            <div class="flex-1 mb-4 md:mb-0 md:mr-6">
+                <h2 id="welcome-heading" class="text-2xl font-bold mb-2">Xin chào, Admin Brand!</h2>
+                <p class="mb-4">Hệ thống giúp bạn tạo chiến dịch ưu đãi, theo dõi thanh toán và tương tác với khách hàng
+                    qua cơ chế tích điểm linh hoạt.</p>
+                <button onclick="window.location.href='/campaign/create_campaign';"
+                    class="bg-white text-blue-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-100 transition-all shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-700 focus:ring-white">
+                    <i class="fas fa-plus mr-2"></i> Tạo chiến dịch mới
+                </button>
+            </div>
+            <div class="flex-shrink-0">
+                <img src="https://placehold.co/256x160/ffffff/1e40af?text=Illustration"
+                    alt="Minh họa hệ thống tích điểm" class="w-64 h-40 object-contain rounded">
+            </div>
+        </section>
+
+        <section aria-labelledby="quick-stats-heading">
+            <h3 id="quick-stats-heading" class="sr-only">Thống kê nhanh</h3>
+            <div id="quick-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-6 shadow-md flex items-center justify-center min-h-[120px]">
+                    <div class="loading-overlay">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-md flex items-center justify-center min-h-[120px]">
+                    <div class="loading-overlay">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-md flex items-center justify-center min-h-[120px]">
+                    <div class="loading-overlay">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-md flex items-center justify-center min-h-[120px]">
+                    <div class="loading-overlay">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section aria-labelledby="charts-heading" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <h3 id="charts-heading" class="sr-only">Biểu đồ thống kê</h3>
+            <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                <h4 class="text-lg font-bold mb-4 text-gray-800">Hiệu quả chiến dịch (Số KH tham gia)</h4>
+                <div class="chart-container" id="campaignChartContainer">
+                    <canvas id="campaignChart" style="display: none;"></canvas>
+                    <div class="placeholder-message loading-overlay">
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="error-message hidden">Không thể tải dữ liệu biểu đồ.</div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                <h4 class="text-lg font-bold mb-4 text-gray-800">Phần thưởng được đổi nhiều nhất</h4>
+                <div class="chart-container" id="rewardChartContainer">
+                    <canvas id="rewardChart" style="display: none;"></canvas>
+                    <div class="placeholder-message loading-overlay">
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="error-message hidden">Không thể tải dữ liệu biểu đồ.</div>
+                </div>
+            </div>
+        </section>
+
+        <section aria-label="Khu vực quản lý chính">
+            <div class="mb-6 border-b border-gray-200">
+                <nav class="flex -mb-px space-x-6" aria-label="Tabs">
+                    <button
+                        class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent tab-active"
+                        data-tab="campaigns" role="tab" aria-controls="campaigns-panel" aria-selected="true">
+                        <i class="fas fa-bullhorn mr-2"></i> Chiến dịch
+                    </button>
+                    <button
+                        class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent"
+                        data-tab="payments" role="tab" aria-controls="payments-panel" aria-selected="false">
+                        <i class="fas fa-money-bill-wave mr-2"></i> Thanh toán
+                    </button>
+                    <button
+                        class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent"
+                        data-tab="customers" role="tab" aria-controls="customers-panel" aria-selected="false">
+                        <i class="fas fa-users mr-2"></i> Khách hàng
+                    </button>
+                    <button
+                        class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent"
+                        data-tab="rewards" role="tab" aria-controls="rewards-panel" aria-selected="false">
+                        <i class="fas fa-gift mr-2"></i> Phần thưởng
+                    </button>
+                </nav>
+            </div>
+
+            <div>
+                <div id="campaigns-panel" class="tab-content" role="tabpanel" aria-labelledby="campaigns-tab">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                        <h3 class="text-xl font-bold text-gray-800">Quản lý Chiến dịch</h3>
+                        <button onclick="window.location.href='/campaign/create_campaign'" class=" bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all shadow
+                            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <i class="fas fa-plus mr-2"></i> Thêm chiến dịch
+                        </button>
+                    </div>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-700">Chiến dịch hiện tại</h4>
+                    <div id="current-campaigns-container"
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="placeholder-message col-span-full loading-overlay">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-700">Chiến dịch đã kết thúc</h4>
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tên chiến dịch</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Loại</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Thời gian</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tham gia</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Trạng thái</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="past-campaigns-container">
+                                    <tr>
+                                        <td colspan="6" class="py-4 px-4 text-center">
+                                            <div class="placeholder-message loading-overlay">
+                                                <div class="spinner"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="payments-panel" class="tab-content hidden" role="tabpanel" aria-labelledby="payments-tab">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                        <h3 class="text-xl font-bold text-gray-800">Lịch sử thanh toán</h3>
+                        <div class="flex space-x-2">
+                            <button
+                                class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500">
+                                <i class="fas fa-filter mr-2"></i> Lọc
+                            </button>
+                            <button
+                                class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500">
+                                <i class="fas fa-download mr-2"></i> Xuất Excel
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Mã GD</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Khách hàng</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Ngày</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Số tiền</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Điểm tích</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Trạng thái</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="payments-table-container">
+                                    <tr>
+                                        <td colspan="7" class="py-4 px-4 text-center">
+                                            <div class="placeholder-message loading-overlay">
+                                                <div class="spinner"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div
+                            class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <span class="text-sm text-gray-600" id="payments-pagination-info">Hiển thị 0 của 0 giao
+                                dịch</span>
+                            <div class="flex space-x-1" id="payments-pagination-controls">
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
+                                    disabled>
+                                    <i class="fas fa-chevron-left text-xs"></i>
+                                </button>
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
+                                    disabled>
+                                    <i class="fas fa-chevron-right text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="customers-panel" class="tab-content hidden" role="tabpanel" aria-labelledby="customers-tab">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                        <h3 class="text-xl font-bold text-gray-800">Danh sách khách hàng</h3>
+                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+                            <div class="relative flex-grow">
+                                <input type="search" placeholder="Tìm kiếm khách hàng (tên, SĐT)..."
+                                    class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <i
+                                    class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                            <button
+                                class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex-shrink-0">
+                                <i class="fas fa-user-plus mr-2"></i> Thêm KH
+                            </button>
+                        </div>
+                    </div>
+                    <div id="customer-stats-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-white rounded-xl p-6 shadow-md flex items-center justify-center min-h-[100px]">
+                            <div class="loading-overlay">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-md flex items-center justify-center min-h-[100px]">
+                            <div class="loading-overlay">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-md flex items-center justify-center min-h-[100px]">
+                            <div class="loading-overlay">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Khách hàng</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            SĐT</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tổng điểm</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Lần cuối GD</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Hạng</th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="customers-table-container">
+                                    <tr>
+                                        <td colspan="6" class="py-4 px-4 text-center">
+                                            <div class="placeholder-message loading-overlay">
+                                                <div class="spinner"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div
+                            class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <span class="text-sm text-gray-600" id="customers-pagination-info">Hiển thị 0 của 0 khách
+                                hàng</span>
+                            <div class="flex space-x-1" id="customers-pagination-controls">
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
+                                    disabled>
+                                    <i class="fas fa-chevron-left text-xs"></i>
+                                </button>
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
+                                    disabled>
+                                    <i class="fas fa-chevron-right text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="rewards-panel" class="tab-content hidden" role="tabpanel" aria-labelledby="rewards-tab">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                        <h3 class="text-xl font-bold text-gray-800">Danh sách phần thưởng</h3>
+                        <button
+                            class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <i class="fas fa-plus mr-2"></i> Thêm phần thưởng
+                        </button>
+                    </div>
+                    <div id="rewards-list-container"
+                        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div class="placeholder-message col-span-full loading-overlay">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Customer Detail Modal -->
+    <div id="customerDetailModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div class="bg-white rounded-xl shadow-lg w-96 p-6 relative">
+            <button onclick="closeCustomerDetail()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Chi tiết khách hàng</h3>
+            <div id="customer-detail-content" class="space-y-2">
+                <div class="loading-overlay">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <footer class="bg-gray-100 border-t border-gray-200 mt-12 py-6">
+        <div class="container mx-auto px-4 text-center text-gray-600 text-sm">
+            &copy; <span id="current-year"></span> LoyaltyBrand. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Configuration
+        const BRAND_ID = 1;
+        const API_BASE_URL = 'http://127.0.0.1:5000';
+        const MOCK_API = false;
+
+        // --- DOM Element References ---
+        const quickStatsContainer = document.getElementById('quick-stats-container');
+        const campaignChartContainer = document.getElementById('campaignChartContainer');
+        const campaignChartCanvas = document.getElementById('campaignChart');
+        const rewardChartContainer = document.getElementById('rewardChartContainer');
+        const rewardChartCanvas = document.getElementById('rewardChart');
+        const currentCampaignsContainer = document.getElementById('current-campaigns-container');
+        const pastCampaignsContainer = document.getElementById('past-campaigns-container');
+        const paymentsTableContainer = document.getElementById('payments-table-container');
+        const paymentsPaginationInfo = document.getElementById('payments-pagination-info');
+        const paymentsPaginationControls = document.getElementById('payments-pagination-controls');
+        const customerStatsContainer = document.getElementById('customer-stats-container');
+        const customersTableContainer = document.getElementById('customers-table-container');
+        const customersPaginationInfo = document.getElementById('customers-pagination-info');
+        const customersPaginationControls = document.getElementById('customers-pagination-controls');
+        const rewardsListContainer = document.getElementById('rewards-list-container');
+        const currentYearSpan = document.getElementById('current-year');
+
+        function formatCurrency(amount) {
+            if (typeof amount !== 'number' || isNaN(amount)) return 'N/A';
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function formatNumber(number) {
+            if (typeof number !== 'number' || isNaN(number)) return '0';
+            return number.toLocaleString('vi-VN');
+        }
+
+
+        async function fetchData(endpoint, options = {}, mockData = null) {
+            if (MOCK_API && mockData !== null) {
+                console.log(`[MOCK] Returning mock data for ${endpoint}`);
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 500));
+                // Simulate potential mock error
+                if (mockData.error) {
+                    throw new Error(`Mock API Error: ${mockData.error}`);
+                }
+                return mockData.data;
+            }
+            if (MOCK_API && mockData === null) {
+                console.warn(`[MOCK] No mock data provided for ${endpoint}, returning empty object.`);
+                await new Promise(resolve => setTimeout(resolve, 300));
+                return {};
+            }
+
+
+            const url = `${API_BASE_URL}${endpoint}`;
+            let response; // Declare response outside try block
+            try {
+                console.log(`Fetching data from: ${url}`); // Log the URL being fetched
+                response = await fetch(url, options);
+
+                // Log basic response info
+                console.log(`Response status for ${url}: ${response.status} ${response.statusText}`);
+
+                if (!response.ok) {
+                    let errorData = null;
+                    let errorText = `HTTP error ${response.status}: ${response.statusText}`;
+                    try {
+                        // Try to read response body as text first for non-JSON errors
+                        const text = await response.text();
+                        console.error(`Error response body for ${url}:`, text);
+                        // Try to parse as JSON if possible
+                        errorData = JSON.parse(text);
+                        if (errorData && errorData.detail) {
+                            errorText = `API Error (${response.status}): ${errorData.detail}`;
+                        }
+                    } catch (e) {
+                        // Ignore if response body is not readable or not JSON
+                        console.warn(`Could not parse error response body for ${url} as JSON.`);
+                    }
+                    // Throw a detailed error
+                    const error = new Error(errorText);
+                    error.status = response.status; // Attach status code to error object
+                    error.data = errorData; // Attach parsed error data if available
+                    throw error;
+                }
+
+                // Handle 204 No Content
+                if (response.status === 204) {
+                    console.log(`Received 204 No Content for ${url}`);
+                    return null;
+                }
+
+                // Attempt to parse JSON
+                const jsonData = await response.json();
+                console.log(`Successfully fetched and parsed JSON for ${url}`);
+                return jsonData;
+
+            } catch (error) {
+                // Log different types of errors
+                if (error instanceof SyntaxError) {
+                    console.error(`JSON Parsing Error for ${url}:`, error.message);
+                    throw new Error(`Invalid JSON received from server for ${endpoint}.`);
+                } else if (error instanceof TypeError) {
+                    console.error(`Network Error or CORS issue for ${url}:`, error.message);
+                    throw new Error(`Network error or CORS issue when fetching ${endpoint}. Check browser console Network tab.`);
+                } else {
+                    console.error(`Fetch Error for ${url}:`, error);
+                    throw error;
+                }
+            }
+        }
+
+        function showMessage(container, type, message) {
+            if (!container) return;
+            let content = '';
+            let cssClass = '';
+
+            switch (type) {
+                case 'loading':
+                    content = `<div class="loading-overlay"><div class="spinner"></div></div>`;
+                    break;
+                case 'error':
+                    content = `<div class="error-message">${message}</div>`;
+                    cssClass = 'error-message'; // Keep class for potential styling
+                    break;
+                case 'placeholder':
+                default:
+                    content = `<div class="placeholder-message">${message}</div>`;
+                    cssClass = 'placeholder-message'; // Keep class
+                    break;
+            }
+
+            container.innerHTML = content;
+        }
+        function setChartState(chartContainer, isLoading, errorMessage = null) {
+            if (!chartContainer) return;
+            const canvas = chartContainer.querySelector('canvas');
+            const loadingMessage = chartContainer.querySelector('.loading-overlay'); // Updated selector
+            const errorMessageElement = chartContainer.querySelector('.error-message');
+
+            if (canvas) canvas.style.display = (isLoading || errorMessage) ? 'none' : 'block';
+            if (loadingMessage) loadingMessage.classList.toggle('hidden', !isLoading || !!errorMessage); // Use !!errorMessage to convert to boolean
+            if (errorMessageElement) {
+                errorMessageElement.classList.toggle('hidden', !errorMessage);
+                if (errorMessage) errorMessageElement.textContent = errorMessage;
+            }
+        }
+
+        // Fetch and render Quick Stats
+        async function loadQuickStats() {
+            const statsConfig = [
+                { id: 'total-points', endpoint: `/point/get_total_points/${BRAND_ID}`, title: 'Tổng điểm đã tích', icon: 'fa-coins', color: 'blue', parseFn: (data) => formatNumber(data?.total_points), trendText: '+12% vs tháng trước', mock: { data: { total_points: 123456 } } },
+                { id: 'active-campaigns', endpoint: `/campaign/get_active_campaigns/${BRAND_ID}`, title: 'Chiến dịch đang chạy', icon: 'fa-rocket', color: 'green', parseFn: (data) => formatNumber(data?.active_campaigns), trendText: data => data?.active_campaigns > 0 ? '2 sắp hết hạn' : '', mock: { data: { active_campaigns: 5 } } },
+                { id: 'total-customers', endpoint: `/user/get_total_customers/${BRAND_ID}`, title: 'Khách hàng tham gia', icon: 'fa-users', color: 'purple', parseFn: (data) => formatNumber(data?.total_customers), trendText: '+8% vs tháng trước', mock: { data: { total_customers: 1580 } } },
+                { id: 'rewards-redeemed', endpoint: `/voucher/get_rewards_redeemed/${BRAND_ID}`, title: 'Đổi quà thành công', icon: 'fa-gift', color: 'yellow', parseFn: (data) => formatNumber(data?.rewards_redeemed), trendText: data => data?.rewards_redeemed > 0 ? '5 đơn chờ xử lý' : '', mock: { data: { rewards_redeemed: 42 } } }
+
+            ];
+
+            quickStatsContainer.innerHTML = ''; // Clear previous placeholders
+
+            // Create card elements first with loading state
+            statsConfig.forEach(config => {
+                const card = document.createElement('div');
+                card.id = `stat-card-${config.id}`; // Add ID for easy targeting
+                card.className = 'bg-white rounded-xl p-6 shadow-md transition-all card-hover flex flex-col justify-between min-h-[120px]';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500">${config.title}</p>
+                            <h3 class="text-2xl font-bold mt-2 text-gray-800" id="stat-${config.id}-value">
+                                <div class="loading-overlay h-8 w-16"><div class="spinner !w-6 !h-6"></div></div> </h3>
+                        </div>
+                        <div class="bg-${config.color}-100 text-${config.color}-600 p-3 rounded-lg">
+                            <i class="fas ${config.icon} text-xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-500 text-xs mt-3" id="stat-${config.id}-trend">&nbsp;</p> `;
+                quickStatsContainer.appendChild(card);
+            });
+
+            // Fetch data for each card individually
+            for (const config of statsConfig) {
+                const valueElement = document.getElementById(`stat-${config.id}-value`);
+                const trendElement = document.getElementById(`stat-${config.id}-trend`);
+                const cardElement = document.getElementById(`stat-card-${config.id}`); // Get the card element
+
+                try {
+                    console.log(`Fetching data for stat: ${config.title}`);
+                    const data = await fetchData(config.endpoint, {}, config.mock); // Pass mock data definition
+
+                    if (!data && config.id === 'total-points') { // Example: Check specifically for the first item if needed
+                        console.warn(`Received null or undefined data for ${config.title}`);
+                        // Handle null/undefined data appropriately, maybe show '0' or 'N/A'
+                        if (valueElement) valueElement.textContent = config.parseFn(null) ?? 'N/A'; // Use nullish coalescing
+                        if (trendElement) trendElement.textContent = 'Không có dữ liệu';
+                        continue; // Move to the next stat
+                    }
+
+
+                    // Update card content on success
+                    if (valueElement) valueElement.textContent = config.parseFn(data) ?? 'N/A'; // Use nullish coalescing for safety
+
+                    if (trendElement) {
+                        const trend = typeof config.trendText === 'function' ? config.trendText(data) : config.trendText;
+                        const trendIcon = trend?.startsWith('+') ? 'fa-arrow-up text-green-500' : trend ? 'fa-info-circle text-gray-500' : '';
+                        trendElement.innerHTML = trend ? `<i class="fas ${trendIcon} mr-1"></i> ${trend}` : '&nbsp;';
+                    }
+                } catch (error) {
+                    console.error(`Error loading stat '${config.title}' from ${config.endpoint}:`, error);
+                    // Update card content on error
+                    if (valueElement) valueElement.innerHTML = `<span class="text-red-500 text-sm">Lỗi tải</span>`;
+                    if (trendElement) trendElement.textContent = error.message.substring(0, 30) + '...'; // Show short error message
+                    // Optionally add a red border or background to the card
+                    if (cardElement) cardElement.classList.add('border', 'border-red-300');
+                }
+            }
+        }
+
+
+        // Fetch and render Campaigns
+        async function loadCampaigns() {
+            const mockCampaignData = {
+                data: {
+                    current: [
+                        { id: 1, name: "Tích điểm hè sôi động", type: "Tích điểm", description: "Tích điểm gấp đôi cho mọi hóa đơn trên 500k.", start_date: "01/06/25", end_date: "31/08/25", participants: 1250, target_participants: 2000, progress: 62, status: "Đang hoạt động", image_url: "https://placehold.co/300x160/ecfccb/4d7c0f?text=Hè+Sôi+Động" },
+                        { id: 2, name: "Đổi quà sinh nhật", type: "Đổi quà", description: "Ưu đãi đặc biệt cho khách hàng có sinh nhật trong tháng.", start_date: "01/07/25", end_date: "31/07/25", participants: 300, target_participants: 500, progress: 60, status: "Đang hoạt động", image_url: "https://placehold.co/300x160/fce7f3/831843?text=Sinh+Nhật" },
+                        { id: 3, name: "Giới thiệu bạn bè", type: "Tích điểm", description: "Nhận ngay 50 điểm khi giới thiệu bạn bè thành công.", start_date: "15/07/25", end_date: "15/09/25", participants: 80, target_participants: 300, progress: 27, status: "Sắp bắt đầu", image_url: "https://placehold.co/300x160/ffedd5/c2410c?text=Giới+Thiệu" }
+                    ],
+                    past: [
+                        { id: 4, name: "Chào hè rực rỡ", type: "Tích điểm", start_date: "01/04/25", end_date: "31/05/25", participants: 980, status: "Đã kết thúc" },
+                        { id: 5, name: "Voucher giảm giá 20%", type: "Đổi quà", start_date: "15/03/25", end_date: "15/04/25", participants: 550, status: "Đã kết thúc" }
+                    ]
+                }
+            };
+            try {
+                showMessage(currentCampaignsContainer, 'loading');
+                showMessage(pastCampaignsContainer, 'loading'); // Show loading in table body
+
+                const data = await fetchData(`/campaign/get_campaigns/${BRAND_ID}`, {}, mockCampaignData);
+
+                // Render Current Campaigns
+                if (data && data.current && data.current.length > 0) {
+                    currentCampaignsContainer.innerHTML = data.current.map(c => `
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all card-hover flex flex-col">
+                            <div class="relative">
+                                <img src="${c.image_url || 'https://placehold.co/300x160/e0e7ff/3730a3?text=Campaign'}" alt="Hình ảnh chiến dịch ${c.name}" class="w-full h-40 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/300x160/e0e7ff/3730a3?text=Image+Error';">
+                                <span class="absolute top-2 right-2 text-white text-xs px-2 py-1 rounded-full ${c.status === 'Đang hoạt động' ? 'bg-green-500' : c.status === 'Sắp bắt đầu' ? 'bg-yellow-500' : 'bg-gray-500'}">
+                                    ${c.status}
+                                </span>
+                            </div>
+                            <div class="p-4 flex flex-col flex-grow">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-bold text-md text-gray-800 flex-1 mr-2">${c.name}</h4>
+                                    <span class="text-xs px-2 py-1 rounded whitespace-nowrap ${c.type === 'Tích điểm' ? 'bg-blue-100 text-blue-800' : c.type === 'Đổi quà' ? 'bg-purple-100 text-purple-800' : 'bg-pink-100 text-pink-800'}">${c.type}</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-3 flex-grow">${c.description || 'Không có mô tả.'}</p>
+                                <div class="text-xs text-gray-500 mb-3 space-y-1">
+                                    <div class="flex justify-between"><span><i class="far fa-calendar-alt mr-1"></i> ${c.start_date || 'N/A'} - ${c.end_date || 'N/A'}</span></div>
+                                    <div class="flex justify-between"><span><i class="fas fa-users mr-1"></i> ${formatNumber(c.participants)} KH</span> <span>Mục tiêu: ${formatNumber(c.target_participants)} KH</span></div>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
+                                    <div class="h-2 rounded-full ${c.status === 'Sắp bắt đầu' ? 'bg-gray-400' : 'bg-green-500'}" style="width: ${c.progress || 0}%"></div>
+                                </div>
+                                <div class="text-xs text-gray-500 text-right">${c.status === 'Sắp bắt đầu' ? 'Chưa bắt đầu' : `Đã đạt ${c.progress || 0}%`}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    showMessage(currentCampaignsContainer, 'placeholder', 'Không có chiến dịch hiện tại.');
+                }
+
+                // Render Past Campaigns
+                if (data && data.past && data.past.length > 0) {
+                    pastCampaignsContainer.innerHTML = data.past.map(c => `
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-3 px-4 text-sm font-medium text-gray-900">${c.name}</td>
+                            <td class="py-3 px-4 text-sm text-gray-500"><span class="text-xs px-2 py-1 rounded ${c.type === 'Tích điểm' ? 'bg-blue-100 text-blue-800' : c.type === 'Đổi quà' ? 'bg-purple-100 text-purple-800' : 'bg-pink-100 text-pink-800'}">${c.type}</span></td>
+                            <td class="py-3 px-4 text-sm text-gray-500">${c.start_date || 'N/A'} - ${c.end_date || 'N/A'}</td>
+                            <td class="py-3 px-4 text-sm text-gray-500">${formatNumber(c.participants)}</td>
+                            <td class="py-3 px-4 text-sm"><span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">${c.status}</span></td>
+                            <td class="py-3 px-4 text-right">
+                                <button class="text-blue-600 hover:text-blue-800 focus:outline-none" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    pastCampaignsContainer.innerHTML = `<tr><td colspan="6" class="py-4 px-4 text-center"><div class="placeholder-message">Không có chiến dịch đã kết thúc.</div></td></tr>`;
+                }
+
+            } catch (error) {
+                console.error('Error loading campaigns:', error);
+                showMessage(currentCampaignsContainer, 'error', `Lỗi tải chiến dịch: ${error.message}`);
+                pastCampaignsContainer.innerHTML = `<tr><td colspan="6" class="py-4 px-4 text-center"><div class="error-message">Lỗi tải chiến dịch.</div></td></tr>`;
+            }
+        }
+
+        // Fetch and render Payments
+        async function loadPayments(page = 1, itemsPerPage = 10, filters = {}) {
+            try {
+                if (!BRAND_ID || isNaN(BRAND_ID)) {
+                    throw new Error('BRAND_ID không hợp lệ hoặc không được định nghĩa!');
+                }
+                if (!paymentsTableContainer || !paymentsPaginationInfo || !paymentsPaginationControls) {
+                    throw new Error('Không tìm thấy container hiển thị giao dịch trong DOM!');
+                }
+
+                showMessage(paymentsTableContainer, 'loading');
+                paymentsPaginationInfo.textContent = 'Đang tải...';
+                updatePaginationControls(paymentsPaginationControls, 0, 0, 0);
+
+                // Tạo query string
+                const params = new URLSearchParams({
+                    brand_id: BRAND_ID,
+                    page: page,
+                    items_per_page: itemsPerPage,
+                    ...(filters.start_date && { start_date: filters.start_date }),
+                    ...(filters.end_date && { end_date: filters.end_date }),
+                    ...(filters.status && { status: filters.status })
+                });
+
+                const data = await fetchData(`/point/get_payments?${params.toString()}`, {
+                    method: "GET",
+                    headers: {
+                        // Không cần Content-Type cho GET
+                        "Accept": "application/json"
+                    }
+                });
+
+                if (data && data.payments && data.payments.length > 0) {
+                    paymentsTableContainer.innerHTML = data.payments.map(p => {
+                        if (!p.transaction_id || !p.customer_name) {
+                            console.warn('Dữ liệu giao dịch không hợp lệ:', p);
+                            return '';
+                        }
+                        return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-4 text-sm font-medium text-gray-500">${p.transaction_id}</td>
+                        <td class="py-3 px-4 text-sm text-gray-900 flex items-center">
+                            <img src="https://placehold.co/32x32/e2e8f0/334155?text=${p.customer_name[0] || 'KH'}" alt="Avatar ${p.customer_name}" class="w-8 h-8 rounded-full mr-2 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/32x32/e0e7ff/3730a3?text=KH';">
+                            ${p.customer_name}
+                        </td>
+                        <td class="py-3 px-4 text-sm text-gray-500">${p.payment_date || 'N/A'}</td>
+                        <td class="py-3 px-4 text-sm font-medium text-gray-900">${p.amount || '0'}</td>
+                        <td class="py-3 px-4 text-sm text-green-600 font-medium">+${formatNumber(p.points_earned) || '0'}</td>
+                        <td class="py-3 px-4 text-sm">
+                            <span class="text-xs px-2 py-1 rounded ${p.status === 'Hoàn thành' ? 'bg-green-100 text-green-800' : p.status === 'Đang xử lý' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
+                                ${p.status || 'Không xác định'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <button class="text-blue-600 hover:text-blue-800 focus:outline-none" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                    }).join('');
+
+                    const totalPayments = data.total_payments || 0;
+                    const startIndex = (page - 1) * itemsPerPage + 1;
+                    const endIndex = Math.min(startIndex + data.payments.length - 1, totalPayments);
+                    paymentsPaginationInfo.textContent = `Hiển thị ${startIndex}-${endIndex} của ${formatNumber(totalPayments)} giao dịch`;
+                    updatePaginationControls(paymentsPaginationControls, page, Math.ceil(totalPayments / itemsPerPage), (newPage) => loadPayments(newPage, itemsPerPage, filters));
+                } else {
+                    showMessage(paymentsTableContainer, 'placeholder', data?.message || 'Không có giao dịch nào.');
+                    paymentsPaginationInfo.textContent = 'Hiển thị 0 của 0 giao dịch';
+                    updatePaginationControls(paymentsPaginationControls, 0, 0, 0);
+                }
+            } catch (error) {
+                console.error('Error loading payments:', error);
+                showMessage(paymentsTableContainer, 'error', `Lỗi tải thanh toán: ${error.message} (${error.status || 'Unknown'})`);
+                paymentsPaginationInfo.textContent = 'Lỗi tải dữ liệu';
+                updatePaginationControls(paymentsPaginationControls, 0, 0, 0);
+            }
+        }
+
+        // Fetch and render Rewards
+        const rewardsTableContainer = document.getElementById("rewards-table-container");
+
+        async function loadRewards() {
+            try {
+                showMessage(rewardsTableContainer, 'loading');
+
+                const data = await fetchData(`/voucher/get_rewards/${BRAND_ID}`);
+
+                if (data && data.rewards && data.rewards.length > 0) {
+                    rewardsTableContainer.innerHTML = data.rewards.map(r => `
+                <tr class="hover:bg-gray-50">
+                    <td class="py-3 px-4 text-sm font-medium text-gray-900">${r.name}</td>
+                    <td class="py-3 px-4 text-sm text-gray-500">${r.description || '-'}</td>
+                    <td class="py-3 px-4 text-sm text-gray-500">${formatNumber(r.points)}</td>
+                    <td class="py-3 px-4 text-sm text-gray-500">${formatCurrency(r.discount)}</td>
+                    <td class="py-3 px-4 text-sm text-gray-500">${r.start_time} - ${r.end_time}</td>
+                    <td class="py-3 px-4 text-sm ${r.status === 'Đang hoạt động' ? 'text-green-600' : 'text-red-600'}">
+                        ${r.status}
+                    </td>
+                    <td class="py-3 px-4 text-sm text-gray-500">${r.stock}/${r.initial_stock}</td>
+                    <td class="py-3 px-4 text-right text-sm">
+                        <button onclick="openRewardDetail(${r.reward_id})" 
+                            class="text-blue-600 hover:underline">Chi tiết</button>
+                    </td>
+                </tr>
+            `).join('');
+                } else {
+                    showMessage(rewardsTableContainer, 'placeholder', 'Không có phần thưởng.');
+                }
+            } catch (error) {
+                console.error("Error loadReward:", error);
+                showMessage(rewardsTableContainer, 'error', 'Không tải được danh sách phần thưởng.');
+            }
+        }
+
+
+
+        // --- Chart Initialization ---
+        let campaignChartInstance = null;
+        let rewardChartInstance = null;
+
+        async function initCampaignChart() {
+            const mockChartData = {
+                data: {
+                    campaign_chart: {
+                        labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6"],
+                        data: [650, 590, 800, 810, 960, 1050]
+                    }
+                }
+            };
+            if (campaignChartInstance) {
+                campaignChartInstance.destroy(); // Destroy previous instance if exists
+            }
+            setChartState(campaignChartContainer, true); // Show loading
+
+            try {
+                const data = await fetchData(`/campaign/get_campaign_chart/${BRAND_ID}`, {}, mockChartData);
+
+                if (!data || !data.campaign_chart || !data.campaign_chart.labels || !data.campaign_chart.data) {
+                    throw new Error("Dữ liệu biểu đồ chiến dịch không hợp lệ hoặc bị thiếu.");
+                }
+
+                setChartState(campaignChartContainer, false); // Hide loading
+
+                const campaignCtx = campaignChartCanvas.getContext('2d');
+                campaignChartInstance = new Chart(campaignCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.campaign_chart.labels,
+                        datasets: [{
+                            label: 'Số KH tham gia',
+                            data: data.campaign_chart.data,
+                            backgroundColor: 'rgba(30, 64, 175, 0.7)', // blue-800 with opacity
+                            borderColor: 'rgba(30, 64, 175, 1)',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            hoverBackgroundColor: 'rgba(30, 64, 175, 0.9)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false, // Allow chart to fill container height
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return ` ${context.dataset.label}: ${formatNumber(context.parsed.y)} KH`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { drawBorder: false, color: '#e5e7eb' }, // gray-200
+                                ticks: { color: '#6b7280', callback: value => formatNumber(value) } // gray-500
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#6b7280' } // gray-500
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing campaign chart:', error);
+                setChartState(campaignChartContainer, false, `Lỗi tải biểu đồ: ${error.message}`);
+            }
+        }
+
+        async function initRewardChart() {
+            const mockRewardChartData = {
+                data: {
+                    reward_chart: {
+                        labels: ["Voucher 50k", "Free Ship", "Giảm 10%", "Ly giữ nhiệt", "Voucher 20k"],
+                        data: [120, 95, 80, 45, 30]
+                    }
+                }
+            };
+            if (rewardChartInstance) {
+                rewardChartInstance.destroy();
+            }
+            setChartState(rewardChartContainer, true);
+
+            try {
+                const data = await fetchData(`/voucher/get_reward_chart/${BRAND_ID}`, {}, mockRewardChartData);
+
+                if (!data || !data.reward_chart || !data.reward_chart.labels || !data.reward_chart.data) {
+                    throw new Error("Dữ liệu biểu đồ phần thưởng không hợp lệ hoặc bị thiếu.");
+                }
+
+                setChartState(rewardChartContainer, false);
+
+                const rewardCtx = rewardChartCanvas.getContext('2d');
+                rewardChartInstance = new Chart(rewardCtx, {
+                    type: 'bar', // Changed to horizontal bar for better label readability
+                    data: {
+                        labels: data.reward_chart.labels,
+                        datasets: [{
+                            label: 'Số lần đổi',
+                            data: data.reward_chart.data,
+                            backgroundColor: [ // Use a color palette
+                                'rgba(59, 130, 246, 0.7)', // blue-500
+                                'rgba(99, 102, 241, 0.7)', // indigo-500
+                                'rgba(167, 139, 250, 0.7)', // violet-400
+                                'rgba(244, 114, 182, 0.7)', // pink-400
+                                'rgba(251, 146, 60, 0.7)'  // orange-400
+                            ],
+                            borderColor: [
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(99, 102, 241, 1)',
+                                'rgba(167, 139, 250, 1)',
+                                'rgba(244, 114, 182, 1)',
+                                'rgba(251, 146, 60, 1)'
+                            ],
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y', // Make it a horizontal bar chart
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return ` ${context.dataset.label}: ${formatNumber(context.parsed.x)} lần`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: { drawBorder: false, color: '#e5e7eb' },
+                                ticks: { color: '#6b7280', callback: value => formatNumber(value) }
+                            },
+                            y: {
+                                grid: { display: false },
+                                ticks: { color: '#6b7280' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing reward chart:', error);
+                setChartState(rewardChartContainer, false, `Lỗi tải biểu đồ: ${error.message}`);
+            }
+        }
+
+        // --- Pagination ---
+        /**
+         * Updates pagination controls.
+         * @param {HTMLElement} controlsContainer - The container for pagination buttons.
+         * @param {number} currentPage - The current active page (1-based).
+         * @param {number} totalPages - The total number of pages.
+         * @param {function} onPageClick - Callback function when a page button is clicked, receives the new page number.
+         */
+        function updatePaginationControls(controlsContainer, currentPage, totalPages, onPageClick) {
+            if (!controlsContainer) return;
+            controlsContainer.innerHTML = ''; // Clear existing controls
+
+            if (totalPages <= 1) {
+                // No need for pagination if only one page or no pages
+                controlsContainer.innerHTML = `
+                    <button class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-400 cursor-not-allowed" disabled> <i class="fas fa-chevron-left text-xs"></i> </button>
+                    ${totalPages === 1 ? '<button class="w-8 h-8 flex items-center justify-center rounded-md bg-blue-600 text-white text-sm font-medium">1</button>' : ''}
+                    <button class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-400 cursor-not-allowed" disabled> <i class="fas fa-chevron-right text-xs"></i> </button>
+                 `;
+                return;
+            }
+
+            // Previous Button
+            const prevButton = document.createElement('button');
+            prevButton.className = `w-8 h-8 flex items-center justify-center rounded-md text-gray-600 hover:bg-gray-200 ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white'}`;
+            prevButton.innerHTML = `<i class="fas fa-chevron-left text-xs"></i>`;
+            prevButton.disabled = currentPage === 1;
+            if (currentPage > 1) {
+                prevButton.onclick = () => onPageClick(currentPage - 1);
+            }
+            controlsContainer.appendChild(prevButton);
+
+            // Page Number Buttons (simplified example: show first, last, current, and neighbors)
+            const maxPagesToShow = 5; // Adjust as needed
+            let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+            let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+            // Adjust startPage if endPage is at the limit
+            if (endPage === totalPages) {
+                startPage = Math.max(1, totalPages - maxPagesToShow + 1);
+            }
+
+            if (startPage > 1) {
+                const firstButton = createPageButton(1, currentPage, onPageClick);
+                controlsContainer.appendChild(firstButton);
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'px-2 py-1 text-gray-500';
+                    ellipsis.textContent = '...';
+                    controlsContainer.appendChild(ellipsis);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageButton = createPageButton(i, currentPage, onPageClick);
+                controlsContainer.appendChild(pageButton);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'px-2 py-1 text-gray-500';
+                    ellipsis.textContent = '...';
+                    controlsContainer.appendChild(ellipsis);
+                }
+                const lastButton = createPageButton(totalPages, currentPage, onPageClick);
+                controlsContainer.appendChild(lastButton);
+            }
+
+
+            // Next Button
+            const nextButton = document.createElement('button');
+            nextButton.className = `w-8 h-8 flex items-center justify-center rounded-md text-gray-600 hover:bg-gray-200 ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white'}`;
+            nextButton.innerHTML = `<i class="fas fa-chevron-right text-xs"></i>`;
+            nextButton.disabled = currentPage === totalPages;
+            if (currentPage < totalPages) {
+                nextButton.onclick = () => onPageClick(currentPage + 1);
+            }
+            controlsContainer.appendChild(nextButton);
+        }
+
+        /** Helper to create a single page button */
+        function createPageButton(pageNumber, currentPage, onClick) {
+            const button = document.createElement('button');
+            button.className = `w-8 h-8 flex items-center justify-center rounded-md text-sm ${pageNumber === currentPage ? 'bg-blue-600 text-white font-medium' : 'bg-white text-gray-600 hover:bg-gray-100'}`;
+            button.textContent = pageNumber;
+            if (pageNumber !== currentPage) {
+                button.onclick = () => onClick(pageNumber);
+            }
+            return button;
+        }
+
+
+        // --- Event Listeners ---
+
+        // Tab switching functionality
+        function setupTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.getAttribute('data-tab');
+
+                    // Update button states
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('tab-active', 'text-blue-600', 'border-blue-600');
+                        btn.classList.add('text-gray-500', 'border-transparent');
+                        btn.setAttribute('aria-selected', 'false');
+                    });
+                    button.classList.add('tab-active', 'text-blue-600', 'border-blue-600');
+                    button.classList.remove('text-gray-500', 'border-transparent');
+                    button.setAttribute('aria-selected', 'true');
+
+
+                    // Update panel visibility
+                    tabContents.forEach(content => {
+                        if (content.id === `${tabId}-panel`) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+
+                    // Optional: Reload data for the activated tab if needed
+                    /*
+                    switch (tabId) {
+                        case 'payments': loadPayments(); break;
+                        case 'customers': loadCustomers(); break;
+                        // Add other cases if needed
+                    }
+                    */
+                });
+            });
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM fully loaded and parsed");
+            // Set current year in footer
+            if (currentYearSpan) {
+                currentYearSpan.textContent = new Date().getFullYear();
+            }
+
+            setupTabs();
+
+            // Load initial data
+            console.log("Starting initial data load...");
+            // Use Promise.allSettled to load data even if some requests fail
+            Promise.allSettled([
+                loadQuickStats(),      // Item 0
+                initCampaignChart(),   // Item 1
+                initRewardChart(),     // Item 2
+                loadCampaigns(),       // Item 3
+                loadPayments(),        // Item 4 (Loads page 1 by default)
+                loadCustomers(customerPage, customerLimit),       // Item 5 (Loads page 1 by default)
+                loadRewards()          // Item 6
+            ]).then(results => {
+                console.log("Initial data load finished. Results:", results);
+                results.forEach((result, index) => {
+                    if (result.status === 'rejected') {
+                        // Log detailed error from Promise.allSettled
+                        console.error(`Initial load failed for item ${index}:`, result.reason);
+                        // You could potentially update the UI here to show a general error message
+                        // For example: find the corresponding container and show an error message
+                        // This requires mapping the index back to the function/UI element
+                        const failedItemMap = [
+                            'Quick Stats', 'Campaign Chart', 'Reward Chart', 'Campaigns',
+                            'Payments', 'Customers', 'Rewards'
+                        ];
+                        console.error(`--> Failed task: ${failedItemMap[index] || 'Unknown Task'}`);
+                        // Example: Show error in quick stats if item 0 failed
+                        // if (index === 0) {
+                        //    showMessage(quickStatsContainer, 'error', 'Không thể tải một số thống kê.');
+                        // }
+                    } else {
+                        console.log(`Initial load succeeded for item ${index}`);
+                    }
+                });
+            }).catch(error => {
+                // This catch is unlikely to be hit with Promise.allSettled,
+                // but good practice to have it.
+                console.error("Unexpected error during initial data load setup:", error);
+            });
+        });
+
+        // --- Customers Pagination ---
+        let customerPage = 1;
+        const customerLimit = 10;
+        let totalCustomers = 0;
+
+        async function getUserPoints(userId) {
+            try {
+                const data = await fetchData(`/point/get_user_points/${userId}`);
+                return data?.total_points || 0;
+            } catch {
+                return 0;
+            }
+        }
+
+        async function getLastTransactionDate(userId) {
+            try {
+                const data = await fetchData(`/point/get_last_transaction/${userId}`);
+                return data?.last_transaction_date || "-";
+            } catch {
+                return "-";
+            }
+        }
+
+
+        // Load Customers
+        async function loadCustomers(page = 1, limit = 10, search = "") {
+            try {
+                showMessage(customersTableContainer, 'loading');
+                showMessage(customerStatsContainer, 'loading');
+
+                const data = await fetchData(`/user/get_customers`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ brand_id: BRAND_ID, page: page, limit: limit, search: search, user_points: [] })
+                });
+
+                if (data && data.customers && data.customers.length > 0) {
+                    totalCustomers = data.total_customers || 0;
+
+                    for (let c of data.customers) {
+                        [c.total_points, c.last_transaction_date] = await Promise.all([
+                            getUserPoints(c.user_id),
+                            getLastTransactionDate(c.user_id)
+                        ]);
+                    }
+
+                    // Render danh sách khách hàng
+                    customersTableContainer.innerHTML = data.customers.map(c => `
+                <tr class="hover:bg-gray-50">
+                    <td class="py-3 px-4 text-sm font-medium text-gray-900">${c.name}</td>
+                    <td class="py-3 px-4 text-sm text-gray-500">${c.phone || '-'}</td>
+                    <td class="py-3 px-4 text-sm text-gray-500">${formatNumber(c.total_points)}</td>
+                    <td class="py-3 px-4 text-sm text-gray-500">${c.last_transaction_date || '-'}</td>
+                    <td class="py-3 px-4 text-sm">${c.tier || '-'}</td>
+                    <td class="py-3 px-4 text-right text-sm">
+                        <button onclick="openCustomerDetail(${c.user_id})" class="text-blue-600 hover:underline text-sm">Chi tiết</button>
+
+                    </td>
+                </tr>
+            `).join('');
+
+                    // Render thống kê
+                    customerStatsContainer.innerHTML = `
+                <div class="bg-white rounded-xl p-6 shadow-md text-center">
+                    <p class="text-sm text-gray-500">Tổng khách hàng</p>
+                    <h3 class="text-xl font-bold text-gray-800">${formatNumber(data.total_customers)}</h3>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-md text-center">
+                    <p class="text-sm text-gray-500">Khách hàng mới 30 ngày</p>
+                    <h3 class="text-xl font-bold text-gray-800">${formatNumber(data.new_customers_30d)}</h3>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-md text-center">
+                    <p class="text-sm text-gray-500">Khách hàng VIP</p>
+                    <h3 class="text-xl font-bold text-gray-800">${formatNumber(data.vip_customers)}</h3>
+                </div>
+            `;
+
+                    // Cập nhật phân trang
+                    const start = (page - 1) * limit + 1;
+                    const end = Math.min(page * limit, totalCustomers);
+                    customersPaginationInfo.textContent = `Hiển thị ${start}-${end} của ${totalCustomers} khách hàng`;
+
+                    // Enable/Disable nút
+                    const [prevBtn, nextBtn] = customersPaginationControls.querySelectorAll("button");
+                    prevBtn.disabled = page <= 1;
+                    nextBtn.disabled = end >= totalCustomers;
+
+                } else {
+                    showMessage(customersTableContainer, 'placeholder', 'Không có khách hàng.');
+                }
+            } catch (error) {
+                console.error("Error loadCustomers:", error);
+                showMessage(customersTableContainer, 'error', 'Không tải được danh sách khách hàng.');
+                showMessage(customerStatsContainer, 'error', 'Không tải được thống kê.');
+            }
+        }
+
+        // Gán sự kiện cho nút phân trang
+        customersPaginationControls.querySelectorAll("button")[0].addEventListener("click", () => {
+            if (customerPage > 1) {
+                customerPage--;
+                loadCustomers(customerPage, customerLimit);
+            }
+        });
+        customersPaginationControls.querySelectorAll("button")[1].addEventListener("click", () => {
+            if (customerPage * customerLimit < totalCustomers) {
+                customerPage++;
+                loadCustomers(customerPage, customerLimit);
+            }
+        });
+
+        const customerSearchInput = document.querySelector("#customers-panel input[type='search']");
+        let searchTimeout;
+
+        customerSearchInput.addEventListener("input", (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                customerPage = 1; // reset về trang 1 khi tìm kiếm
+                loadCustomers(customerPage, customerLimit, e.target.value);
+            }, 500); // debounce 0.5s
+        });
+
+        async function openCustomerDetail(userId) {
+            const modal = document.getElementById("customerDetailModal");
+            const content = document.getElementById("customer-detail-content");
+            modal.classList.remove("hidden");
+            content.innerHTML = `<div class="loading-overlay"><div class="spinner"></div></div>`;
+
+            try {
+                // Gọi song song 3 API
+                const [userRes, walletRes, txRes] = await Promise.all([
+                    fetchData(`/user/get_customer_detail/${userId}`),
+                    fetchData(`/point/get_user_points/${userId}`),
+                    fetchData(`/point/${userId}/transaction_history`)
+                ]);
+
+                if (!userRes || !userRes.customer) {
+                    content.innerHTML = `<div class="error-message">Không tìm thấy khách hàng.</div>`;
+                    return;
+                }
+
+                const c = userRes.customer;
+                const totalPoints = walletRes?.total_points || 0;
+                const transactions = txRes?.transactions || [];
+
+                let html = `
+            <p><strong>Tên:</strong> ${c.fullname}</p>
+            <p><strong>Email:</strong> ${c.email || '-'}</p>
+            <p><strong>SĐT:</strong> ${c.phone || '-'}</p>
+            <p><strong>Địa chỉ:</strong> ${c.address || '-'}</p>
+            <p><strong>Hạng:</strong> ${c.tier || '-'}</p>
+            <p><strong>Tổng điểm ví:</strong> ${formatNumber(totalPoints)}</p>
+            <p><strong>Ngày tham gia:</strong> ${c.created_at || '-'}</p>
+        `;
+
+                // Lịch sử giao dịch
+                if (transactions.length > 0) {
+                    html += `
+                <h4 class="mt-4 mb-2 font-bold text-gray-800">Lịch sử giao dịch</h4>
+                <div id="transaction-history" class="max-h-64 overflow-y-auto border rounded-lg">
+                  <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50 sticky top-0">
+                      <tr>
+                        <th class="px-3 py-2 text-left">Ngày</th>
+                        <th class="px-3 py-2 text-left">Loại</th>
+                        <th class="px-3 py-2 text-left">Mô tả</th>
+                        <th class="px-3 py-2 text-left">Điểm</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+            `;
+                    html += transactions.map(t => `
+                <tr>
+                  <td class="px-3 py-2">${t.date}</td>
+                  <td class="px-3 py-2">${t.source_type}</td>
+                  <td class="px-3 py-2">${t.description}</td>
+                  <td class="px-3 py-2 ${t.points < 0 ? 'text-red-600' : 'text-green-600'}">
+                    ${t.points}
+                  </td>
+                </tr>
+            `).join('');
+                    html += `</tbody></table></div>`;
+                } else {
+                    html += `<p class="mt-4 text-gray-500 italic">Chưa có giao dịch nào.</p>`;
+                }
+
+                content.innerHTML = html;
+
+            } catch (err) {
+                console.error(err);
+                content.innerHTML = `<div class="error-message">Lỗi khi tải dữ liệu.</div>`;
+            }
+        }
+
+        function closeCustomerDetail() {
+            document.getElementById("customerDetailModal").classList.add("hidden");
+        }
+
+
+
+    </script>
+    <script>
+        document.getElementById('notificationBtn').addEventListener('click', function () {
+            document.getElementById('notificationDropdown').classList.toggle('hidden');
+        });
+
+        document.getElementById('profileBtn').addEventListener('click', function () {
+            document.getElementById('profileDropdown').classList.toggle('hidden');
+        });
+
+        // Ẩn dropdown khi click bên ngoài
+        window.addEventListener('click', function (e) {
+            if (!document.getElementById('notificationBtn').contains(e.target)) {
+                document.getElementById('notificationDropdown').classList.add('hidden');
+            }
+            if (!document.getElementById('profileBtn').contains(e.target)) {
+                document.getElementById('profileDropdown').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

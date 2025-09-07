@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Chiến Dịch Mới - LoyaltyBrand</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Gradient background for header */
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        }
+
+        /* Hover effect for cards */
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Smooth transitions */
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #1e40af;
+            animation: spin 1s ease infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-overlay {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80px;
+        }
+
+        /* Error and success messages */
+        .error-message {
+            color: #ef4444;
+            font-style: italic;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .success-message {
+            color: #10b981;
+            font-style: italic;
+            text-align: center;
+            padding: 1rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-crown text-2xl"></i>
+                <h1 class="text-2xl font-bold">LoyaltyBrand</h1>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="relative group">
+                    <button class="flex items-center space-x-2 focus:outline-none">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span
+                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <img src="https://placehold.co/40x40/e2e8f0/334155?text=A" alt="Avatar quản trị viên"
+                        class="w-10 h-10 rounded-full border-2 border-white">
+                    <span class="font-medium hidden sm:inline" id="user-name">{{user_name}}</span>
+                    <button class="text-gray-300 hover:text-white focus:outline-none ml-2" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <section aria-labelledby="create-campaign-heading">
+            <h2 id="create-campaign-heading" class="text-2xl font-bold text-gray-800 mb-6">Tạo Chiến Dịch Mới</h2>
+            <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                <form id="create-campaign-form" class="space-y-6">
+                    <!-- Campaign Title -->
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700">Tên chiến dịch <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="title" name="title" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            placeholder="Ví dụ: Chiến dịch Mùa Hè">
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700">Mô tả <span
+                                class="text-red-500">*</span></label>
+                        <textarea id="description" name="description" rows="4" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            placeholder="Mô tả chi tiết về chiến dịch"></textarea>
+                    </div>
+
+                    <!-- Points Required -->
+                    <div>
+                        <label for="points_required" class="block text-sm font-medium text-gray-700">Số điểm cần thiết
+                            <span class="text-red-500">*</span></label>
+                        <input type="number" id="points_required" name="points_required" required min="1"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            placeholder="Ví dụ: 500">
+                    </div>
+
+                    <!-- Reward -->
+                    <div>
+                        <label for="reward" class="block text-sm font-medium text-gray-700">Phần thưởng <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="reward" name="reward" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            placeholder="Ví dụ: Voucher 100K">
+                    </div>
+
+                    <!-- Start Date -->
+                    <div>
+                        <label for="start_at" class="block text-sm font-medium text-gray-700">Ngày bắt đầu <span
+                                class="text-red-500">*</span></label>
+                        <input type="datetime-local" id="start_at" name="start_at" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    </div>
+
+                    <!-- End Date -->
+                    <div>
+                        <label for="end_at" class="block text-sm font-medium text-gray-700">Ngày kết thúc <span
+                                class="text-red-500">*</span></label>
+                        <input type="datetime-local" id="end_at" name="end_at" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    </div>
+
+                    <!-- Campaign Cost -->
+                    <div>
+                        <label for="campaign_cost" class="block text-sm font-medium text-gray-700">Tổng tiền chiến dịch
+                            (VNĐ) <span class="text-red-500">*</span></label>
+                        <input type="number" id="campaign_cost" name="campaign_cost" required min="0"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            placeholder="Ví dụ: 50000000">
+                    </div>
+
+                    <!-- Initial Stock -->
+                    <div>
+                        <label for="initial_stock" class="block text-sm font-medium text-gray-700">Số lượng voucher ban
+                            đầu <span class="text-red-500">*</span></label>
+                        <input type="number" id="initial_stock" name="initial_stock" required min="1"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            placeholder="Ví dụ: 100">
+                    </div>
+
+
+                    <!-- Brand Ratio -->
+                    <div>
+                        <label for="brand_ratio" class="block text-sm font-medium text-gray-700">Tỷ lệ chi phí Brand (%)
+                            <span class="text-red-500">*</span></label>
+                        <input type="number" id="brand_ratio" name="brand_ratio" required min="0" max="100" step="0.01"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            placeholder="Ví dụ: 60">
+                    </div>
+
+                    <!-- Mall Ratio -->
+                    <div>
+                        <label for="mall_ratio" class="block text-sm font-medium text-gray-700">Tỷ lệ chi phí Mall (%)
+                            <span class="text-red-500">*</span></label>
+                        <input type="number" id="mall_ratio" name="mall_ratio" required min="0" max="100" step="0.01"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            placeholder="Ví dụ: 40">
+                    </div>
+
+                    <!-- Message Area -->
+                    <div id="message-area" class="hidden"></div>
+
+                    <!-- Buttons -->
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" onclick="window.location.href='/campaign/brand'"
+                            class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                            Hủy
+                        </button>
+                        <button type="submit"
+                            class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center">
+                            <i class="fas fa-plus mr-2"></i> Tạo và gửi chiến dịch
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 border-t border-gray-200 mt-12 py-6">
+        <div class="container mx-auto px-4 text-center text-gray-600 text-sm">
+            © <span id="current-year"></span> LoyaltyBrand. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Configuration
+        const BRAND_ID = 1; // Should be dynamically set from session
+
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Utility function to show messages
+        function showMessage(message, type = 'error') {
+            const messageArea = document.getElementById('message-area');
+            messageArea.className = `mt-4 ${type === 'error' ? 'error-message' : 'success-message'}`;
+            messageArea.textContent = message;
+            messageArea.classList.remove('hidden');
+            setTimeout(() => messageArea.classList.add('hidden'), 5000);
+        }
+
+        // Utility function to format datetime-local input
+        function formatDateTimeForInput(date) {
+            const d = new Date(date);
+            const pad = (n) => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+
+        // Validate ratio sum (brand_ratio + mall_ratio = 100)
+        const brandRatioInput = document.getElementById('brand_ratio');
+        const mallRatioInput = document.getElementById('mall_ratio');
+
+        function validateRatios() {
+            const brandRatio = parseFloat(brandRatioInput.value) || 0;
+            const mallRatio = parseFloat(mallRatioInput.value) || 0;
+            const total = brandRatio + mallRatio;
+            if (total !== 100) {
+                showMessage('Tổng tỷ lệ Brand và Mall phải bằng 100%.', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        // Auto-update Mall ratio when Brand ratio changes
+        brandRatioInput.addEventListener('input', () => {
+            const brandRatio = parseFloat(brandRatioInput.value) || 0;
+            mallRatioInput.value = (100 - brandRatio).toFixed(2);
+        });
+
+        // Auto-update Brand ratio when Mall ratio changes
+        mallRatioInput.addEventListener('input', () => {
+            const mallRatio = parseFloat(mallRatioInput.value) || 0;
+            brandRatioInput.value = (100 - mallRatio).toFixed(2);
+        });
+
+        // Form submission handler
+        document.getElementById('create-campaign-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Kiểm tra tổng tỷ lệ trước khi gửi form
+            if (!validateRatios()) {
+                return;
+            }
+
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = `<div class="spinner !w-5 !h-5 mr-2"></div> Đang xử lý...`;
+
+            const formData = new FormData(e.target);
+            const data = {
+                brand_id: BRAND_ID,
+                title: formData.get('title'),
+                description: formData.get('description'),
+                points_required: parseInt(formData.get('points_required')),
+                reward: formData.get('reward'),
+                start_at: formData.get('start_at'),
+                end_at: formData.get('end_at'),
+                campaign_cost: parseFloat(formData.get('campaign_cost')),
+                brand_ratio: parseFloat(formData.get('brand_ratio')),
+                mall_ratio: parseFloat(formData.get('mall_ratio')),
+                initial_stock: parseInt(formData.get('initial_stock'))
+            };
+
+            try {
+                // Step 1: Create campaign
+                const createResponse = await fetch(`/campaign/campaigns`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Add authentication headers if required, e.g., Authorization: Bearer <token>
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const createResult = await createResponse.json();
+
+                if (!createResponse.ok) {
+                    throw new Error(createResult.error || 'Lỗi khi tạo chiến dịch');
+                }
+
+                const campaignId = createResult.campaign_id;
+                const redemptionCode = createResult.redemption_code;
+
+                // Step 2: Submit campaign to mall
+                const submitResponse = await fetch(`/campaign/campaigns/${campaignId}/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Add authentication headers if required
+                    }
+                });
+
+                const submitResult = await submitResponse.json();
+
+                if (!submitResponse.ok) {
+                    throw new Error(submitResult.error || 'Lỗi khi gửi chiến dịch đến mall');
+                }
+
+                showMessage(`Tạo và gửi chiến dịch thành công! Mã đổi: ${redemptionCode}`, 'success');
+                // Reset form
+                e.target.reset();
+                // Redirect to dashboard after a delay
+                setTimeout(() => {
+                    window.location.assign('/campaign/brand');
+                }, 2000);
+
+            } catch (error) {
+                console.error('Error processing campaign:', error);
+                showMessage(`Lỗi: ${error.message}`, 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = `<i class="fas fa-plus mr-2"></i> Tạo và gửi chiến dịch`;
+            }
+        });
+
+        // Logout function (placeholder, implement based on your auth system)
+        function logout() {
+            // Clear session and redirect to login
+            fetch(`/logout`, { method: 'POST' })
+                .then(() => window.location.href = '/user/logout')
+                .catch(err => console.error('Logout error:', err));
+        }
+    </script>
+</body>
+
+</html>

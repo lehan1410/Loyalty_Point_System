@@ -1,0 +1,2534 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mall Management Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        #profileDropdown {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            width: 12rem;
+            margin-right: 1rem;
+            z-index: 1000;
+        }
+
+        #profileDropdown a {
+            display: block;
+            padding: 0.5rem 1rem;
+            text-align: left;
+            width: 100%;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .tab-active {
+            border-bottom: 3px solid #1e40af;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        [data-content] {
+            display: none;
+        }
+
+        [data-content].active {
+            display: block;
+        }
+
+        .mobile-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .mobile-sidebar.open {
+            transform: translateX(0);
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #1e40af;
+            animation: spin 1s ease infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-overlay {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80px;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-style: italic;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .success-message {
+            color: #10b981;
+            font-style: italic;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 0.75rem;
+            width: 90%;
+            max-width: 600px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        #brandTypeChart {
+            max-width: 250px;
+            max-height: 250px;
+            width: 100%;
+            height: 100%;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans flex h-screen">
+    <!-- Mobile Sidebar (hidden by default) -->
+    <div class="mobile-sidebar fixed inset-0 z-40 md:hidden">
+        <div class="sidebar-gradient w-64 h-full text-white flex-shrink-0">
+            <div class="p-4 flex items-center justify-between border-b border-blue-900">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-store text-2xl"></i>
+                    <h1 class="text-xl font-bold">Mall Management</h1>
+                </div>
+                <button id="closeSidebar" class="text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <nav class="p-4">
+                <div class="space-y-1">
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="dashboard">
+                        <i class="fas fa-tachometer-alt w-6"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="accounts">
+                        <i class="fas fa-user-cog w-6"></i>
+                        <span>Quản lý tài khoản</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="brands">
+                        <i class="fas fa-store-alt w-6"></i>
+                        <span>Quản lý Brand</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="contracts">
+                        <i class="fas fa-file-contract w-6"></i>
+                        <span>Hợp đồng Brand</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="points">
+                        <i class="fas fa-coins w-6"></i>
+                        <span>Chính sách điểm</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all active"
+                        data-target="campaigns">
+                        <i class="fas fa-bullhorn w-6"></i>
+                        <span>Chiến dịch</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="advertisements">
+                        <i class="fas fa-ad w-6"></i>
+                        <span>Quảng cáo</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="notifications">
+                        <i class="fas fa-bell w-6"></i>
+                        <span>Thông báo</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="promotions">
+                        <i class="fas fa-percentage w-6"></i>
+                        <span>Ưu đãi</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="reports">
+                        <i class="fas fa-chart-bar w-6"></i>
+                        <span>Báo cáo</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar-gradient w-64 text-white flex-shrink-0 hidden md:block">
+        <div class="p-4 flex items-center space-x-2 border-b border-blue-900">
+            <i class="fas fa-store text-2xl"></i>
+            <h1 class="text-xl font-bold">Mall Management</h1>
+        </div>
+        <nav class="p-4">
+            <div class="space-y-1">
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="dashboard">
+                    <i class="fas fa-tachometer-alt w-6"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="accounts">
+                    <i class="fas fa-user-cog w-6"></i>
+                    <span>Quản lý tài khoản</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="brands">
+                    <i class="fas fa-store-alt w-6"></i>
+                    <span>Quản lý Brand</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="contracts">
+                    <i class="fas fa-file-contract w-6"></i>
+                    <span>Hợp đồng Brand</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="points">
+                    <i class="fas fa-coins w-6"></i>
+                    <span>Chính sách điểm</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all active"
+                    data-target="campaigns">
+                    <i class="fas fa-bullhorn w-6"></i>
+                    <span>Chiến dịch</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="advertisements">
+                    <i class="fas fa-ad w-6"></i>
+                    <span>Quảng cáo</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="notifications">
+                    <i class="fas fa-bell w-6"></i>
+                    <span>Thông báo</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="promotions">
+                    <i class="fas fa-percentage w-6"></i>
+                    <span>Ưu đãi</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="reports">
+                    <i class="fas fa-chart-bar w-6"></i>
+                    <span>Báo cáo</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header -->
+        <header class="gradient-bg text-white shadow-lg w-full">
+            <div class="w-full px-4 py-4 flex justify-between items-center">
+                <!-- Logo và tiêu đề -->
+                <div class="flex items-center space-x-2">
+                </div>
+
+                <!-- Khu vực bên phải: Thông báo + Tài khoản -->
+                <div class="flex items-center space-x-6">
+                    <!-- Biểu tượng thông báo -->
+                    <div class="relative group">
+                        <button id="notificationBtn" class="relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span
+                                class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                3
+                            </span>
+                        </button>
+                        <!-- Dropdown thông báo -->
+                        <div id="notificationDropdown"
+                            class="hidden absolute right-0 mt-2 w-64 bg-white text-black rounded-md shadow-lg z-50">
+                            <div class="p-4 border-b">
+                                <h3 class="font-bold text-gray-800">Thông báo</h3>
+                            </div>
+                            <div class="divide-y divide-gray-200">
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100">
+                                    <p class="text-sm font-medium text-gray-900">Hợp đồng với Nike sắp hết hạn</p>
+                                    <p class="text-xs text-gray-500">2 giờ trước</p>
+                                </a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100">
+                                    <p class="text-sm font-medium text-gray-900">Chiến dịch Black Friday đã được tạo</p>
+                                    <p class="text-xs text-gray-500">1 ngày trước</p>
+                                </a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100">
+                                    <p class="text-sm font-medium text-gray-900">5 tài khoản mới đăng ký</p>
+                                    <p class="text-xs text-gray-500">2 ngày trước</p>
+                                </a>
+                            </div>
+                            <div class="p-2 text-center bg-gray-50">
+                                <a href="#" class="text-sm text-blue-600 font-medium">Xem tất cả</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tài khoản -->
+                    <div class="relative group">
+                        <button id="profileBtn" class="flex items-center space-x-2">
+                            <span class="font-medium hidden md:block">{{ user.user_name | default('Admin') }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <!-- Dropdown tài khoản -->
+                        <div id="profileDropdown"
+                            class="hidden absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-50">
+                            <div class="p-4 border-b">
+                                <h3 class="font-bold text-gray-800">{{ user.user_name | default('Admin') }}</h3>
+                                <p class="text-xs text-gray-500">admin@mallmanagement.com</p>
+                            </div>
+                            <div class="py-1">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Hồ sơ</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cài đặt</a>
+                            </div>
+                            <div class="py-1 border-t">
+                                <a href="/user/logout"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Đăng xuất</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8">
+            <!-- Dashboard Content -->
+            <div data-content id="dashboard" class="active">
+                <!-- Welcome Banner -->
+                <div class="gradient-bg rounded-xl text-white p-6 mb-8 shadow-lg">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                            <h2 class="text-2xl font-bold mb-2">Xin chào, {{ user.user_name | default('Admin') }}!</h2>
+                            <p class="mb-4">Hệ thống quản lý toàn diện cho trung tâm thương mại của bạn.</p>
+                            <button onclick="window.location.href='/voucher/voucher';"
+                                class="bg-white text-blue-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-100 transition-all">
+                                <i class="fas fa-plus mr-2"></i> Tạo ưu đãi mới
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Tổng số Brand</p>
+                                <h3 id="brand-count" class="text-2xl font-bold mt-2"></h3>
+                            </div>
+                            <div class="bg-blue-100 text-blue-600 p-3 rounded-lg">
+                                <i class="fas fa-store-alt text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 5% so với tháng
+                            trước</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Chiến dịch đang chạy</p>
+                                <h3 id="campaign-count" class="text-2xl font-bold mt-2">86</h3>
+                            </div>
+                            <div class="bg-green-100 text-green-600 p-3 rounded-lg">
+                                <i class="fas fa-bullhorn text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">3 chiến dịch sắp kết thúc</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Khách hàng tham gia</p>
+                                <h3 id="user_count" class="text-2xl font-bold mt-2"></h3>
+                            </div>
+                            <div class="bg-purple-100 text-purple-600 p-3 rounded-lg">
+                                <i class="fas fa-users text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 18% so với tháng
+                            trước</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Doanh thu tháng</p>
+                                <h3 id="monthly-revenue" class="text-2xl font-bold mt-2"></h3>
+                            </div>
+                            <div class="bg-yellow-100 text-yellow-600 p-3 rounded-lg">
+                                <i class="fas fa-money-bill-wave text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 22% so với tháng
+                            trước</p>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Biểu đồ doanh thu theo tháng -->
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold">Doanh thu theo tháng</h3>
+                            <div class="flex space-x-2">
+                                <button class="time-filter-btn text-xs bg-gray-100 px-2 py-1 rounded" data-period="6">6
+                                    tháng</button>
+                                <button class="time-filter-btn text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded"
+                                    data-period="12">12 tháng</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Biểu đồ phân bố brand theo loại -->
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <h3 class="text-lg font-bold mb-4">Phân bố Brand theo loại</h3>
+                        <div class="chart-container">
+                            <canvas id="brandTypeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Biểu đồ chiến dịch hiệu quả -->
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <h3 class="text-lg font-bold mb-4">Top 3 Brand doanh thu cao</h3>
+                        <div class="chart-container">
+                            <canvas id="topBrandsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Biểu đồ điểm tích lũy -->
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <h3 class="text-lg font-bold mb-4">Điểm tích lũy của khách hàng</h3>
+                        <div class="chart-container">
+                            <canvas id="pointsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Management Content -->
+            <div data-content id="accounts">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">Quản lý tài khoản</h3>
+                    <button
+                        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
+                        <i class="fas fa-plus mr-2"></i> Thêm tài khoản
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Tổng số tài khoản</p>
+                                <h3 id="total-account" class="text-2xl font-bold mt-2"></h3>
+                            </div>
+                            <div class="bg-blue-100 text-blue-600 p-3 rounded-lg">
+                                <i class="fas fa-users text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">12 tài khoản mới tháng này</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Tài khoản admin</p>
+                                <h3 id="total-admin" class="text-2xl font-bold mt-2">8</h3>
+                            </div>
+                            <div class="bg-red-100 text-red-600 p-3 rounded-lg">
+                                <i class="fas fa-user-shield text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">Quản trị hệ thống</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Tài khoản khách hàng</p>
+                                <h3 id="total-customer" class="text-2xl font-bold mt-2">116</h3>
+                            </div>
+                            <div class="bg-green-100 text-green-600 p-3 rounded-lg">
+                                <i class="fas fa-user-tie text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">Nhân viên các phòng ban</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <!-- Tabs Navigation -->
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex" aria-label="Tabs">
+                            <button id="tab-khachhang"
+                                class="tab-button w-1/3 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none active"
+                                data-tab="khachhang">Khách hàng</button>
+                            <button id="tab-brand"
+                                class="tab-button w-1/3 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none"
+                                data-tab="brand">Brand</button>
+                            <button id="tab-mall"
+                                class="tab-button w-1/3 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none"
+                                data-tab="mall">Mall</button>
+                        </nav>
+                    </div>
+
+                    <!-- Table Container -->
+                    <div class="overflow-x-auto">
+                        <table id="data-table" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr id="table-headers"></tr>
+                            </thead>
+                            <tbody id="table-body" class="bg-white divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Account Roles -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-bold">Phân quyền tài khoản</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Vai trò</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Mô tả</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Số lượng</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">Quản trị hệ thống</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">Toàn quyền truy cập hệ thống</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">8</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
+                                        <a href="#" class="text-yellow-600 hover:text-yellow-900">Sửa</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">Quản lý Brand</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">Quản lý thông tin và hợp đồng Brand</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
+                                        <a href="#" class="text-yellow-600 hover:text-yellow-900">Sửa</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">Khách hàng</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">Quản lý khách hàng</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">24</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
+                                        <a href="#" class="text-yellow-600 hover:text-yellow-900">Sửa</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brand Management Content -->
+            <div data-content id="brands">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">Danh sách Brand</h3>
+                    <button
+                        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
+                        <i class="fas fa-plus mr-2"></i> Thêm Brand
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Brand</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Loại</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tầng</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ngày hợp đồng</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Trạng thái</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="brand-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Data sẽ được thêm ở đây -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Brand Categories -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-bold">Danh mục Brand</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-6">
+                        <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                            <div class="p-2 bg-blue-100 rounded-lg mr-3">
+                                <i class="fas fa-tshirt text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">Thời trang</h4>
+                                <p class="text-sm text-gray-500">01 Brand</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                            <div class="p-2 bg-green-100 rounded-lg mr-3">
+                                <i class="fas fa-utensils text-green-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">F&B</h4>
+                                <p class="text-sm text-gray-500">02 Brand</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-3 bg-purple-50 rounded-lg">
+                            <div class="p-2 bg-purple-100 rounded-lg mr-3">
+                                <i class="fas fa-laptop text-purple-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">Điện tử</h4>
+                                <p class="text-sm text-gray-500">01 Brand</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-3 bg-pink-50 rounded-lg">
+                            <div class="p-2 bg-pink-100 rounded-lg mr-3">
+                                <i class="fas fa-spa text-pink-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">Mỹ phẩm</h4>
+                                <p class="text-sm text-gray-500">01 Brand</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contracts Content -->
+            <div data-content id="contracts">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">Hợp đồng với Brand</h3>
+                    <button
+                        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
+                        <i class="fas fa-plus mr-2"></i> Thêm hợp đồng
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Hợp đồng đang hoạt động</p>
+                                <h3 class="text-2xl font-bold mt-2">5</h3>
+                            </div>
+                            <div class="bg-green-100 text-green-600 p-3 rounded-lg">
+                                <i class="fas fa-file-signature text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">14 hợp đồng sắp hết hạn</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Hợp đồng đã hết hạn</p>
+                                <h3 class="text-2xl font-bold mt-2">4</h3>
+                            </div>
+                            <div class="bg-red-100 text-red-600 p-3 rounded-lg">
+                                <i class="fas fa-file-excel text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">Cần gia hạn ngay</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Hợp đồng mới tháng này</p>
+                                <h3 class="text-2xl font-bold mt-2">0</h3>
+                            </div>
+                            <div class="bg-blue-100 text-blue-600 p-3 rounded-lg">
+                                <i class="fas fa-file-import text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 0 so với tháng trước
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Mã hợp đồng
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Brand
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ngày bắt đầu
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ngày kết thúc
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Giá trị hợp đồng
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Trạng thái
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Hành động
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="contract-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Contract Templates -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-bold">Mẫu hợp đồng</h3>
+                    </div>
+                    <div class="divide-y divide-gray-200">
+                        <div class="p-4 hover:bg-gray-50 transition-all">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-medium">Mẫu hợp đồng cơ bản</h4>
+                                    <p class="text-sm text-gray-500">Áp dụng cho tất cả Brand</p>
+                                </div>
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 hover:bg-gray-50 transition-all">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-medium">Mẫu hợp đồng F&B</h4>
+                                    <p class="text-sm text-gray-500">Dành riêng cho nhà hàng, quán ăn</p>
+                                </div>
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 hover:bg-gray-50 transition-all">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-medium">Mẫu hợp đồng thời trang</h4>
+                                    <p class="text-sm text-gray-500">Dành riêng cho cửa hàng thời trang</p>
+                                </div>
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Points Policy Content -->
+            <div data-content id="points">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">Chính sách điểm</h3>
+                    <button
+                        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
+                        <i class="fas fa-plus mr-2"></i> Thêm chính sách
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Tỷ lệ quy đổi</p>
+                                <h3 class="text-2xl font-bold mt-2">1,000đ = 1 điểm</h3>
+                            </div>
+                            <div class="bg-blue-100 text-blue-600 p-3 rounded-lg">
+                                <i class="fas fa-exchange-alt text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">Áp dụng cho tất cả Brand</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Điểm đã tích lũy</p>
+                                <h3 class="text-2xl font-bold mt-2">8,450,000</h3>
+                            </div>
+                            <div class="bg-green-100 text-green-600 p-3 rounded-lg">
+                                <i class="fas fa-coins text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 15% so với tháng
+                            trước</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Điểm đã đổi quà</p>
+                                <h3 class="text-2xl font-bold mt-2">3,120,000</h3>
+                            </div>
+                            <div class="bg-purple-100 text-purple-600 p-3 rounded-lg">
+                                <i class="fas fa-gift text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 8% so với tháng
+                            trước</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tên chính sách</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Áp dụng cho</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tỷ lệ quy đổi</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ngày hiệu lực</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Trạng thái</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">Chính sách cơ bản</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">Tất cả Brand</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1,000đ = 1 điểm</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">01/01/2023 -
+                                        31/12/2023</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đang
+                                            áp dụng</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
+                                        <a href="#" class="text-yellow-600 hover:text-yellow-900">Chỉnh sửa</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">Ưu đãi thời trang</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">Brand thời trang</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">800đ = 1 điểm</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15/06/2023 -
+                                        15/09/2023</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đang
+                                            áp dụng</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
+                                        <a href="#" class="text-yellow-600 hover:text-yellow-900">Chỉnh sửa</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">Khuyến mãi F&B</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">Brand F&B</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">500đ = 1 điểm</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">01/07/2023 -
+                                        31/08/2023</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Đã
+                                            kết thúc</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
+                                        <a href="#" class="text-yellow-600 hover:text-yellow-900">Chỉnh sửa</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Reward Catalog -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-bold">Danh mục quà tặng</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+                        <div class="border rounded-lg overflow-hidden transition-all hover:shadow-md">
+                            <img src="https://placehold.co/600x400/e0e7ff/3730a3?text=Voucher+100k" alt="Reward"
+                                class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h4 class="font-medium">Voucher 100k</h4>
+                                <p class="text-sm text-gray-500 mb-2">Giảm 100k cho hóa đơn từ 500k</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-blue-600 font-medium">1,000 điểm</span>
+                                    <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border rounded-lg overflow-hidden transition-all hover:shadow-md">
+                            <img src="https://placehold.co/600x400/e0e7ff/3730a3?text=Ly+Starbucks" alt="Reward"
+                                class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h4 class="font-medium">Ly Starbucks</h4>
+                                <p class="text-sm text-gray-500 mb-2">Ly cao cấp từ Starbucks</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-blue-600 font-medium">2,500 điểm</span>
+                                    <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border rounded-lg overflow-hidden transition-all hover:shadow-md">
+                            <img src="https://placehold.co/600x400/e0e7ff/3730a3?text=Túi+Vải" alt="Reward"
+                                class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h4 class="font-medium">Túi vải thời trang</h4>
+                                <p class="text-sm text-gray-500 mb-2">Túi vải cao cấp in logo mall</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-blue-600 font-medium">3,000 điểm</span>
+                                    <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campaigns Content -->
+            <div data-content id="campaigns">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">Chiến dịch ưu đãi</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Chiến dịch đang chạy</p>
+                                <h3 class="text-2xl font-bold mt-2">2</h3>
+                            </div>
+                            <div class="bg-green-100 text-green-600 p-3 rounded-lg">
+                                <i class="fas fa-play-circle text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">0 chiến dịch sắp kết thúc</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Chiến dịch đã kết thúc</p>
+                                <h3 class="text-2xl font-bold mt-2">0</h3>
+                            </div>
+                            <div class="bg-gray-100 text-gray-600 p-3 rounded-lg">
+                                <i class="fas fa-stop-circle text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">Trong 6 tháng gần đây</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Chiến dịch sắp tới</p>
+                                <h3 class="text-2xl font-bold mt-2">2</h3>
+                            </div>
+                            <div class="bg-yellow-100 text-yellow-600 p-3 rounded-lg">
+                                <i class="fas fa-clock text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">Đang chờ kích hoạt</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tên chiến dịch
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Brand tham gia
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ngày bắt đầu
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ngày kết thúc
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tổng tiền chiến dịch
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tỷ lệ Brand
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tỷ lệ Mall
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Trạng thái
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Hiệu quả
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Hành động
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="campaign-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pending Campaigns Review -->
+                <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover mb-8">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Chiến dịch chờ duyệt</h3>
+                    <div id="pending-campaigns-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="loading-overlay">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advertisements Content -->
+            <div data-content id="advertisements">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">Quảng cáo</h3>
+                    <button
+                        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
+                        <i class="fas fa-plus mr-2"></i> Tạo quảng cáo mới
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Quảng cáo đang chạy</p>
+                                <h3 id="active-ads-count" class="text-2xl font-bold mt-2">0</h3>
+                            </div>
+                            <div class="bg-green-100 text-green-600 p-3 rounded-lg">
+                                <i class="fas fa-play-circle text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">Quảng cáo đang hiển thị</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Quảng cáo chờ duyệt</p>
+                                <h3 id="pending-ads-count" class="text-2xl font-bold mt-2">0</h3>
+                            </div>
+                            <div class="bg-yellow-100 text-yellow-600 p-3 rounded-lg">
+                                <i class="fas fa-clock text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">Đang chờ phê duyệt</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500">Quảng cáo đã kết thúc</p>
+                                <h3 id="ended-ads-count" class="text-2xl font-bold mt-2">0</h3>
+                            </div>
+                            <div class="bg-gray-100 text-gray-600 p-3 rounded-lg">
+                                <i class="fas fa-stop-circle text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">Trong 6 tháng gần đây</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Mã quảng cáo
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tiêu đề
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Brand
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ngày bắt đầu
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ngày kết thúc
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Chi phí
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Trạng thái
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Hành động
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="ad-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pending Ads Review -->
+                <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover mb-8">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Quảng cáo chờ duyệt</h3>
+                    <div id="pending-ads-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="loading-overlay">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Content -->
+            <div data-content id="notifications">
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <h3 class="text-xl font-bold mb-4">Thông báo</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3 border-b pb-4">
+                            <div class="bg-blue-100 text-blue-600 p-2 rounded-full">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Hợp đồng với Nike sắp hết hạn</p>
+                                <p class="text-sm text-gray-500">Cần gia hạn trước 15/05/2024</p>
+                                <p class="text-xs text-gray-400">2 giờ trước</p>
+                            </div>
+                            <button class="ml-auto text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-check"></i> Đánh dấu đã đọc
+                            </button>
+                        </div>
+                        <div class="flex items-start space-x-3 border-b pb-4">
+                            <div class="bg-green-100 text-green-600 p-2 rounded-full">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Chiến dịch Black Friday đã được phê duyệt</p>
+                                <p class="text-sm text-gray-500">Sẵn sàng để triển khai</p>
+                                <p class="text-xs text-gray-400">1 ngày trước</p>
+                            </div>
+                            <button class="ml-auto text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-check"></i> Đánh dấu đã đọc
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <a href="#" class="text-blue-600 font-medium">Xem tất cả thông báo</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Promotions Content -->
+            <div data-content id="promotions">
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold">Ưu đãi</h3>
+                        <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all"
+                            onclick="window.location.href='/voucher/voucher';">
+                            Thêm ưu đãi mới
+                        </button>
+                    </div>
+                    <div id="voucher-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="loading-overlay">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Content -->
+            <div data-content id="reports">
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <h3 class="text-xl font-bold mb-4">Báo cáo</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-lg mb-2">Doanh thu theo tháng</h4>
+                            <div class="chart-container">
+                                <canvas id="revenueReportChart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-2">Top 5 Brand doanh thu cao</h4>
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Brand</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Doanh thu</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-4 py-2">Nike Store</td>
+                                        <td class="px-4 py-2">1.2 tỷ</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2">Apple Store</td>
+                                        <td class="px-4 py-2">1.0 tỷ</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2">Starbucks</td>
+                                        <td class="px-4 py-2">800 triệu</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <a href="/user/report">
+                            <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
+                                Xem báo cáo chi tiết
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Campaign Review -->
+    <div id="review-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Duyệt Chiến Dịch</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="modal-campaign-details" class="mb-4">
+                <p><strong>Tên:</strong> <span id="modal-campaign-title"></span></p>
+                <p><strong>Mô tả:</strong> <span id="modal-campaign-description"></span></p>
+                <p><strong>Điểm yêu cầu:</strong> <span id="modal-campaign-points"></span></p>
+                <p><strong>Phần thưởng:</strong> <span id="modal-campaign-reward"></span></p>
+                <p><strong>Thời gian:</strong> <span id="modal-campaign-time"></span></p>
+                <p><strong>Tổng tiền chiến dịch:</strong> <span id="modal-campaign-cost"></span></p>
+                <p><strong>Tỷ lệ chi phí:</strong> Brand <span id="modal-brand-ratio"></span>% - Mall <span
+                        id="modal-mall-ratio"></span>%</p>
+            </div>
+            <form id="review-form" class="space-y-4">
+                <div>
+                    <label for="decision" class="block text-sm font-medium text-gray-700">Quyết định <span
+                            class="text-red-500">*</span></label>
+                    <select id="decision" name="decision" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                        <option value="">Chọn quyết định</option>
+                        <option value="APPROVED">Chấp thuận</option>
+                        <option value="REJECTED">Từ chối</option>
+                    </select>
+                </div>
+
+                <div id="modal-message" class="hidden"></div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="closeModal()"
+                        class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        Hủy
+                    </button>
+                    <button type="submit"
+                        class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center">
+                        <i class="fas fa-check mr-2"></i> Gửi quyết định
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Modal for Ad Review -->
+    <div id="ad-review-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Duyệt Quảng Cáo</h3>
+                <button onclick="closeAdModal()" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="modal-ad-details" class="mb-4">
+                <p><strong>Mã:</strong> <span id="modal-ad-id"></span></p>
+                <p><strong>Tiêu đề:</strong> <span id="modal-ad-title"></span></p>
+                <p><strong>Mô tả:</strong> <span id="modal-ad-description"></span></p>
+                <p><strong>Brand:</strong> <span id="modal-ad-brand"></span></p>
+                <p><strong>Thời gian:</strong> <span id="modal-ad-time"></span></p>
+                <p><strong>Chi phí:</strong> <span id="modal-ad-cost"></span></p>
+            </div>
+            <form id="ad-review-form" class="space-y-4">
+                <div>
+                    <label for="ad-decision" class="block text-sm font-medium text-gray-700">Quyết định <span
+                            class="text-red-500">*</span></label>
+                    <select id="ad-decision" name="decision" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                        <option value="">Chọn quyết định</option>
+                        <option value="APPROVED">Chấp thuận</option>
+                        <option value="REJECTED">Từ chối</option>
+                    </select>
+                </div>
+
+                <div id="ad-modal-message" class="hidden"></div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="closeAdModal()"
+                        class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        Hủy
+                    </button>
+                    <button type="submit"
+                        class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center">
+                        <i class="fas fa-check mr-2"></i> Gửi quyết định
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</html>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Lấy các phần tử
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const contentSections = document.querySelectorAll('[data-content]');
+        const mobileMenuButton = document.querySelector('.md\\:hidden.text-white');
+        const sidebar = document.querySelector('.sidebar-gradient');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+        // Xử lý nhấp chuột vào sidebar items
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', function (event) {
+                event.preventDefault();
+                const targetId = this.getAttribute('data-target');
+
+                // Xóa lớp active khỏi tất cả các phần nội dung
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Thêm lớp active cho phần nội dung được chọn
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+
+                // Cập nhật trạng thái active cho sidebar item
+                sidebarItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+
+                // Đóng sidebar trên mobile sau khi chọn
+                if (window.innerWidth < 768 && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                    sidebar.classList.add('hidden');
+                    sidebarOverlay.classList.add('hidden');
+                    const icon = mobileMenuButton.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+        });
+
+        // Xử lý nút menu mobile
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', function () {
+                if (sidebar.classList.contains('hidden')) {
+                    sidebar.classList.remove('hidden');
+                    sidebar.classList.add('open');
+                    sidebarOverlay.classList.remove('hidden');
+                    const icon = this.querySelector('i');
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    sidebar.classList.remove('open');
+                    sidebar.classList.add('hidden');
+                    sidebarOverlay.classList.add('hidden');
+                    const icon = this.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+        }
+
+        // Đóng sidebar khi nhấp vào overlay
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function () {
+                sidebar.classList.remove('open');
+                sidebar.classList.add('hidden');
+                this.classList.add('hidden');
+                const icon = mobileMenuButton.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            });
+        }
+
+        // Khởi tạo biểu đồ trong phần báo cáo
+
+    });
+
+    const profileBtn = document.getElementById('profileBtn');
+    const profileDropdown = document.getElementById('profileDropdown');
+
+    profileBtn.addEventListener('click', function (e) {
+        e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+        profileDropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!profileDropdown.classList.contains('hidden')) {
+            profileDropdown.classList.add('hidden');
+        }
+    });
+
+    async function fetchBrandCount() {
+        try {
+            // Gọi API
+            const response = await fetch('/brand/count_brand');
+            const data = await response.json();
+
+            const brandCountElement = document.getElementById('brand-count');
+            brandCountElement.textContent = data.total;
+
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    }
+
+    async function fetchRunningCampaigns() {
+        try {
+            const response = await fetch('/campaign/count_campaigns');
+            const data = await response.json();
+            const campaignCountElement = document.getElementById('campaign-count');
+            campaignCountElement.textContent = data.total;
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    }
+
+    async function fetchCountUsers() {
+        try {
+            const response = await fetch('/user/count_user');
+            const data = await response.json();
+
+            const campaignCountElement = document.getElementById('user_count');
+            campaignCountElement.textContent = data.count;
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    }
+
+    async function fetchCountTotalUser() {
+        try {
+            const response = await fetch('/user/count_total');
+            const data = await response.json();
+
+            const campaignCountElement = document.getElementById('total-account');
+            campaignCountElement.textContent = data.count;
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    }
+
+    async function fetchCountAmin() {
+        try {
+            const response = await fetch('/user/count_admin');
+            const data = await response.json();
+
+            const campaignCountElement = document.getElementById('total-admin');
+            campaignCountElement.textContent = data.count;
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    }
+
+    async function fetchCountUser() {
+        try {
+            const response = await fetch('/user/count_user');
+            const data = await response.json();
+
+            const campaignCountElement = document.getElementById('total-customer');
+            campaignCountElement.textContent = data.count;
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    }
+    async function monthlyRevenue() {
+        try {
+            const response = await fetch('/point/monthly_revenue');
+            const data = await response.json();
+            const revenueCountElement = document.getElementById('monthly-revenue');
+            revenueCountElement.textContent = data.total;
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // tháng bắt đầu từ 0
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    async function loadBrands() {
+        try {
+            const response = await fetch('/brand/get_brand');
+            const brand = await response.json();
+            const brands = brand.brands;
+
+            const tbody = document.getElementById('brand-table-body');
+            tbody.innerHTML = '';
+
+            brands.forEach(brand => {
+
+                if (brand.status !== 1) {
+                    return;
+                }
+                const statusColor = getStatusColor(brand.status);
+
+                const startDate = brand.start_at ? formatDate(brand.start_at) : '';
+                const endDate = brand.end_at ? formatDate(brand.end_at) : '';
+
+                const row = `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                    <div class=" items-left">
+                        <div class="flex-shrink-0 h-10 w-10">
+                        </div>
+                        <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">${brand.brandname}</div>
+                        </div>
+                    </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${brand.name}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        2
+                    </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${startDate} - ${endDate}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
+                        ${brand.status}
+                    </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
+                    <a href="#" class="text-red-600 hover:text-red-900">Xóa</a>
+                    </td>
+                </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+
+        } catch (error) {
+            console.error('Lỗi khi tải dữ liệu:', error);
+        }
+    }
+
+    function getStatusColor(status) {
+        switch (status) {
+            case '1':
+                return 'bg-green-100 text-green-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    }
+    async function drawMonthlyRevenueChart() {
+        try {
+            const response = await fetch('/point/monthly_revenue_chart');
+            const data = await response.json();
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            // Đảo ngược để tháng cũ lên trước
+            const months = data.months.slice().reverse();
+            const totals = data.totals.slice().reverse();
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Doanh thu (VND)',
+                        data: totals,
+                        backgroundColor: 'rgba(30, 64, 175, 0.7)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => value.toLocaleString('vi-VN')
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Lỗi khi vẽ biểu đồ doanh thu:', error);
+        }
+    }
+
+    async function drawBrandbyTypeChart() {
+        try {
+            const response = await fetch('/brand/brand_by_type_chart');
+            const data = await response.json();
+            // Chuyển đổi dữ liệu trả về thành labels và values
+            const labels = data.brand_by_type.map(item => item.name);
+            const values = data.brand_by_type.map(item => item.total);
+
+            const ctx = document.getElementById('brandTypeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số lượng Brand theo loại',
+                        data: values,
+                        backgroundColor: ['#4F46E5', '#3B82F6', '#10B981', '#FBBF24']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Lỗi khi vẽ biểu đồ Brand theo loại:', error);
+        }
+    }
+
+    async function drawTopBrandChart() {
+        try {
+            const response = await fetch('/point/top_brand_chart');
+            const data = await response.json();
+            const ctx = document.getElementById('topBrandsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.brands,
+                    datasets: [{
+                        label: 'Doanh thu (VND)',
+                        data: data.totals,
+                        backgroundColor: 'rgba(30, 64, 175, 0.7)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => value.toLocaleString('vi-VN')
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Lỗi khi vẽ biểu đồ Top Brand:', error);
+        }
+    }
+
+    async function drawTopUserChart() {
+        try {
+            const response = await fetch('/user/top_user_chart');
+            const data = await response.json();
+            const ctx = document.getElementById('pointsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Điểm (VND)',
+                        data: data.values,
+                        backgroundColor: 'rgba(30, 64, 175, 0.7)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => value.toLocaleString('vi-VN')
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Lỗi khi vẽ biểu đồ Top User:', error);
+        }
+    }
+
+    async function loadPendingCampaigns() {
+        const container = document.getElementById('pending-campaigns-container');
+        container.innerHTML = `<div class="loading-overlay"><div class="spinner"></div></div>`;
+        try {
+            // Gọi API lấy danh sách chiến dịch chờ duyệt
+            const response = await fetch('/campaign/campaigns/pending');
+            const data = await response.json();
+
+            if (!data.campaigns || data.campaigns.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-500 py-8">Không có chiến dịch chờ duyệt.</div>`;
+                return;
+            }
+
+            window.pendingCampaigns = data.campaigns;
+
+            container.innerHTML = '';
+            data.campaigns.forEach(campaign => {
+                const card = `
+                <div class="bg-white rounded-xl shadow-md p-4 flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">${campaign.title}</h4>
+                        <p class="text-gray-600 mb-1">${campaign.description || ''}</p>
+                        <p class="text-sm text-gray-500 mb-1"><strong>Điểm yêu cầu:</strong> ${campaign.points_required}</p>
+                        <p class="text-sm text-gray-500 mb-1"><strong>Phần thưởng:</strong> ${campaign.reward}</p>
+                        <p class="text-sm text-gray-500 mb-1"><strong>Thời gian:</strong> ${campaign.start_at} - ${campaign.end_at}</p>
+                        <p class="text-sm text-gray-500 mb-1"><strong>Tổng tiền chiến dịch:</strong> ${formatCurrency(campaign.campaign_cost)}</p>
+                        <p class="text-sm text-gray-500 mb-1"><strong>Tỷ lệ chi phí:</strong> Brand ${campaign.brand_ratio}% - Mall ${campaign.mall_ratio}%</p>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-all" onclick="openReviewModal(${campaign.campaign_id})">
+                            Duyệt
+                        </button>
+                    </div>
+                </div>
+            `;
+                container.insertAdjacentHTML('beforeend', card);
+            });
+        } catch (error) {
+            container.innerHTML = `<div class="error-message">Lỗi khi tải chiến dịch chờ duyệt.</div>`;
+            console.error('Lỗi khi tải chiến dịch chờ duyệt:', error);
+        }
+    }
+
+    function openReviewModal(campaignId) {
+        const campaign = window.pendingCampaigns.find(c => c.campaign_id === campaignId);
+        if (!campaign) return;
+
+        document.getElementById('modal-campaign-title').textContent = campaign.title;
+        document.getElementById('modal-campaign-description').textContent = campaign.description || '';
+        document.getElementById('modal-campaign-points').textContent = campaign.points_required;
+        document.getElementById('modal-campaign-reward').textContent = campaign.reward;
+        document.getElementById('modal-campaign-time').textContent = `${campaign.start_at} - ${campaign.end_at}`;
+        document.getElementById('modal-campaign-cost').textContent = formatCurrency(campaign.campaign_cost);
+        document.getElementById('modal-brand-ratio').textContent = campaign.brand_ratio;
+        document.getElementById('modal-mall-ratio').textContent = campaign.mall_ratio;
+        document.getElementById('modal-message').classList.add('hidden');
+        document.getElementById('review-modal').style.display = 'flex';
+        document.getElementById('review-form').setAttribute('data-campaign-id', campaignId);
+    }
+    function closeModal() {
+        document.getElementById('review-modal').style.display = 'none';
+    }
+
+    document.getElementById('review-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const campaignId = this.getAttribute('data-campaign-id');
+        const decision = document.getElementById('decision').value;
+        const messageDiv = document.getElementById('modal-message');
+        messageDiv.classList.add('hidden');
+
+        if (!decision) {
+            messageDiv.textContent = 'Vui lòng chọn quyết định!';
+            messageDiv.classList.remove('hidden');
+            messageDiv.classList.remove('success-message');
+            messageDiv.classList.add('error-message');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/campaign/campaigns/${campaignId}/review`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ decision })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                messageDiv.textContent = 'Cập nhật thành công!';
+                messageDiv.classList.remove('hidden', 'error-message');
+                messageDiv.classList.add('success-message');
+                setTimeout(() => {
+                    closeModal();
+                    loadPendingCampaigns();
+                }, 1000);
+            } else {
+                messageDiv.textContent = data.error || 'Có lỗi xảy ra!';
+                messageDiv.classList.remove('hidden', 'success-message');
+                messageDiv.classList.add('error-message');
+            }
+        } catch (error) {
+            messageDiv.textContent = 'Lỗi khi duyệt chiến dịch!';
+            messageDiv.classList.remove('hidden', 'success-message');
+            messageDiv.classList.add('error-message');
+        }
+    });
+    function formatCurrency(amount) {
+        return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    }
+
+    // Format ngày
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    // Load hợp đồng
+    async function loadContracts() {
+        const tbody = document.getElementById('contract-table-body');
+        tbody.innerHTML = '<tr><td colspan="7" class="py-4 px-4 text-center"><div class="loading-overlay"><div class="spinner"></div></div></td></tr>';
+
+        try {
+            const response = await fetch('/brand/get_contracts');
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Lỗi tải hợp đồng');
+
+            const contracts = data.contracts;
+
+            if (contracts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="py-4 px-4 text-center text-gray-600">Không có hợp đồng nào.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            contracts.forEach(contract => {
+                const status = contract.status === 1 ? 'Đang hoạt động' : 'Hết hạn';
+                const statusColor = contract.status === 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+
+                const row = `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#CON${contract.contract_id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${contract.brandname || 'Không xác định'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(contract.start_at)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(contract.end_at)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(contract.total_amount)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">${status}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Xem</a>
+                        <a href="#" class="text-yellow-600 hover:text-yellow-900 mr-3">Gia hạn</a>
+                        <a href="/brand/export_contract/${contract.contract_id}" target="_blank" class="text-purple-600 hover:text-purple-900">Xuất PDF</a>
+                    </td>
+                </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        } catch (error) {
+            console.error('Error loading contracts:', error);
+            tbody.innerHTML = `<tr><td colspan="7" class="py-4 px-4 text-center text-gray-600">Lỗi tải hợp đồng: ${error.message}</td></tr>`;
+        }
+    }
+    // Load chiến dịch
+    async function loadCampaigns() {
+        const tbody = document.getElementById('campaign-table-body');
+        tbody.innerHTML = '<tr><td colspan="10" class="py-4 px-4 text-center"><div class="loading-overlay"><div class="spinner"></div></div></td></tr>';
+
+        try {
+            const response = await fetch('/campaign/get_campaigns');
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Lỗi tải chiến dịch');
+
+            const campaigns = data.campaigns;
+            const brandResponse = await fetch('/brand/get_brand');
+            const brandData = await brandResponse.json();
+            const brands = brandData.brands;
+
+            if (campaigns.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="py-4 px-4 text-center text-gray-600">Không có chiến dịch nào.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            campaigns.forEach(campaign => {
+                const brand = brands.find(b => b.brand_id === campaign.brand_id);
+                const statusColor = campaign.status === 'Đang chạy' ? 'bg-green-100 text-green-800' : campaign.status === 'Sắp diễn ra' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800';
+
+                const row = `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${campaign.title}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">Brand ${campaign.brand_id}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(campaign.start_at)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(campaign.end_at)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(campaign.campaign_cost)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${campaign.brand_ratio}%</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${campaign.mall_ratio}%</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">${campaign.status}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">-</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
+                        <a href="#" class="text-yellow-600 hover:text-yellow-900 mr-3">Chỉnh sửa</a>
+                        <!-- Nút Xuất hóa đơn -->
+                        <a href="/campaign/export_invoice/${campaign.campaign_id}" target="_blank" class="text-purple-600 hover:text-purple-900">Xuất hoá đơn</a>
+                    </td>
+                </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        } catch (error) {
+            console.error('Error loading campaigns:', error);
+            tbody.innerHTML = `<tr><td colspan="10" class="py-4 px-4 text-center text-gray-600">Lỗi tải chiến dịch: ${error.message}</td></tr>`;
+        }
+    }
+
+    window.pendingAds = [];
+
+    // Function to get status text and color for Ads
+    function getAdStatusInfo(status) {
+        switch (status) {
+            case 'DRAFT':
+                return { text: 'Bản nháp', color: 'bg-gray-100 text-gray-800' };
+            case 'PENDING':
+                return { text: 'Chờ duyệt', color: 'bg-yellow-100 text-yellow-800' };
+            case 'APPROVED':
+                return { text: 'Đã duyệt', color: 'bg-blue-100 text-blue-800' };
+            case 'REJECTED':
+                return { text: 'Bị từ chối', color: 'bg-red-100 text-red-800' };
+            case 'ENDED':
+                return { text: 'Đã kết thúc', color: 'bg-gray-100 text-gray-800' };
+            default:
+                return { text: status, color: 'bg-gray-100 text-gray-800' };
+        }
+    }
+
+    // Fetch and render ads
+    // Load All Ads into the main table
+    async function loadAds() {
+        const tbody = document.getElementById('ad-table-body');
+        const activeCountEl = document.getElementById('active-ads-count');
+        const pendingCountEl = document.getElementById('pending-ads-count');
+        const endedCountEl = document.getElementById('ended-ads-count');
+
+        tbody.innerHTML = '<tr><td colspan="8" class="py-4 px-4 text-center"><div class="loading-overlay"><div class="spinner"></div></div></td></tr>';
+        activeCountEl.textContent = '...';
+        pendingCountEl.textContent = '...';
+        endedCountEl.textContent = '...';
+
+        try {
+            const response = await fetch('/ad/ads/get_all'); // Use the new endpoint
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Lỗi khi tải danh sách quảng cáo');
+            }
+
+            const ads = data.ads;
+            tbody.innerHTML = ''; // Clear loading spinner
+
+            if (!ads || ads.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="py-4 px-4 text-center text-gray-500">Không có quảng cáo nào.</td></tr>';
+                activeCountEl.textContent = '0';
+                pendingCountEl.textContent = '0';
+                endedCountEl.textContent = '0';
+                return;
+            }
+
+            let activeCount = 0;
+            let pendingCount = 0;
+            let endedCount = 0;
+            const now = new Date();
+
+            ads.forEach(ad => {
+                const statusInfo = getAdStatusInfo(ad.status);
+                let effectiveStatus = statusInfo; // Default status
+
+                // Refine status based on dates if APPROVED
+                if (ad.status === 'APPROVED') {
+                    const start = ad.start_at ? new Date(ad.start_at) : null;
+                    const end = ad.end_at ? new Date(ad.end_at) : null;
+
+                    if (start && end) {
+                        if (now >= start && now <= end) {
+                            effectiveStatus = { text: 'Đang chạy', color: 'bg-green-100 text-green-800' };
+                            activeCount++;
+                        } else if (now < start) {
+                            effectiveStatus = { text: 'Sắp chạy', color: 'bg-blue-100 text-blue-800' };
+                            // Decide if upcoming counts as 'active' stat or separate
+                        } else if (now > end) {
+                            effectiveStatus = { text: 'Đã kết thúc', color: 'bg-gray-100 text-gray-800' };
+                            endedCount++;
+                        }
+                    } else {
+                        // If dates are missing but approved, count as active? Or needs check?
+                        // For now, keep 'Đã duyệt'
+                        activeCount++; // Count as active if approved and dates ok or missing
+                    }
+                } else if (ad.status === 'PENDING') {
+                    pendingCount++;
+                } else if (ad.status === 'ENDED' || ad.status === 'REJECTED') { // Count REJECTED as 'ended' for stats? Adjust as needed
+                    endedCount++;
+                }
+
+
+                const row = `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AD-${ad.ad_id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${ad.title}</div>
+                        <div class="text-xs text-gray-500">${ad.description.substring(0, 50)}${ad.description.length > 50 ? '...' : ''}</div>
+                    </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${ad.brand_id || 'N/A'}</td> <!-- Add Brand Name if available -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${ad.start_at ? formatDate(ad.start_at) : 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${ad.end_at ? formatDate(ad.end_at) : 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${ad.ad_cost ? formatCurrency(ad.ad_cost) : 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${effectiveStatus.color}">
+                            ${effectiveStatus.text}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Xem</a>
+                        ${ad.status === 'PENDING' ? `<button onclick="openAdReviewModal(${ad.ad_id})" class="text-yellow-600 hover:text-yellow-900">Duyệt</button>` : ''}
+                        ${ad.status === 'DRAFT' ? `<a href="#" class="text-green-600 hover:text-green-900">Gửi</a>` : ''}
+                         <!-- Add Edit/Delete based on status if needed -->
+                        <a href="/ad/export_invoice/${ad.ad_id}" target="_blank" class="text-purple-600 hover:text-purple-900">Xuất hoá đơn</a>
+                    </td>
+                </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+
+            // Update counts in the stat cards
+            activeCountEl.textContent = activeCount;
+            pendingCountEl.textContent = pendingCount;
+            endedCountEl.textContent = endedCount;
+
+
+        } catch (error) {
+            console.error('Error loading ads:', error);
+            tbody.innerHTML = `<tr><td colspan="8" class="py-4 px-4 text-center text-red-600">Lỗi tải danh sách quảng cáo: ${error.message}</td></tr>`;
+            activeCountEl.textContent = 'Lỗi';
+            pendingCountEl.textContent = 'Lỗi';
+            endedCountEl.textContent = 'Lỗi';
+        }
+    }
+
+    // Load Pending Ads into the review section
+    async function loadPendingAds() {
+        const container = document.getElementById('pending-ads-container');
+        container.innerHTML = `<div class="loading-overlay"><div class="spinner"></div></div>`; // Show spinner
+
+        try {
+            const response = await fetch('/ad/ads/pending'); // Use the new endpoint
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Lỗi khi tải quảng cáo chờ duyệt');
+            }
+
+            window.pendingAds = data.ads; // Store globally for modal use
+            container.innerHTML = ''; // Clear spinner
+
+            if (!window.pendingAds || window.pendingAds.length === 0) {
+                container.innerHTML = `<div class="col-span-1 md:col-span-2 lg:col-span-3 text-center text-gray-500 py-8">Không có quảng cáo nào đang chờ duyệt.</div>`;
+                return;
+            }
+
+            window.pendingAds.forEach(ad => {
+                const card = `
+                <div class="bg-white rounded-xl shadow-md p-4 flex flex-col justify-between border border-yellow-200">
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">${ad.title} (AD-${ad.ad_id})</h4>
+                        <p class="text-gray-600 text-sm mb-1">${ad.description || 'Không có mô tả'}</p>
+                        <p class="text-sm text-gray-500 mb-1"><strong>Brand ID:</strong> ${ad.brand_id || 'N/A'}</p>
+                        <p class="text-sm text-gray-500 mb-1"><strong>Thời gian:</strong> ${ad.start_at ? formatDate(ad.start_at) : 'N/A'} - ${ad.end_at ? formatDate(ad.end_at) : 'N/A'}</p>
+                        <p class="text-sm text-gray-500 mb-1"><strong>Chi phí:</strong> ${ad.ad_cost ? formatCurrency(ad.ad_cost) : 'N/A'}</p>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-all text-sm" onclick="openAdReviewModal(${ad.ad_id})">
+                            <i class="fas fa-search-plus mr-1"></i> Duyệt
+                        </button>
+                    </div>
+                </div>
+            `;
+                container.insertAdjacentHTML('beforeend', card);
+            });
+        } catch (error) {
+            console.error('Error loading pending ads:', error);
+            container.innerHTML = `<div class="col-span-1 md:col-span-2 lg:col-span-3 error-message">Lỗi khi tải quảng cáo chờ duyệt: ${error.message}</div>`;
+        }
+    }
+
+    // Open the Ad Review Modal
+    function openAdReviewModal(adId) {
+        const ad = window.pendingAds.find(a => a.ad_id === adId);
+        // If not found in pending list, maybe fetch details directly? For now, rely on window.pendingAds
+        if (!ad) {
+            console.error(`Ad with ID ${adId} not found in pending list.`);
+            alert(`Không tìm thấy chi tiết cho quảng cáo ID ${adId}.`);
+            return;
+        }
+
+        document.getElementById('modal-ad-id').textContent = `AD-${ad.ad_id}`;
+        document.getElementById('modal-ad-title').textContent = ad.title;
+        document.getElementById('modal-ad-description').textContent = ad.description || 'N/A';
+        document.getElementById('modal-ad-brand').textContent = ad.brand_id || 'N/A'; // Add Brand Name if available
+        document.getElementById('modal-ad-time').textContent = `${ad.start_at ? formatDate(ad.start_at) : 'N/A'} - ${ad.end_at ? formatDate(ad.end_at) : 'N/A'}`;
+        document.getElementById('modal-ad-cost').textContent = ad.ad_cost ? formatCurrency(ad.ad_cost) : 'N/A';
+
+        // Reset form and message
+        const form = document.getElementById('ad-review-form');
+        form.reset();
+        form.setAttribute('data-ad-id', adId); // Store adId for submission
+        const messageDiv = document.getElementById('ad-modal-message');
+        messageDiv.classList.add('hidden');
+        messageDiv.textContent = '';
+
+        // Show modal
+        document.getElementById('ad-review-modal').style.display = 'flex';
+    }
+
+    // Close the Ad Review Modal
+    function closeAdModal() {
+        document.getElementById('ad-review-modal').style.display = 'none';
+    }
+
+    // Handle Ad Review Form Submission
+    async function handleAdReviewSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const adId = form.getAttribute('data-ad-id');
+        const decision = document.getElementById('ad-decision').value;
+        const messageDiv = document.getElementById('ad-modal-message');
+        const submitButton = form.querySelector('button[type="submit"]');
+
+        messageDiv.classList.add('hidden');
+        messageDiv.textContent = '';
+
+        if (!adId) {
+            messageDiv.textContent = 'Lỗi: Không tìm thấy ID quảng cáo.';
+            messageDiv.classList.remove('hidden', 'success-message');
+            messageDiv.classList.add('error-message');
+            return;
+        }
+        if (!decision) {
+            messageDiv.textContent = 'Vui lòng chọn quyết định (Chấp thuận/Từ chối).';
+            messageDiv.classList.remove('hidden', 'success-message');
+            messageDiv.classList.add('error-message');
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang gửi...';
+
+        try {
+            const response = await fetch(`/ad/ads/${adId}/review`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ decision: decision }) // Send decision in body
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                messageDiv.textContent = data.message || 'Duyệt quảng cáo thành công!';
+                messageDiv.classList.remove('hidden', 'error-message');
+                messageDiv.classList.add('success-message');
+                // Refresh lists after successful review
+                loadPendingAds(); // Refresh pending list
+                loadAds(); // Refresh main table to update status
+                setTimeout(closeAdModal, 1500); // Close modal after delay
+            } else {
+                messageDiv.textContent = data.error || 'Có lỗi xảy ra khi duyệt quảng cáo.';
+                messageDiv.classList.remove('hidden', 'success-message');
+                messageDiv.classList.add('error-message');
+            }
+        } catch (error) {
+            console.error('Error submitting ad review:', error);
+            messageDiv.textContent = 'Lỗi mạng hoặc lỗi máy chủ khi gửi quyết định.';
+            messageDiv.classList.remove('hidden', 'success-message');
+            messageDiv.classList.add('error-message');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="fas fa-check mr-2"></i> Gửi quyết định';
+        }
+    }
+
+    // Attach event listener for the ad review form
+    document.getElementById('ad-review-form').addEventListener('submit', handleAdReviewSubmit);
+
+    // Fetch and display mall vouchers
+    async function loadMallVouchers() {
+        const container = document.getElementById('voucher-list');
+        container.innerHTML = `<div class="loading-overlay"><div class="spinner"></div></div>`; // Show spinner
+
+        try {
+            // Fetch mall-wide vouchers (brand_id IS NULL)
+            const response = await fetch('/voucher/vouchers');
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Lỗi khi tải danh sách ưu đãi');
+            }
+
+            const vouchers = data;
+            container.innerHTML = ''; // Clear spinner
+
+            if (!vouchers || vouchers.length === 0) {
+                container.innerHTML = `<div class="col-span-1 md:col-span-2 text-center text-gray-500 py-8">Không có ưu đãi nào từ Mall.</div>`;
+                return;
+            }
+
+            vouchers.forEach(voucher => {
+                const status = (new Date(voucher.start_at) <= new Date() && new Date(voucher.end_at) >= new Date())
+                    ? 'Đang hoạt động'
+                    : 'Hết hạn';
+                const statusColor = status === 'Đang hoạt động' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+
+                const card = `
+                    <div class="border rounded-lg p-4 transition-all hover:shadow-md">
+                        <h4 class="font-bold text-lg">${voucher.title}</h4>
+                        <p class="text-gray-600">${voucher.description || 'Không có mô tả'}</p>
+                        <p class="text-sm text-gray-500"><strong>Điểm yêu cầu:</strong> ${voucher.points_required} điểm</p>
+                        <p class="text-sm text-gray-500"><strong>Giảm giá:</strong> ${formatCurrency(voucher.discount_amount)}</p>
+                        <p class="text-sm text-gray-500">Từ ${formatDate(voucher.start_at)} đến ${formatDate(voucher.end_at)}</p>
+                        <div class="mt-2">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusColor}">${status}</span>
+                        </div>
+                        <div class="mt-4 flex space-x-2">
+                            <button class="text-blue-600 hover:text-blue-800">Chi tiết</button>
+                            <button class="text-yellow-600 hover:text-yellow-800">Chỉnh sửa</button>
+                            <button class="text-red-600 hover:text-red-800">Xóa</button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', card);
+            });
+        } catch (error) {
+            console.error('Error loading mall vouchers:', error);
+            container.innerHTML = `<div class="col-span-1 md:col-span-2 error-message">Lỗi khi tải danh sách ưu đãi: ${error.message}</div>`;
+        }
+    }
+    // Gọi hàm khi trang được tải
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchRunningCampaigns();
+        drawMonthlyRevenueChart();
+        drawBrandbyTypeChart();
+        drawTopBrandChart();
+        drawTopUserChart();
+        monthlyRevenue();
+        fetchBrandCount();
+        fetchCountUsers();
+        fetchCountTotalUser();
+        fetchCountAmin();
+        fetchCountUser();
+        loadBrands();
+        loadPendingCampaigns();
+        loadContracts();
+        loadCampaigns();
+        loadAds();
+        loadPendingAds();
+        loadMallVouchers();
+
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', function (event) {
+                event.preventDefault();
+                const targetId = this.getAttribute('data-target');
+
+                // Deactivate all content sections
+                document.querySelectorAll('[data-content]').forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Activate the target content section
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    // If switching to Ads tab, reload its data
+                    if (targetId === 'advertisements') {
+                        loadAds();
+                        loadPendingAds();
+                    }
+                    // Add similar reloads for other sections if needed
+                    if (targetId === 'campaigns') {
+                        loadCampaigns();
+                        loadPendingCampaigns();
+                    }
+                    if (targetId === 'contracts') {
+                        loadContracts();
+                    }
+                    if (targetId === 'promotions') {
+                        loadMallVouchers(); // Reload vouchers when switching to Promotions tab
+                    }
+                    // etc.
+                }
+
+                // Update active state for sidebar items
+                sidebarItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+
+                // Close mobile sidebar if open
+                // ... (your existing mobile sidebar closing logic)
+            });
+        });
+
+        // Ensure the default active tab loads its data correctly initially
+        const initialActiveSidebarItem = document.querySelector('.sidebar-item.active');
+        if (initialActiveSidebarItem) {
+            const initialTargetId = initialActiveSidebarItem.getAttribute('data-target');
+            if (initialTargetId === 'advertisements') {
+                // Already called loadAds() and loadPendingAds()
+            } else if (initialTargetId === 'campaigns') {
+                // Already called loadCampaigns() and loadPendingCampaigns()
+            } else if (initialTargetId === 'promotions') {
+                loadMallVouchers();
+            }
+        }
+
+    });
+
+    const revenueMonthlyCtx = document.getElementById("revenueReportChart").getContext("2d");
+    const revenueMonthlyChart = new Chart(revenueMonthlyCtx, {
+        type: "bar",
+        data: {
+            labels: ["Tháng 1", "Tháng 2", "Tháng 3"],
+            datasets: [{
+                label: "Tổng doanh thu (triệu VND)",
+                data: [
+                    400 + 300 + 250, // Tháng 1
+                    350 + 350 + 300, // Tháng 2
+                    450 + 350 + 250  // Tháng 3
+                ],
+                backgroundColor: ["#3b82f6", "#10b981", "#f59e0b"], // Màu khác nhau cho từng cột
+                borderRadius: 6,
+            }],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false, // Ẩn chú thích vì đã rõ
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return context.parsed.y + " triệu VND";
+                        },
+                    },
+                },
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: "Triệu VND",
+                    },
+                },
+            },
+        },
+    });
+</script>
