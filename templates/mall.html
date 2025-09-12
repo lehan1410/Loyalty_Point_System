@@ -917,31 +917,33 @@
                                 <tr>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Tên chính sách</th>
+                                        Tên chính sách
+                                    </th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Áp dụng cho</th>
+                                        Tỷ lệ quy đổi
+                                    </th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Tỷ lệ quy đổi</th>
+                                        Ngày hiệu lực
+                                    </th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Ngày hiệu lực</th>
+                                        Trạng thái
+                                    </th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Trạng thái</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Hành động</th>
+                                        Hành động
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="rule-table-body" class="bg-white divide-y divide-gray-200">
-                                <!-- dữ liệu sẽ được JS render từ API -->
+                                <!-- JS render rules here -->
                             </tbody>
-
                         </table>
                     </div>
                 </div>
+
 
                 <!-- Reward Catalog -->
                 <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
@@ -994,6 +996,77 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Modal Chi tiết ConversionRule -->
+            <div id="rule-detail-modal"
+                class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="bg-white p-6 rounded-lg w-full max-w-lg">
+                    <div class="flex justify-between mb-4">
+                        <h3 class="text-xl font-bold">Chi tiết chính sách</h3>
+                        <button onclick="closeRuleDetailModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="rule-detail-content" class="space-y-2 text-sm">
+                        <!-- JS sẽ fill nội dung vào đây -->
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Modal Thêm/Sửa ConversionRule -->
+            <div id="rule-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="bg-white p-6 rounded-lg w-full max-w-lg">
+                    <div class="flex justify-between mb-4">
+                        <h3 id="rule-modal-title" class="text-xl font-bold">Thêm chính sách</h3>
+                        <button onclick="closeRuleModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="rule-form" class="space-y-4">
+                        <input type="hidden" id="rule-id" />
+
+                        <div>
+                            <label class="block text-sm font-medium">Tên chính sách</label>
+                            <input type="text" id="rule-name" class="mt-1 block w-full border rounded-lg p-2"
+                                required />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium">Tỷ lệ quy đổi (VNĐ / 1 điểm)</label>
+                            <input type="number" id="rate" class="mt-1 block w-full border rounded-lg p-2" required />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium">Ngày hiệu lực từ</label>
+                            <input type="date" id="effective-from" class="mt-1 block w-full border rounded-lg p-2"
+                                required />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium">Ngày kết thúc</label>
+                            <input type="date" id="effective-to" class="mt-1 block w-full border rounded-lg p-2" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium">Trạng thái</label>
+                            <select id="status" class="mt-1 block w-full border rounded-lg p-2">
+                                <option value="1">Đang áp dụng</option>
+                                <option value="0">Đã kết thúc</option>
+                            </select>
+                        </div>
+
+                        <div class="flex justify-end space-x-2 mt-4">
+                            <button type="button" onclick="closeRuleModal()"
+                                class="bg-gray-200 px-4 py-2 rounded-lg">Hủy</button>
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Lưu</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+
 
             <!-- Campaigns Content -->
             <div data-content id="campaigns">
@@ -1603,14 +1676,6 @@
         }
     }
 
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // tháng bắt đầu từ 0
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    }
-
     async function loadBrands() {
         try {
             const response = await fetch('/brand/get_brand');
@@ -1922,13 +1987,12 @@
             messageDiv.classList.add('error-message');
         }
     });
-
-
-    // Format ngày
     function formatDate(dateString) {
+        if (!dateString) return 'N/A';
         const date = new Date(dateString);
+        if (isNaN(date)) return 'N/A';
         const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // tháng bắt đầu từ 0
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
     }
@@ -2745,9 +2809,10 @@
     loadAccount('khachhang');
 </script>
 <script>
+    // ------------------ LOAD DANH SÁCH ------------------
     async function loadConversionRules() {
         try {
-            const res = await fetch("/point/conversion_rule");  // gọi API point_service
+            const res = await fetch("/point/conversion_rule");
             const data = await res.json();
 
             if (!data.success) {
@@ -2761,33 +2826,27 @@
             data.rules.forEach(rule => {
                 const tr = document.createElement("tr");
 
-                // format status
                 const statusBadge = rule.status == 1
                     ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đang áp dụng</span>`
                     : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Đã kết thúc</span>`;
 
-                // format scope
-                let scopeText = "Tất cả Brand";
-                if (rule.apply_scope === "CATEGORY") scopeText = `Ngành hàng #${rule.category_id}`;
-                if (rule.apply_scope === "BRAND") scopeText = `Brand #${rule.brand_id}`;
-
                 tr.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">${rule.rule_name}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">${scopeText}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${rule.rate}đ = 1 điểm</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${formatDate(rule.effective_from)} - ${form(rule.effective_to) ?? "Vô thời hạn"}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <a href="javascript:viewRule(${rule.conversion_rule_id})" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
-                    <a href="javascript:editRule(${rule.conversion_rule_id})" class="text-yellow-600 hover:text-yellow-900">Chỉnh sửa</a>
-                </td>
-            `;
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${rule.rule_name}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${formatCurrency(rule.rate)} = 1 điểm
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${formatDate(rule.effective_from)} - ${rule.effective_to ? formatDate(rule.effective_to) : "Vô thời hạn"}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="javascript:viewRule(${rule.conversion_rule_id})" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
+                        <a href="javascript:editRule(${rule.conversion_rule_id})" class="text-yellow-600 hover:text-yellow-900">Chỉnh sửa</a>
+                        <a href="javascript:deleteRule(${rule.conversion_rule_id})" class="text-red-600 hover:text-red-900">Xóa</a>
+                    </td>
+                `;
                 tbody.appendChild(tr);
             });
         } catch (err) {
@@ -2795,6 +2854,171 @@
         }
     }
 
-    // Gọi khi load trang
+    // ------------------ MODAL CHI TIẾT ------------------
+    function openRuleDetailModal(rule) {
+        const content = document.getElementById("rule-detail-content");
+
+        const statusText = rule.status == 1
+            ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đang áp dụng</span>`
+            : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Đã kết thúc</span>`;
+
+        content.innerHTML = `
+            <p><strong>Tên chính sách:</strong> ${rule.rule_name}</p>
+            <p><strong>Tỷ lệ quy đổi:</strong> ${formatCurrency(rule.rate)} = 1 điểm</p>
+            <p><strong>Ngày hiệu lực:</strong> ${formatDate(rule.effective_from)} - ${rule.effective_to ? formatDate(rule.effective_to) : "Vô thời hạn"}</p>
+            <p><strong>Trạng thái:</strong> ${statusText}</p>
+            <p><strong>Ngày tạo:</strong> ${formatDate(rule.created_at)}</p>
+            <p><strong>Cập nhật lần cuối:</strong> ${formatDate(rule.updated_at)}</p>
+        `;
+
+        document.getElementById("rule-detail-modal").classList.remove("hidden");
+    }
+
+    function closeRuleDetailModal() {
+        document.getElementById("rule-detail-modal").classList.add("hidden");
+    }
+
+    async function viewRule(id) {
+        try {
+            const res = await fetch(`/point/conversion_rule/${id}`);
+            const data = await res.json();
+            if (data.success) {
+                openRuleDetailModal(data.rule);
+            } else {
+                alert("Không tìm thấy chính sách");
+            }
+        } catch (err) {
+            console.error("Lỗi khi xem chi tiết:", err);
+        }
+    }
+
+    // ------------------ MODAL THÊM / SỬA ------------------
+    function openRuleModal(isEdit = false, rule = null) {
+        const modal = document.getElementById("rule-modal");
+        const title = document.getElementById("rule-modal-title");
+        const form = document.getElementById("rule-form");
+
+        // reset form trước
+        form.reset();
+        document.getElementById("rule-id").value = "";
+
+        if (isEdit && rule) {
+            title.textContent = "Chỉnh sửa chính sách";
+            document.getElementById("rule-id").value = rule.conversion_rule_id;
+            document.getElementById("rule-name").value = rule.rule_name || "";
+            document.getElementById("rate").value = rule.rate || "";
+
+            if (rule.effective_from) {
+                document.getElementById("effective-from").value =
+                    new Date(rule.effective_from).toISOString().split("T")[0];
+            }
+            if (rule.effective_to) {
+                document.getElementById("effective-to").value =
+                    new Date(rule.effective_to).toISOString().split("T")[0];
+            }
+
+            // ✅ set đúng trạng thái
+            const statusSelect = document.getElementById("status");
+            if (rule.status == 1) {
+                statusSelect.value = "1";
+            } else {
+                statusSelect.value = "0";
+            }
+        } else {
+            title.textContent = "Thêm chính sách";
+        }
+
+        modal.classList.remove("hidden");
+    }
+
+
+    function closeRuleModal() {
+        document.getElementById("rule-modal").classList.add("hidden");
+    }
+
+    async function editRule(id) {
+        try {
+            const res = await fetch(`/point/conversion_rule/${id}`);
+            const data = await res.json();
+            if (!data.success) return alert("Không tìm thấy chính sách");
+            openRuleModal(true, data.rule);
+        } catch (e) {
+            console.error("Lỗi khi mở form chỉnh sửa:", e);
+            alert("Lỗi khi mở form chỉnh sửa");
+        }
+    }
+
+    // ------------------ SUBMIT FORM ------------------
+    document.getElementById("rule-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("rule-id").value;
+
+        const payload = {
+            rule_name: document.getElementById("rule-name").value.trim(),
+            rate: parseFloat(document.getElementById("rate").value),            // ép về số
+            effective_from: document.getElementById("effective-from").value,
+            effective_to: document.getElementById("effective-to").value || null,
+            status: parseInt(document.getElementById("status").value, 10)       // ép về int
+        };
+
+        let url = "/point/conversion_rule";
+        let method = "POST";
+        if (id) {
+            url = `/point/conversion_rule/${id}`;
+            method = "PUT";
+        }
+
+        try {
+            const res = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                alert(data.message);
+                closeRuleModal();
+                loadConversionRules();
+            } else {
+                console.error("❌ API lỗi:", data);
+                alert("❌ " + data.message);
+            }
+        } catch (err) {
+            console.error("Lỗi khi lưu chính sách:", err);
+            alert("Có lỗi khi lưu chính sách");
+        }
+    });
+
+    async function deleteRule(id) {
+        if (!confirm("Bạn có chắc muốn xóa chính sách này?")) return;
+
+        try {
+            const res = await fetch(`/point/conversion_rule/${id}`, {
+                method: "DELETE"
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message);
+                loadConversionRules(); // reload danh sách
+            } else {
+                alert("❌ " + data.message);
+            }
+        } catch (err) {
+            console.error("Lỗi khi xóa rule:", err);
+            alert("Có lỗi khi xóa chính sách");
+        }
+    }
+
+    // expose global để inline onclick gọi được
+    window.deleteRule = deleteRule;
+    window.viewRule = viewRule;
+    window.editRule = editRule;
+    window.openRuleModal = openRuleModal;
+    window.closeRuleModal = closeRuleModal;
+    window.closeRuleDetailModal = closeRuleDetailModal;
+
+    // ------------------ AUTO LOAD ------------------
     document.addEventListener("DOMContentLoaded", loadConversionRules);
+
 </script>

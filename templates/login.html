@@ -1,126 +1,521 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="vi">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Đăng nhập — Mall</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 0;
+    :root {
+      --bg1: #f5f9ff;
+      --accent: #2563eb;
+      --accent-dark: #1e40af;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --success: #10b981;
+      --danger: #ef4444;
     }
 
+    * {
+      box-sizing: border-box;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html,
     body {
-      background: linear-gradient(to right, #f9f9f9, #e6f0ff);
-      height: 100vh;
+      height: 100%;
+      margin: 0;
+      background: linear-gradient(180deg, var(--bg1), #ffffff);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Center container */
+    .wrap {
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 28px;
     }
 
-    .login-container {
-      background-color: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      width: 320px;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      color: #333;
-    }
-
-    label {
-      font-weight: 600;
-      margin-bottom: 5px;
-      display: block;
-      color: #555;
-    }
-
-    input {
+    /* Card layout */
+    .card {
       width: 100%;
-      padding: 0.6rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
+      max-width: 980px;
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      /* slightly narrower form column for balance */
+      gap: 30px;
+      /* more breathing room between panel & form */
+      align-items: stretch;
     }
 
-    button {
-      width: 100%;
-      padding: 0.6rem;
-      background-color: #4a90e2;
+    /* Left panel */
+    .panel {
+      background: linear-gradient(180deg, rgba(37, 99, 235, 0.06), rgba(37, 99, 235, 0.02));
+      border-radius: 14px;
+      padding: 40px;
+      /* bigger padding */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+      /* spacing inside panel */
+      box-shadow: 0 8px 30px rgba(16, 24, 40, 0.06);
+      min-height: 420px;
+    }
+
+    .panel h1 {
+      font-size: 44px;
+      margin: 0;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    /* Form card */
+    .form-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 30px 28px;
+      /* slightly tighter vertical padding */
+      box-shadow: 0 10px 35px rgba(2, 6, 23, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      /* more space between form sections */
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      flex: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: white;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background-color 0.3s ease;
+      font-weight: 700;
+      font-size: 20px;
     }
 
-    button:hover {
-      background-color: #3a78c2;
+    h2.title {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    p.subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* form elements spacing */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    /* increased margin-bottom */
+    label {
+      font-size: 13px;
+      color: #374151;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .input {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      /* larger click target */
+      border-radius: 10px;
+      border: 1px solid #e6e9ef;
+      background: #fff;
+      transition: box-shadow .15s, border-color .15s;
+    }
+
+    .input:focus-within {
+      box-shadow: 0 8px 22px rgba(37, 99, 235, 0.06);
+      border-color: rgba(37, 99, 235, 0.48);
+    }
+
+    .input svg {
+      flex: none;
+      opacity: 0.75;
+      width: 18px;
+      height: 18px;
+    }
+
+    .input input {
+      border: 0;
+      outline: none;
+      font-size: 15px;
+      color: #111827;
+      width: 100%;
+      background: transparent;
+      padding: 6px 0;
+    }
+
+    /* helper / small note */
+    .small-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .row-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+
+    .remember input {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+      color: white;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .muted-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .muted-link:hover {
+      text-decoration: underline;
+    }
+
+    .helper {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .error {
+      background: #fff4f4;
+      border: 1px solid rgba(239, 68, 68, 0.12);
+      color: var(--danger);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .success {
+      background: #f0fdf4;
+      border: 1px solid rgba(16, 185, 129, 0.08);
+      color: var(--success);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .links {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    /* responsive: stack & increase spacing on mobile */
+    @media (max-width:860px) {
+      .card {
+        grid-template-columns: 1fr;
+        max-width: 560px;
+        gap: 18px;
+      }
+
+      .panel {
+        order: 2;
+        padding: 20px;
+        min-height: 180px;
+      }
+
+      .form-card {
+        order: 1;
+        padding: 20px;
+      }
+
+      .panel h1 {
+        font-size: 34px;
+      }
+
+      .field {
+        margin-bottom: 14px;
+      }
+
+      .input {
+        padding: 12px;
+      }
+    }
+
+    /* spinner small */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-top-color: rgba(255, 255, 255, 0.95);
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
   </style>
+
 </head>
 
 <body>
-  <div class="login-container">
-    <h2>Đăng nhập</h2>
-    <form id="loginForm">
-      <label for="username">Tên đăng nhập</label>
-      <input type="text" id="username" name="username" required />
+  <div class="wrap">
+    <div class="card">
 
-      <label for="password">Mật khẩu</label>
-      <input type="password" id="password" name="password" required />
+      <!-- Left panel (info) -->
+      <div class="panel" aria-hidden="false">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">M</div>
+          <div>
+            <h1>Mall</h1>
+            <p class="helper">Quản lý khách hàng, brand, chiến dịch và chính sách điểm</p>
+          </div>
+        </div>
 
-      <button type="submit">Đăng nhập</button>
-    </form>
+        <p style="margin-top:6px;">
+          Truy cập dashboard để theo dõi báo cáo, quản lý hợp đồng và cấu hình chương trình tích điểm cho toàn hệ thống.
+        </p>
+
+        <div style="display:flex;gap:12px;margin-top:12px;">
+          <div
+            style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.85);box-shadow:0 4px 14px rgba(2,6,23,0.04);">
+            <div style="font-weight:700;color:#0f172a;font-size:14px;">Quản lý tài khoản</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:6px;">Tạo, phân quyền và theo dõi hoạt động người
+              dùng.</div>
+          </div>
+          <div
+            style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.85);box-shadow:0 4px 14px rgba(2,6,23,0.04);">
+            <div style="font-weight:700;color:#0f172a;font-size:14px;">Quy đổi điểm</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:6px;">Quản lý chính sách quy đổi và ưu đãi.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: form -->
+      <div class="form-card" role="region" aria-labelledby="login-heading">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <h2 id="login-heading" class="title">Đăng nhập</h2>
+          </div>
+
+        </div>
+
+        <div id="errorBox" class="error" role="alert" aria-live="polite"></div>
+        <div id="successBox" class="success" role="status" aria-live="polite"></div>
+
+        <form id="loginForm" autocomplete="on" onsubmit="return false;">
+          <!-- username -->
+          <div class="field">
+            <label for="username">Email hoặc username</label>
+            <div class="input" title="Email hoặc username">
+              <!-- user SVG -->
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12z" fill="#9CA3AF" />
+                <path d="M4 20.4c0-3.3 4.1-5 8-5s8 1.7 8 5v.6H4v-.6z" fill="#9CA3AF" />
+              </svg>
+              <input id="username" name="username" type="text" placeholder="name@company.com hoặc username"
+                aria-label="Email hoặc username" required>
+            </div>
+          </div>
+
+          <!-- password -->
+          <div class="field">
+            <label for="password">Mật khẩu</label>
+            <div class="input" title="Mật khẩu">
+              <!-- lock svg -->
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M17 8h-1V6a4 4 0 00-8 0v2H7a1 1 0 00-1 1v9a1 1 0 001 1h10a1 1 0 001-1v-9a1 1 0 00-1-1z"
+                  fill="#9CA3AF" />
+              </svg>
+              <input id="password" name="password" type="password" placeholder="Nhập mật khẩu" aria-label="Mật khẩu"
+                required>
+              <button id="togglePwd" type="button" aria-label="Hiện mật khẩu"
+                style="border:0;background:transparent;cursor:pointer;padding:6px;">
+                <!-- eye icon -->
+                <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 5c-7 0-10 6.9-10 7s3 7 10 7 10-6.9 10-7-3-7-10-7z" stroke="#9CA3AF" stroke-width="1.2"
+                    stroke-linecap="round" stroke-linejoin="round" />
+                  <circle cx="12" cy="12" r="3" fill="#9CA3AF" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="row-between" style="margin-top:4px;">
+            <label class="remember"><input id="remember" type="checkbox" aria-label="Ghi nhớ đăng nhập"> Ghi nhớ đăng
+              nhập</label>
+            <a href="/forgot-password" class="muted-link">Quên mật khẩu?</a>
+          </div>
+
+          <div style="margin-top:8px;">
+            <button id="btnLogin" class="btn" type="submit" aria-live="polite">
+              <span id="btnText">Đăng nhập</span>
+              <span id="btnSpinner" style="display:none;margin-left:6px;">
+                <span class="spinner" aria-hidden="true"></span>
+              </span>
+            </button>
+          </div>
+
+          <div class="links" style="margin-top:8px;">
+            <div class="helper">Chưa có tài khoản?</div>
+            <a href="/register" class="muted-link">Đăng ký</a>
+          </div>
+        </form>
+      </div>
+
+    </div>
   </div>
 
   <script>
-    const returnUrl = "{{ return_url | default('') | safe }}";
+    // Toggle password show/hide
+    const toggleBtn = document.getElementById('togglePwd');
+    const pwdInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+    toggleBtn.addEventListener('click', () => {
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        eyeIcon.innerHTML = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="12" r="3" fill="#fff"/>';
+      } else {
+        pwdInput.type = 'password';
+        eyeIcon.innerHTML = '<path d="M12 5c-7 0-10 6.9-10 7s3 7 10 7 10-6.9 10-7-3-7-10-7z" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="#9CA3AF"/>';
+      }
+    });
 
-    document.getElementById('loginForm').addEventListener('submit', async function (event) {
-      event.preventDefault();
+    const form = document.getElementById('loginForm');
+    const errorBox = document.getElementById('errorBox');
+    const successBox = document.getElementById('successBox');
+    const btn = document.getElementById('btnLogin');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
 
-      const username = document.getElementById('username').value;
+    function showError(msg) {
+      errorBox.style.display = 'block';
+      errorBox.textContent = msg;
+      successBox.style.display = 'none';
+    }
+    function showSuccess(msg) {
+      successBox.style.display = 'block';
+      successBox.textContent = msg;
+      errorBox.style.display = 'none';
+    }
+    function clearMessages() { errorBox.style.display = 'none'; successBox.style.display = 'none'; }
+
+    async function submitLogin() {
+      clearMessages();
+      const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
+      const remember = document.getElementById('remember').checked;
+      const returnUrl = ''; // optional: populate if you pass return_url from server templating
 
-      console.log(username, password, returnUrl);
+      if (!username || !password) { showError('Vui lòng nhập tên đăng nhập và mật khẩu.'); return; }
+
+      // UI loading
+      btn.disabled = true;
+      btnText.textContent = 'Đang xử lý...';
+      btnSpinner.style.display = 'inline-block';
 
       try {
-        const response = await fetch('/user/login', {
+        const res = await fetch('/user/login', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ username, password, return_url: returnUrl })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, remember, return_url: returnUrl })
         });
+        const data = await res.json();
 
-        const data = await response.json();
-        console.log(data);
-
-        if (data.success && data.redirect) {
-          const redirectUrl = new URL(data.redirect, window.location.origin);
-          if (data.user && data.user.user_id) {
-            redirectUrl.searchParams.set('user_id', data.user.user_id);
+        if (res.ok && data && data.success) {
+          // handle token if returned
+          if (data.token) {
+            if (remember) localStorage.setItem('access_token', data.token);
+            else sessionStorage.setItem('access_token', data.token);
           }
-
-          window.location.href = redirectUrl.toString();
+          // redirect
+          const next = data.redirect || '/';
+          showSuccess('Đăng nhập thành công. Chuyển hướng...');
+          setTimeout(() => window.location.href = next, 600);
         } else {
-          alert(data.message || "Đăng nhập thất bại!");
+          showError(data.message || data.error || 'Đăng nhập thất bại. Vui lòng kiểm tra thông tin.');
         }
-      } catch (error) {
-        alert('Đã xảy ra lỗi khi đăng nhập.');
+      } catch (err) {
+        console.error(err);
+        showError('Không thể kết nối tới server. Vui lòng thử lại.');
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = 'Đăng nhập';
+        btnSpinner.style.display = 'none';
       }
+    }
+
+    form.addEventListener('submit', (e) => { e.preventDefault(); submitLogin(); });
+    // support enter submit
+    Array.from(form.querySelectorAll('input')).forEach(inp => {
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); submitLogin(); } });
     });
   </script>
 </body>
