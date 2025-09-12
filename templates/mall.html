@@ -935,68 +935,10 @@
                                         Hành động</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">Chính sách cơ bản</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">Tất cả Brand</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1,000đ = 1 điểm</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">01/01/2023 -
-                                        31/12/2023</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đang
-                                            áp dụng</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
-                                        <a href="#" class="text-yellow-600 hover:text-yellow-900">Chỉnh sửa</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">Ưu đãi thời trang</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">Brand thời trang</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">800đ = 1 điểm</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15/06/2023 -
-                                        15/09/2023</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đang
-                                            áp dụng</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
-                                        <a href="#" class="text-yellow-600 hover:text-yellow-900">Chỉnh sửa</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">Khuyến mãi F&B</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">Brand F&B</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">500đ = 1 điểm</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">01/07/2023 -
-                                        31/08/2023</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Đã
-                                            kết thúc</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
-                                        <a href="#" class="text-yellow-600 hover:text-yellow-900">Chỉnh sửa</a>
-                                    </td>
-                                </tr>
+                            <tbody id="rule-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- dữ liệu sẽ được JS render từ API -->
                             </tbody>
+
                         </table>
                     </div>
                 </div>
@@ -2801,4 +2743,58 @@
 
     // Load mặc định
     loadAccount('khachhang');
+</script>
+<script>
+    async function loadConversionRules() {
+        try {
+            const res = await fetch("/point/conversion_rule");  // gọi API point_service
+            const data = await res.json();
+
+            if (!data.success) {
+                console.error(data.message);
+                return;
+            }
+
+            const tbody = document.getElementById("rule-table-body");
+            tbody.innerHTML = "";
+
+            data.rules.forEach(rule => {
+                const tr = document.createElement("tr");
+
+                // format status
+                const statusBadge = rule.status == 1
+                    ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đang áp dụng</span>`
+                    : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Đã kết thúc</span>`;
+
+                // format scope
+                let scopeText = "Tất cả Brand";
+                if (rule.apply_scope === "CATEGORY") scopeText = `Ngành hàng #${rule.category_id}`;
+                if (rule.apply_scope === "BRAND") scopeText = `Brand #${rule.brand_id}`;
+
+                tr.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">${rule.rule_name}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${scopeText}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${rule.rate}đ = 1 điểm</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${formatDate(rule.effective_from)} - ${form(rule.effective_to) ?? "Vô thời hạn"}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <a href="javascript:viewRule(${rule.conversion_rule_id})" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
+                    <a href="javascript:editRule(${rule.conversion_rule_id})" class="text-yellow-600 hover:text-yellow-900">Chỉnh sửa</a>
+                </td>
+            `;
+                tbody.appendChild(tr);
+            });
+        } catch (err) {
+            console.error("Lỗi load dữ liệu:", err);
+        }
+    }
+
+    // Gọi khi load trang
+    document.addEventListener("DOMContentLoaded", loadConversionRules);
 </script>

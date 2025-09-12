@@ -698,3 +698,88 @@ def get_last_transaction(user_id):
             cursor.close()
             conn.close()
         return jsonify({"error": str(e)}), 500
+@point_bp.route('/conversion_rule', methods=['POST'])
+def create_conversion_rule():
+    try:
+        data = request.get_json()
+        rule_name = data.get("rule_name")
+        apply_scope = data.get("apply_scope")  # ALL / CATEGORY / BRAND
+        brand_id = data.get("brand_id")
+        category_id = data.get("category_id")
+        rate = data.get("rate")
+        effective_from = data.get("effective_from")
+        effective_to = data.get("effective_to")
+        status = data.get("status", 1)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO ConversionRule (rule_name, apply_scope, brand_id, category_id, rate, effective_from, effective_to, status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (rule_name, apply_scope, brand_id, category_id, rate, effective_from, effective_to, status))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"success": True, "message": "Thêm chính sách thành công"}), 201
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+@point_bp.route('/conversion_rule', methods=['GET'])
+def get_conversion_rules():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT conversion_rule_id, rule_name, apply_scope, brand_id, category_id, rate,
+                   effective_from, effective_to, status, created_at, updated_at
+            FROM ConversionRule
+        """)
+        rules = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"success": True, "rules": rules}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+@point_bp.route('/conversion_rule/<int:rule_id>', methods=['PUT'])
+def update_conversion_rule(rule_id):
+    try:
+        data = request.get_json()
+        rule_name = data.get("rule_name")
+        apply_scope = data.get("apply_scope")
+        brand_id = data.get("brand_id")
+        category_id = data.get("category_id")
+        rate = data.get("rate")
+        effective_from = data.get("effective_from")
+        effective_to = data.get("effective_to")
+        status = data.get("status")
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE ConversionRule
+            SET rule_name=%s, apply_scope=%s, brand_id=%s, category_id=%s, rate=%s,
+                effective_from=%s, effective_to=%s, status=%s
+            WHERE conversion_rule_id=%s
+        """, (rule_name, apply_scope, brand_id, category_id, rate,
+              effective_from, effective_to, status, rule_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"success": True, "message": "Cập nhật chính sách thành công"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+@point_bp.route('/conversion_rule/<int:rule_id>', methods=['DELETE'])
+def delete_conversion_rule(rule_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM ConversionRule WHERE conversion_rule_id = %s", (rule_id,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"success": True, "message": "Xóa chính sách thành công"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
