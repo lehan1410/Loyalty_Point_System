@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Đăng ký — Mall</title>
+    <title>Register - Loyalty Point System</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -332,10 +332,9 @@
             <!-- Left panel (info) -->
             <div class="panel" aria-hidden="false">
                 <div class="brand">
-                    <div class="logo" aria-hidden="true">M</div>
+                    <div class="logo" aria-hidden="true">LPS</div>
                     <div>
-                        <h1>Mall</h1>
-                        <p class="helper">Hệ thống quản lý khách hàng, brand & chiến dịch</p>
+                        <h1>Loyalty Point System</h1>
                     </div>
                 </div>
 
@@ -374,6 +373,20 @@
                 <div id="successBox" class="success" role="status" aria-live="polite"></div>
 
                 <form id="registerForm" autocomplete="on" onsubmit="return false;">
+                    <!-- fullname -->
+                    <div class="field">
+                        <label for="fullname">Họ và tên</label>
+                        <div class="input" title="Họ và tên">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12z"
+                                    fill="#9CA3AF" />
+                                <path d="M4 20.4c0-3.3 4.1-5 8-5s8 1.7 8 5v.6H4v-.6z" fill="#9CA3AF" />
+                            </svg>
+                            <input id="fullname" name="fullname" type="text" placeholder="Nguyễn Văn A"
+                                aria-label="Họ và tên" required>
+                        </div>
+                    </div>
+
                     <!-- username -->
                     <div class="field">
                         <label for="username">Tên đăng nhập</label>
@@ -475,7 +488,7 @@
 
                     <div class="links" style="margin-top:8px;">
                         <div class="helper">Đã có tài khoản?</div>
-                        <a href="/login" class="muted-link">Đăng nhập</a>
+                        <a href="/user/login" class="muted-link">Đăng nhập</a>
                     </div>
                 </form>
             </div>
@@ -484,18 +497,19 @@
     </div>
 
     <script>
-        // Toggle password show/hide for both fields
+        // Toggle password show/hide cho cả 2 input
         function toggleVisibility(inputId, iconEl) {
             const input = document.getElementById(inputId);
             if (!input) return;
             const svg = iconEl.querySelector('svg');
             if (input.type === 'password') {
                 input.type = 'text';
-                // change icon fill for visible state
-                if (svg) svg.innerHTML = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z" stroke="#9CA3AF" stroke-width="1.2" fill="none"/><circle cx="12" cy="12" r="3" fill="#fff"/>';
+                if (svg) svg.innerHTML =
+                    '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z" stroke="#9CA3AF" stroke-width="1.2" fill="none"/><circle cx="12" cy="12" r="3" fill="#fff"/>';
             } else {
                 input.type = 'password';
-                if (svg) svg.innerHTML = '<path d="M12 5c-7 0-10 6.9-10 7s3 7 10 7 10-6.9 10-7-3-7-10-7z" stroke="#9CA3AF" stroke-width="1.2"/><circle cx="12" cy="12" r="3" fill="#9CA3AF"/>';
+                if (svg) svg.innerHTML =
+                    '<path d="M12 5c-7 0-10 6.9-10 7s3 7 10 7 10-6.9 10-7-3-7-10-7z" stroke="#9CA3AF" stroke-width="1.2"/><circle cx="12" cy="12" r="3" fill="#9CA3AF"/>';
             }
         }
         document.getElementById('togglePwd').addEventListener('click', function () { toggleVisibility('password', this); });
@@ -504,9 +518,7 @@
         const form = document.getElementById('registerForm');
         const errorBox = document.getElementById('errorBox');
         const successBox = document.getElementById('successBox');
-        const btn = document.getElementById('btnRegister');
-        const btnText = document.getElementById('btnText');
-        const btnSpinner = document.getElementById('btnSpinner');
+
 
         function showError(msg) {
             errorBox.style.display = 'block';
@@ -526,46 +538,83 @@
 
         async function submitRegister() {
             clearMessages();
+
             const username = document.getElementById('username').value.trim();
+            const fullname = document.getElementById('fullname').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirm = document.getElementById('confirmPassword').value;
             const referral_code = document.getElementById('referral_code').value.trim() || null;
             const agree = document.getElementById('agree').checked;
 
-            if (!username || !email || !password || !confirm) { showError('Vui lòng nhập đầy đủ thông tin.'); return; }
+            if (!username || !fullname || !email || !password || !confirm) {
+                showError('Vui lòng nhập đầy đủ thông tin.');
+                return;
+            }
             if (!validateEmail(email)) { showError('Email không hợp lệ.'); return; }
             if (password.length < 8) { showError('Mật khẩu phải có ít nhất 8 ký tự.'); return; }
             if (password !== confirm) { showError('Mật khẩu xác nhận không khớp.'); return; }
             if (!agree) { showError('Bạn phải đồng ý với Điều khoản dịch vụ.'); return; }
 
-            // set loading
+            const btn = document.getElementById('btnRegister');
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+
             btn.disabled = true;
             btnText.textContent = 'Đang xử lý...';
             btnSpinner.style.display = 'inline-block';
 
             try {
-                const payload = { username, email, password, referral_code };
+                // --- Gọi API đăng ký ---
+                const payload = { username, fullname, email, password, referral_code };
                 const res = await fetch('/user/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                let data;
-                try { data = await res.json(); } catch (e) { data = null; }
-
-                if (res.ok && data && data.success) {
-                    showSuccess(data.message || 'Đăng ký thành công. Chuyển hướng...');
-                    // nếu backend trả token và bạn muốn tự động login, xử lý ở đây.
-                    setTimeout(() => window.location.href = data.redirect || '/login', 900);
-                } else {
-                    // backend trả lỗi chi tiết
-                    showError((data && (data.message || data.error)) || 'Đăng ký thất bại. Vui lòng kiểm tra lại.');
+                const data = await res.json();
+                if (!data.success) {
+                    showError(data.message || 'Đăng ký thất bại.');
+                    return;
                 }
+
+                // --- Tạo ví điểm mặc định ---
+                try {
+                    await fetch("/point/wallet/init", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ user_id: data.user_id })
+                    });
+                } catch (e) {
+                    console.warn("Không tạo được PointWallet mặc định:", e);
+                }
+
+                // --- Nếu có referral thì cộng điểm ---
+                if (data.referred_by) {
+                    const rewardPoints = 50; // số điểm thưởng mặc định
+
+                    try {
+                        await fetch("/point/earn_referral_pair", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                new_user_id: data.user_id,
+                                referrer_id: data.referred_by,
+                                points: rewardPoints
+                            })
+                        });
+                    } catch (e) {
+                        console.warn("Không cộng được điểm referral:", e);
+                    }
+                }
+
+                showSuccess('Đăng ký thành công! Chuyển hướng đến đăng nhập...');
+                setTimeout(() => { window.location.href = '/user/login'; }, 3000);
+
             } catch (err) {
-                console.error('Register error', err);
-                showError('Không thể kết nối tới server. Vui lòng thử lại.');
+                console.error(err);
+                showError('Có lỗi xảy ra khi đăng ký.');
             } finally {
                 btn.disabled = false;
                 btnText.textContent = 'Đăng ký';
@@ -573,11 +622,14 @@
             }
         }
 
+
+
         form.addEventListener('submit', (e) => { e.preventDefault(); submitRegister(); });
         Array.from(form.querySelectorAll('input')).forEach(inp => {
             inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); submitRegister(); } });
         });
     </script>
+
 </body>
 
 </html>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mall Management Dashboard</title>
+    <title>Mall Management Dashboard - Loyalty Point System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1487,6 +1487,10 @@
 </html>
 
 <script>
+    window.CURRENT_USER = { id: "{{ user.user_id }}", username: "{{ user.user_name }}", role: "{{ user.role }}", brand_id: "{{user.brand_id or 'null' }}" };
+
+    const USER_ID = window.CURRENT_USER.id;
+    const BRAND_ID = window.CURRENT_USER.brand_id;
     function formatCurrency(amount) {
         if (amount === null || amount === undefined) return "N/A";
 

@@ -247,21 +247,11 @@ def count_campaign():
 
 @campaign_bp.route('/campaigns', methods=['GET'])
 def list_campaigns():
-    brand_id = request.args.get('brand_id')
-    status = request.args.get('status')
-
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        query = "SELECT * FROM Campaign WHERE 1=1"
-        params = []
-        if brand_id:
-            query += " AND brand_id = %s"
-            params.append(brand_id)
-        if status:
-            query += " AND status = %s"
-            params.append(status)
-        cursor.execute(query, tuple(params))
+        query = "SELECT * FROM Campaign WHERE status != 'DRAFT'"
+        cursor.execute(query)
         result = cursor.fetchall()
         return jsonify(result)
     except Exception as e:

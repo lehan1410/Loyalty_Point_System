@@ -248,26 +248,35 @@ def get_active_ads():
         brand_id = request.args.get('brand_id', type=int)
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
+
         query = """
-            SELECT ad_id, brand_id, title, description, start_at, end_at
+            SELECT ad_id, brand_id, title, description, start_at, end_at, created_at
             FROM Ad
-            WHERE start_at <= NOW() AND end_at >= NOW() AND status = 'APPROVED'
+            WHERE start_at <= NOW()
+              AND (end_at IS NULL OR end_at >= NOW())
+              AND status = 'APPROVED'
         """
         params = []
+
+        # Nếu truyền brand_id thì lọc, ngược lại trả tất cả brand
         if brand_id:
             query += " AND brand_id = %s"
             params.append(brand_id)
+
         query += " ORDER BY created_at DESC"
-        cursor.execute(query, params)
+
+        cursor.execute(query, tuple(params))
         ads = cursor.fetchall()
+
         cursor.close()
         conn.close()
-        return jsonify(ads), 200
+        return jsonify({"success": True, "ads": ads}), 200
+
     except Exception as e:
-        if 'conn' in locals():
-            cursor.close()
-            conn.close()
-        return jsonify({"error": str(e)}), 500
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 # API để ghi nhận hành động của người dùng với quảng cáo
 @ad_bp.route('/interaction', methods=['POST'])

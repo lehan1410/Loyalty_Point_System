@@ -837,3 +837,103 @@ def delete_conversion_rule(rule_id):
         return jsonify({"success": True, "message": "Xóa chính sách thành công"}), 200
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+
+@point_bp.route('/earn_referral_pair', methods=['POST'])
+def earn_referral_pair():
+    """
+    Cộng điểm referral cho cả user mới và người giới thiệu.
+    Body: { "new_user_id": 10, "referrer_id": 1, "points": 50 }
+    """
+    try:
+        data = request.get_json() or {}
+        try:
+            new_user_id = int(data.get("new_user_id"))
+            referrer_id = int(data.get("referrer_id"))
+            points = int(data.get("points", 50))
+        except Exception:
+            return jsonify({"success": False, "message": "Dữ liệu đầu vào không hợp lệ"}), 400
+
+        if not new_user_id or not referrer_id:
+            return jsonify({"success": False, "message": "Thiếu new_user_id hoặc referrer_id"}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        def add_points(user_id, pts):
+            # lấy hoặc tạo PointWallet
+            cursor.execute("SELECT point_wallet_id FROM PointWallet WHERE user_id = %s", (user_id,))
+            wallet = cursor.fetchone()
+            if not wallet:
+                cursor.execute(
+                    "INSERT INTO PointWallet (user_id, total_points, last_update) VALUES (%s, %s, CURRENT_TIMESTAMP)",
+                    (user_id, 0)
+                )
+                point_wallet_id = cursor.lastrowid
+            else:
+                point_wallet_id = wallet["point_wallet_id"]
+
+            # cộng điểm
+            cursor.execute("""
+                UPDATE PointWallet
+                SET total_points = total_points + %s,
+                    last_update = CURRENT_TIMESTAMP
+                WHERE point_wallet_id = %s
+            """, (pts, point_wallet_id))
+
+        # cộng cho user mới
+        add_points(new_user_id, points)
+        # cộng cho người giới thiệu
+        add_points(referrer_id, points)
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"success": True, "message": "Cộng điểm referral thành công"}), 200
+
+    except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
+            cursor.close()
+            conn.close()
+        print("earn_referral_pair error:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@point_bp.route('/wallet/init', methods=['POST'])
+def init_wallet():
+    try:
+        data = request.get_json() or {}
+        user_id = data.get("user_id")
+
+        if not user_id:
+            return jsonify({"success": False, "message": "Thiếu user_id"}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # kiểm tra đã có wallet chưa
+        cursor.execute("SELECT point_wallet_id FROM PointWallet WHERE user_id = %s", (user_id,))
+        wallet = cursor.fetchone()
+
+        if wallet:
+            cursor.close()
+            conn.close()
+            return jsonify({"success": True, "message": "Ví đã tồn tại"}), 200
+
+        cursor.execute("""
+            INSERT INTO PointWallet (user_id, total_points, last_update)
+            VALUES (%s, 0, CURRENT_TIMESTAMP)
+        """, (user_id,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+        return jsonify({"success": True, "message": "Khởi tạo ví điểm thành công"}), 201
+
+    except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
+            cursor.close()
+            conn.close()
+        print("init_wallet error:", e)
+        return jsonify({"success": False, "message": str(e)}), 500

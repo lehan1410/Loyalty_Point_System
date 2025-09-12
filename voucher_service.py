@@ -113,26 +113,14 @@ def get_voucher(voucher_id):
 # 5. Lọc danh sách voucher
 @voucher_bp.route('/vouchers', methods=['GET'])
 def list_vouchers():
-    brand_id = request.args.get('brand_id')
-    mall_only = request.args.get('mall_only', 'false').lower() == 'true'  # New parameter to fetch mall-wide vouchers
-
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
         query = """
-            SELECT voucher_id, title, description, points_required, discount_amount, created_at, start_at, end_at, brand_id
-            FROM Voucher
-            WHERE 1=1
+            SELECT * FROM Voucher WHERE 1=1
         """
         params = []
-
-        # If mall_only is true, fetch vouchers where brand_id is NULL (or a specific mall brand_id)
-        if mall_only:
-            query += " AND brand_id IS NULL"
-        elif brand_id:
-            query += " AND brand_id = %s"
-            params.append(brand_id)
 
         # Optional: Add status filtering (e.g., only active vouchers)
         query += " AND start_at <= %s AND end_at >= %s"

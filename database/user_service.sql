@@ -10,6 +10,60 @@ CREATE TABLE Users (
   created_at DATETIME NOT NULL,
   status BOOLEAN NOT NULL
 );
+-- Thêm cột referral_code và referred_by vào bảng Users
+ALTER TABLE Users 
+ADD COLUMN referral_code VARCHAR(20) UNIQUE,
+ADD COLUMN referred_by VARCHAR(20) NULL;
+
+-- Thêm referral_code tự sinh cho tất cả user chưa có mã
+UPDATE Users
+SET referral_code = CONCAT(UPPER(SUBSTRING(REPLACE(UUID(), '-', ''), 1, 8)))
+WHERE referral_code IS NULL;
+
+-- Tạo trigger tự động sinh referral_code khi insert
+DELIMITER $$
+
+CREATE TRIGGER before_insert_users
+BEFORE INSERT ON Users
+FOR EACH ROW
+BEGIN
+    DECLARE new_code VARCHAR(20);
+    DECLARE cnt INT DEFAULT 1;
+
+    -- Nếu chưa có referral_code thì tự sinh
+    IF NEW.referral_code IS NULL OR NEW.referral_code = '' THEN
+        WHILE cnt > 0 DO
+            -- Sinh code ngẫu nhiên (8 ký tự từ UUID)
+            SET new_code = UPPER(SUBSTRING(REPLACE(UUID(), '-', ''), 1, 8));
+
+            -- Kiểm tra đã tồn tại chưa
+            SELECT COUNT(*) INTO cnt FROM Users WHERE referral_code = new_code;
+
+            -- Nếu chưa tồn tại thì gán cho NEW.referral_code
+            IF cnt = 0 THEN
+                SET NEW.referral_code = new_code;
+            END IF;
+        END WHILE;
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+
+
+-- Bảng PasswordReset
+CREATE TABLE IF NOT EXISTS PasswordReset (
+    reset_id VARCHAR(36) PRIMARY KEY,
+    user_id INT NOT NULL,
+    token_hash VARCHAR(128) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    used TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX (user_id),
+    INDEX (token_hash)
+);
+
 
 -- Bảng User_Profile
 CREATE TABLE User_Profile (

@@ -1,7 +1,11 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, json
 import mysql.connector
 from flask_cors import CORS
 from datetime import datetime, timedelta
+import secrets, hashlib, uuid, smtplib, urllib.parse
+from email.message import EmailMessage
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 user_bp = Blueprint("user", __name__)
 CORS(user_bp)
@@ -585,22 +589,7 @@ def delete_account(user_id):
         return jsonify({"success": False, "message": str(e)}), 500
 
 
-@user_bp.route('/reset_password/<int:user_id>', methods=['POST'])
-def reset_password(user_id):
-    try:
-        new_password = "123456"  # mật khẩu mặc định
-        conn = get_db_connection()
-        cursor = conn.cursor()
 
-        cursor.execute("UPDATE Users SET password=%s WHERE user_id=%s", (new_password, user_id))
-        conn.commit()
-
-        cursor.close()
-        conn.close()
-        return jsonify({"success": True, "message": "Đặt lại mật khẩu thành công!", "new_password": new_password}), 200
-
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
 @user_bp.route('/get_account/<int:user_id>', methods=['GET'])
 def get_account(user_id):
     try:
@@ -633,4 +622,279 @@ def get_account(user_id):
 
         return jsonify({"success": True, "account": account}), 200
     except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+    
+# --- Cấu hình (chỉnh cho phù hợp môi trường) ---
+FRONTEND_BASE_URL = "https://localhost:5000"   # dùng để build link reset (ví dụ https://app.example.com)
+RESET_TOKEN_TTL_HOURS = 1                       # token hợp lệ trong 1 giờ
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
+SMTP_USER = "lehan14102004@gmail.com"
+SMTP_PASS = "uzhe hwed ktlq yhdu"
+EMAIL_FROM = "Loyalty Point System <lehan14102004@gmail.com>"
+
+
+
+# ------------------ Forgot / Reset password using 6-digit code ------------------
+def send_email_code(to_email: str, code: str):
+    """
+    Gửi email chứa mã 6 chữ số.
+    - Nếu SMTP thật được cấu hình, dùng nó.
+    - Nếu không, fallback in mã ra console (cho dev/test).
+    """
+    subject = "Mã xác thực đặt lại mật khẩu"
+    body = f"""Xin chào,
+
+Mã xác thực để đặt lại mật khẩu của bạn là:
+
+{code}
+
+Mã có hiệu lực trong 60 phút. Nếu bạn không yêu cầu, vui lòng bỏ qua email này.
+
+Trân trọng,
+Mall
+"""
+    msg = EmailMessage()
+    msg["From"] = EMAIL_FROM
+    msg["To"] = to_email
+    msg["Subject"] = subject
+    msg.set_content(body)
+
+    try:
+        # --- dùng SMTP thật ---
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
+            server.starttls()
+            server.login(SMTP_USER, SMTP_PASS)
+            server.send_message(msg)
+            print(f"[INFO] Sent reset code to {to_email}")
+            return True, None
+    except Exception as e1:
+        try:
+            # --- fallback dev: localhost:25 ---
+            with smtplib.SMTP("localhost", 25, timeout=5) as s:
+                s.send_message(msg)
+                return True, None
+        except Exception as e2:
+            print(f"[DEV] Password reset code for {to_email}: {code}  (SMTP error: {e1}, fallback error: {e2})")
+            return False, str(e1)
+
+
+
+@user_bp.route('/forgot_password', methods=['POST'])
+def forgot_password():
+    """
+    Body: { "email": "..." }
+    Sinh mã 6 chữ số, lưu hash vào PasswordReset, gửi mã cho user (email).
+    Trả về message generic để tránh user enumeration.
+    """
+    try:
+        data = request.get_json() or {}
+        email = data.get("email")
+        if not email:
+            return jsonify({"success": False, "message": "Vui lòng nhập email"}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Chú ý: chỉnh tên bảng nếu DB của bạn dùng Users thay vì User_Profile
+        cursor.execute("SELECT user_id, email FROM User_Profile WHERE email = %s LIMIT 1", (email,))
+        user = cursor.fetchone()
+
+        # Nếu không tìm thấy user, trả generic message để tránh dò email
+        if not user:
+            cursor.close()
+            conn.close()
+            return jsonify({"success": True, "message": "Nếu email tồn tại trong hệ thống, mã xác thực đã được gửi."}), 200
+
+        user_id = user['user_id']
+
+        # Tạo mã 6 chữ số -> hash -> lưu
+        code_plain = f"{secrets.randbelow(1000000):06d}"  # 000000 - 999999
+        code_hash = hashlib.sha256(code_plain.encode('utf-8')).hexdigest()
+        expires_at = datetime.utcnow() + timedelta(minutes=60)  # TTL 60 phút, có thể hạ xuống 10-30 phút
+        reset_id = str(secrets.token_hex(16))
+
+        cursor.execute("""
+            INSERT INTO PasswordReset (reset_id, user_id, token_hash, expires_at, used)
+            VALUES (%s, %s, %s, %s, 0)
+        """, (reset_id, user_id, code_hash, expires_at))
+        conn.commit()
+
+        # gửi mã (sync). nếu SMTP chưa config thì hàm sẽ in mã ra console
+        ok, info = send_email_code(email, code_plain)
+        if not ok:
+            # chỉ log, không trả lỗi cho client
+            print("Warning: failed to send reset code:", info)
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"success": True, "message": "Nếu email tồn tại trong hệ thống, mã xác thực đã được gửi."}), 200
+
+    except Exception as e:
+        try:
+            if 'cursor' in locals(): cursor.close()
+            if 'conn' in locals(): conn.close()
+        except: pass
+        print("forgot_password error:", e)
+        return jsonify({"success": False, "message": "Đã có lỗi xảy ra"}), 500
+
+
+@user_bp.route('/reset_password', methods=['POST'])
+def reset_password():
+    """
+    Body: { "email": "...", "code": "...", "new_password": "..." }
+    Kiểm tra hash(code) và expiry, sau đó cập nhật password (hash).
+    """
+    try:
+        data = request.get_json() or {}
+        email = data.get("email")
+        code = data.get("code")
+        new_password = data.get("new_password")
+
+        if not email or not code or not new_password:
+            return jsonify({"success": False, "message": "Thiếu dữ liệu bắt buộc"}), 400
+
+        code_hash = hashlib.sha256(code.encode('utf-8')).hexdigest()
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # lấy user_id trước để tăng tính chính xác
+        cursor.execute("SELECT user_id FROM User_Profile WHERE email = %s LIMIT 1", (email,))
+        user = cursor.fetchone()
+        if not user:
+            cursor.close()
+            conn.close()
+            return jsonify({"success": False, "message": "Mã xác thực không hợp lệ hoặc đã hết hạn"}), 400
+        user_id = user['user_id']
+
+        cursor.execute("""
+            SELECT reset_id, expires_at, used
+            FROM PasswordReset
+            WHERE token_hash = %s AND user_id = %s
+            ORDER BY created_at DESC
+            LIMIT 1
+        """, (code_hash, user_id))
+        row = cursor.fetchone()
+
+        if not row:
+            cursor.close()
+            conn.close()
+            return jsonify({"success": False, "message": "Mã xác thực không hợp lệ hoặc đã hết hạn"}), 400
+
+        if row.get('used', 0) == 1:
+            cursor.close()
+            conn.close()
+            return jsonify({"success": False, "message": "Mã đã được sử dụng"}), 400
+
+        expires_at = row['expires_at']
+        if isinstance(expires_at, str):
+            try:
+                expires_dt = datetime.fromisoformat(expires_at)
+            except Exception:
+                expires_dt = datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S")
+        else:
+            expires_dt = expires_at
+
+        if expires_dt < datetime.utcnow():
+            cursor.close()
+            conn.close()
+            return jsonify({"success": False, "message": "Mã xác thực đã hết hạn"}), 400
+
+        # update password (hash)
+        cursor.execute("UPDATE Users SET password = %s WHERE user_id = %s", (new_password, user_id))
+        cursor.execute("UPDATE PasswordReset SET used = 1 WHERE reset_id = %s", (row['reset_id'],))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+        return jsonify({"success": True, "message": "Bạn đã cập nhật mật khẩu thành công"}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        try:
+            if 'cursor' in locals(): cursor.close()
+            if 'conn' in locals(): conn.close()
+        except: pass
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+
+@user_bp.route('/forgot_password_page', methods=['GET'])
+def forgot_password_page():
+    return render_template("forgot_password.html")
+@user_bp.route('/reset_password_page', methods=['GET'])
+def reset_password_page():
+    token = request.args.get('token', '')
+    email = request.args.get('email', '')
+    return render_template("reset_password.html", token=token, email=email)
+@user_bp.route('/register_page', methods=['GET'])
+def register_page():
+    return render_template("register.html")
+
+@user_bp.route('/register', methods=['POST'])
+def register():
+    try:
+        data = request.get_json()
+        username = data.get("username")
+        password = data.get("password")
+        email = data.get("email")
+        fullname = data.get("fullname")
+        referral_input = data.get("referral_code")
+
+        if not username or not password or not email or not fullname:
+            return jsonify({"success": False, "message": "Thiếu thông tin bắt buộc"}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # 1. Insert user (trigger sẽ tự sinh referral_code)
+        cursor.execute("""
+            INSERT INTO Users (username, password, status, created_at)
+            VALUES (%s, %s, 1, NOW())
+        """, (username, password))
+        new_user_id = cursor.lastrowid
+
+        # 2. Insert profile
+        cursor.execute("""
+            INSERT INTO User_Profile (user_id, fullname, email)
+            VALUES (%s, %s, %s)
+        """, (new_user_id, fullname, email))
+
+        # 3. Insert vào Customer với membertype mặc định = 1 (Bạc)
+        cursor.execute("""
+            INSERT INTO Customer (user_id, membertype)
+            VALUES (%s, %s)
+        """, (new_user_id, 1))
+
+        # 4. Nếu có nhập referral_code thì xác định referred_by
+        referred_by = None
+        if referral_input:
+            cursor.execute("SELECT user_id FROM Users WHERE referral_code = %s", (referral_input,))
+            referrer = cursor.fetchone()
+            if referrer:
+                referred_by = referrer["user_id"]
+                cursor.execute("UPDATE Users SET referred_by = %s WHERE user_id = %s", (referred_by, new_user_id))
+
+        # 5. Lấy referral_code đã được trigger sinh
+        cursor.execute("SELECT referral_code FROM Users WHERE user_id = %s", (new_user_id,))
+        row = cursor.fetchone()
+        referral_code = row["referral_code"] if row else None
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "message": "Đăng ký thành công",
+            "user_id": new_user_id,
+            "referral_code": referral_code,
+            "referred_by": referred_by
+        }), 201
+
+    except Exception as e:
+        print("register error:", e)
         return jsonify({"success": False, "message": str(e)}), 500
