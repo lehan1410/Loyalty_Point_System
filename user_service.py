@@ -530,3 +530,107 @@ def get_membertype_coefficients():
         return jsonify({"coefficients": coefficients}), 200
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
+    
+# --- Quản lý tài khoản (Mall) ---
+
+@user_bp.route('/update_account/<int:user_id>', methods=['PUT'])
+def update_account(user_id):
+    try:
+        data = request.get_json()
+        user_name = data.get('username')
+        password = data.get('password')
+        status = data.get('status')
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        query = "UPDATE Users SET username=%s, password=%s, status=%s WHERE user_id=%s"
+        cursor.execute(query, (user_name, password, status, user_id))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+        return jsonify({"success": True, "message": "Cập nhật tài khoản thành công!"}), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@user_bp.route('/delete_account/<int:user_id>', methods=['DELETE'])
+def delete_account(user_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Kiểm tra tồn tại
+        cursor.execute("SELECT * FROM Users WHERE user_id=%s", (user_id,))
+        if cursor.fetchone() is None:
+            cursor.close()
+            conn.close()
+            return jsonify({"success": False, "message": "Tài khoản không tồn tại!"}), 404
+
+        # Xóa
+        cursor.execute("DELETE FROM User_Profile WHERE user_id=%s", (user_id,))
+        cursor.execute("DELETE FROM Customer WHERE user_id=%s", (user_id,))
+        cursor.execute("DELETE FROM Brand WHERE user_id=%s", (user_id,))
+        cursor.execute("DELETE FROM Mall WHERE user_id=%s", (user_id,))
+        cursor.execute("DELETE FROM Users WHERE user_id=%s", (user_id,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+        return jsonify({"success": True, "message": "Xóa tài khoản thành công!"}), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@user_bp.route('/reset_password/<int:user_id>', methods=['POST'])
+def reset_password(user_id):
+    try:
+        new_password = "123456"  # mật khẩu mặc định
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("UPDATE Users SET password=%s WHERE user_id=%s", (new_password, user_id))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+        return jsonify({"success": True, "message": "Đặt lại mật khẩu thành công!", "new_password": new_password}), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+@user_bp.route('/get_account/<int:user_id>', methods=['GET'])
+def get_account(user_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT u.user_id, u.username, u.status,
+                   p.email, p.phone, p.address,
+                   CASE
+                       WHEN c.user_id IS NOT NULL THEN 'customer'
+                       WHEN b.user_id IS NOT NULL THEN 'brand'
+                       WHEN m.user_id IS NOT NULL THEN 'mall'
+                       ELSE 'unknown'
+                   END as role
+            FROM Users u
+            LEFT JOIN User_Profile p ON u.user_id = p.user_id
+            LEFT JOIN Customer c ON u.user_id = c.user_id
+            LEFT JOIN Brand b ON u.user_id = b.user_id
+            LEFT JOIN Mall m ON u.user_id = m.user_id
+            WHERE u.user_id = %s
+        """, (user_id,))
+        account = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if not account:
+            return jsonify({"success": False, "message": "Không tìm thấy tài khoản"}), 404
+
+        return jsonify({"success": True, "account": account}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500

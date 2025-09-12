@@ -192,23 +192,37 @@ def brand_by_type_chart():
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
 
+from datetime import date
+
 @brand_bp.route('/get_contracts', methods=['GET'])
 def get_contracts():
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
+
         cursor.execute("""
-            SELECT contract_id, brandname, start_at, end_at, Contract.status, created_at, total_amount
-            FROM Contract
-            JOIN Brand WHERE Contract.brand_id = Brand.brand_id
-            ORDER BY created_at DESC
+            SELECT c.contract_id, c.start_at, c.end_at, 
+                   c.total_amount, c.status, b.brandname
+            FROM Contract c
+            JOIN Brand b ON c.brand_id = b.brand_id
         """)
         contracts = cursor.fetchall()
+        today = date.today()
+
+        for c in contracts:
+            # ép kiểu end_at về date nếu nó là datetime
+            end_at = c["end_at"].date() if isinstance(c["end_at"], datetime) else c["end_at"]
+
+            new_status = 0 if end_at < today else 1
+            c["status"] = new_status  # gán vào kết quả trả về
+
         cursor.close()
         conn.close()
-        return jsonify({"contracts": contracts}), 200
-    except mysql.connector.Error as err:
-        return jsonify({"error": str(err)}), 500
+
+        return jsonify({"success": True, "contracts": contracts}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 @brand_bp.route('/export_contract/<int:contract_id>', methods=['GET'])
 def export_contract(contract_id):
@@ -339,3 +353,71 @@ def export_contract(contract_id):
 
     except Exception as e:
         return jsonify({"error": f"Lỗi khi xuất hợp đồng: {str(e)}"}), 500
+# Lấy chi tiết 1 hợp đồng theo contract_id
+@brand_bp.route('/contract/<int:contract_id>', methods=['GET'])
+def get_contract_by_id(contract_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT c.contract_id, c.start_at, c.end_at, c.total_amount, c.status,
+                   b.brandname
+            FROM Contract c
+            JOIN Brand b ON c.brand_id = b.brand_id
+            WHERE c.contract_id = %s
+        """, (contract_id,))
+        contract = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not contract:
+            return jsonify({"success": False, "message": "Không tìm thấy hợp đồng"}), 404
+
+        return jsonify({"success": True, "contract": contract}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@brand_bp.route('/contract/renew/<int:contract_id>', methods=['PUT'])
+def renew_contract(contract_id):
+    try:
+        data = request.get_json()
+        new_end_date = data.get("end_date")
+
+        if not new_end_date:
+            return jsonify({"success": False, "message": "Thiếu ngày kết thúc mới"}), 400
+
+        # Parse ngày kết thúc mới
+        new_end = datetime.strptime(new_end_date, "%Y-%m-%d").date()
+        today = date.today()  # ngày bắt đầu mới = hôm nay
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT start_at, end_at FROM Contract WHERE contract_id = %s", (contract_id,))
+        contract = cursor.fetchone()
+
+        if not contract:
+            conn.close()
+            return jsonify({"success": False, "message": "Không tìm thấy hợp đồng"}), 404
+
+        old_end = contract["end_at"].date() if isinstance(contract["end_at"], datetime) else contract["end_at"]
+
+        # Check logic ngày
+        if new_end <= old_end:
+            conn.close()
+            return jsonify({"success": False, "message": "Ngày gia hạn phải lớn hơn ngày kết thúc cũ"}), 400
+
+        # Update DB: set start_at = hôm nay, end_at = ngày gia hạn
+        cursor2 = conn.cursor()
+        cursor2.execute("""
+            UPDATE Contract
+            SET start_at = %s, end_at = %s, status = 1
+            WHERE contract_id = %s
+        """, (today, new_end, contract_id))
+        conn.commit()
+        cursor2.close()
+        conn.close()
+
+        return jsonify({"success": True, "message": "Gia hạn hợp đồng thành công"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500

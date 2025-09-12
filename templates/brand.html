@@ -919,10 +919,11 @@
                         <td class="py-3 px-4 text-sm font-medium text-gray-900">${formatCurrency(p.amount) || '0'}</td>
                         <td class="py-3 px-4 text-sm text-green-600 font-medium">+${formatNumber(p.points_earned) || '0'}</td>
                         <td class="py-3 px-4 text-sm">
-                            <span class="text-xs px-2 py-1 rounded ${p.status === 'Hoàn thành' ? 'bg-green-100 text-green-800' : p.status === 'Đang xử lý' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
-                                ${p.status || 'Không xác định'}
-                            </span>
+                        <span class="text-xs px-2 py-1 rounded bg-green-100 text-green-800">
+                            Thành công
+                        </span>
                         </td>
+
                         <td class="py-3 px-4 text-right">
                             <button class="text-blue-600 hover:text-blue-800 focus:outline-none" title="Xem chi tiết">
                                 <i class="fas fa-eye"></i>

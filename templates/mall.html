@@ -482,149 +482,112 @@
             </div>
 
             <!-- Account Management Content -->
-            <div data-content id="accounts">
+
+            <div data-content id="accounts" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow text-center">
+                        <h4 class="text-gray-500 text-sm">Tổng tài khoản</h4>
+                        <p id="total-account" class="text-3xl font-bold text-blue-600">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow text-center">
+                        <h4 class="text-gray-500 text-sm">Tổng Admin</h4>
+                        <p id="total-admin" class="text-3xl font-bold text-green-600">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow text-center">
+                        <h4 class="text-gray-500 text-sm">Tổng khách hàng</h4>
+                        <p id="total-user" class="text-3xl font-bold text-purple-600">0</p>
+                    </div>
+                </div>
+
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold">Quản lý tài khoản</h3>
-                    <button
+                    <button onclick="openAccountModal()"
                         class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
                         <i class="fas fa-plus mr-2"></i> Thêm tài khoản
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-500">Tổng số tài khoản</p>
-                                <h3 id="total-account" class="text-2xl font-bold mt-2"></h3>
-                            </div>
-                            <div class="bg-blue-100 text-blue-600 p-3 rounded-lg">
-                                <i class="fas fa-users text-xl"></i>
-                            </div>
-                        </div>
-                        <p class="text-gray-500 text-sm mt-4">12 tài khoản mới tháng này</p>
-                    </div>
-
-                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-500">Tài khoản admin</p>
-                                <h3 id="total-admin" class="text-2xl font-bold mt-2">8</h3>
-                            </div>
-                            <div class="bg-red-100 text-red-600 p-3 rounded-lg">
-                                <i class="fas fa-user-shield text-xl"></i>
-                            </div>
-                        </div>
-                        <p class="text-gray-500 text-sm mt-4">Quản trị hệ thống</p>
-                    </div>
-
-                    <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-500">Tài khoản khách hàng</p>
-                                <h3 id="total-customer" class="text-2xl font-bold mt-2">116</h3>
-                            </div>
-                            <div class="bg-green-100 text-green-600 p-3 rounded-lg">
-                                <i class="fas fa-user-tie text-xl"></i>
-                            </div>
-                        </div>
-                        <p class="text-gray-500 text-sm mt-4">Nhân viên các phòng ban</p>
-                    </div>
-                </div>
-
+                <!-- Tabs -->
                 <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-                    <!-- Tabs Navigation -->
                     <div class="border-b border-gray-200">
                         <nav class="-mb-px flex" aria-label="Tabs">
                             <button id="tab-khachhang"
-                                class="tab-button w-1/3 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none active"
+                                class="tab-button flex-1 py-3 text-center font-medium text-sm text-gray-500"
                                 data-tab="khachhang">Khách hàng</button>
                             <button id="tab-brand"
-                                class="tab-button w-1/3 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none"
+                                class="tab-button flex-1 py-3 text-center font-medium text-sm text-gray-500"
                                 data-tab="brand">Brand</button>
                             <button id="tab-mall"
-                                class="tab-button w-1/3 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none"
+                                class="tab-button flex-1 py-3 text-center font-medium text-sm text-gray-500"
                                 data-tab="mall">Mall</button>
                         </nav>
                     </div>
 
-                    <!-- Table Container -->
+                    <!-- Table -->
                     <div class="overflow-x-auto">
-                        <table id="data-table" class="min-w-full divide-y divide-gray-200">
+                        <div id="loading" class="hidden p-4">Đang tải...</div>
+                        <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr id="table-headers"></tr>
                             </thead>
                             <tbody id="table-body" class="bg-white divide-y divide-gray-200"></tbody>
                         </table>
+                        <div id="error-message" class="hidden text-red-500 p-4"></div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Account Roles -->
-                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-                    <div class="p-6 border-b">
-                        <h3 class="text-lg font-bold">Phân quyền tài khoản</h3>
+
+            <!-- Modal Form Quản lý tài khoản -->
+            <div id="account-modal"
+                class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="modal-content bg-white rounded-lg p-6 w-full max-w-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 id="modal-title" class="text-xl font-bold">Thêm tài khoản</h3>
+                        <button onclick="closeAccountModal()" class="text-gray-500 hover:text-gray-700"><i
+                                class="fas fa-times"></i></button>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Vai trò</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Mô tả</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Số lượng</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">Quản trị hệ thống</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">Toàn quyền truy cập hệ thống</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">8</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
-                                        <a href="#" class="text-yellow-600 hover:text-yellow-900">Sửa</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">Quản lý Brand</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">Quản lý thông tin và hợp đồng Brand</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
-                                        <a href="#" class="text-yellow-600 hover:text-yellow-900">Sửa</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">Khách hàng</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">Quản lý khách hàng</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">24</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</a>
-                                        <a href="#" class="text-yellow-600 hover:text-yellow-900">Sửa</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <form id="account-form" class="space-y-4">
+                        <input type="hidden" id="account-id">
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tên đăng nhập</label>
+                            <input type="text" id="username" class="w-full border rounded p-2" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="email" class="w-full border rounded p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                            <input type="text" id="phone" class="w-full border rounded p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Địa chỉ</label>
+                            <input type="text" id="address" class="w-full border rounded p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Vai trò</label>
+                            <select id="role" class="w-full border rounded p-2">
+                                <option value="customer">Khách hàng</option>
+                                <option value="brand">Brand</option>
+                                <option value="mall">Mall</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Trạng thái</label>
+                            <select id="status" class="w-full border rounded p-2">
+                                <option value="1">Hoạt động</option>
+                                <option value="0">Khóa</option>
+                            </select>
+                        </div>
+
+                        <div class="flex justify-end space-x-4">
+                            <button type="button" onclick="closeAccountModal()"
+                                class="bg-gray-200 px-4 py-2 rounded-lg">Hủy</button>
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Lưu</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -852,6 +815,47 @@
                     </div>
                 </div>
             </div>
+            <!-- Modal Chi tiết & Gia hạn hợp đồng -->
+            <div id="contract-modal"
+                class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="bg-white p-6 rounded-lg w-full max-w-2xl">
+                    <div class="flex justify-between mb-4">
+                        <h3 class="text-xl font-bold">Chi tiết hợp đồng</h3>
+                        <button onclick="closeContractModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Chi tiết hợp đồng -->
+                    <div id="contract-detail" class="space-y-3 text-sm mb-4"></div>
+
+                    <!-- Khu vực gia hạn -->
+                    <div id="renew-section" class="hidden border-t pt-4 mt-4">
+                        <h4 class="text-lg font-semibold mb-2">Gia hạn hợp đồng</h4>
+                        <form id="renew-form" class="space-y-4">
+                            <input type="hidden" id="renew-id">
+                            <div>
+                                <label class="block text-sm font-medium">Ngày kết thúc mới</label>
+                                <input type="date" id="renew-date" class="w-full border rounded p-2" required>
+                            </div>
+                            <div class="flex justify-end space-x-4">
+                                <button type="button" onclick="toggleRenew(false)"
+                                    class="px-4 py-2 bg-gray-200 rounded">Hủy</button>
+                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Xác nhận gia
+                                    hạn</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Nút hành động -->
+                    <div class="flex justify-end space-x-4" id="contract-actions">
+                        <button onclick="toggleRenew(true)" class="px-4 py-2 bg-yellow-500 text-white rounded">Gia
+                            hạn</button>
+                        <button onclick="closeContractModal()" class="px-4 py-2 bg-gray-300 rounded">Đóng</button>
+                    </div>
+                </div>
+            </div>
+
 
             <!-- Points Policy Content -->
             <div data-content id="points">
@@ -1468,6 +1472,22 @@
 </html>
 
 <script>
+    function formatCurrency(amount) {
+        if (amount === null || amount === undefined) return "N/A";
+
+        // ép kiểu sang số
+        const num = Number(amount);
+        if (isNaN(num)) return "N/A";
+
+        if (num === 0) return "0";
+
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(num);
+    }
     document.addEventListener('DOMContentLoaded', function () {
         // Lấy các phần tử
         const sidebarItems = document.querySelectorAll('.sidebar-item');
@@ -1601,21 +1621,19 @@
         try {
             const response = await fetch('/user/count_total');
             const data = await response.json();
-
-            const campaignCountElement = document.getElementById('total-account');
-            campaignCountElement.textContent = data.count;
+            const el = document.getElementById('total-account');
+            if (el) el.textContent = data.count || 0;
         } catch (error) {
             console.error('Lỗi khi gọi API:', error);
         }
     }
 
-    async function fetchCountAmin() {
+    async function fetchCountAdmin() {
         try {
             const response = await fetch('/user/count_admin');
             const data = await response.json();
-
-            const campaignCountElement = document.getElementById('total-admin');
-            campaignCountElement.textContent = data.count;
+            const el = document.getElementById('total-admin');
+            if (el) el.textContent = data.count || 0;
         } catch (error) {
             console.error('Lỗi khi gọi API:', error);
         }
@@ -1625,13 +1643,13 @@
         try {
             const response = await fetch('/user/count_user');
             const data = await response.json();
-
-            const campaignCountElement = document.getElementById('total-customer');
-            campaignCountElement.textContent = data.count;
+            const el = document.getElementById('total-user');
+            if (el) el.textContent = data.count || 0;
         } catch (error) {
             console.error('Lỗi khi gọi API:', error);
         }
     }
+
     async function monthlyRevenue() {
         try {
             const response = await fetch('/point/monthly_revenue');
@@ -1962,9 +1980,7 @@
             messageDiv.classList.add('error-message');
         }
     });
-    function formatCurrency(amount) {
-        return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-    }
+
 
     // Format ngày
     function formatDate(dateString) {
@@ -2010,9 +2026,8 @@
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">${status}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Xem</a>
-                        <a href="#" class="text-yellow-600 hover:text-yellow-900 mr-3">Gia hạn</a>
-                        <a href="/brand/export_contract/${contract.contract_id}" target="_blank" class="text-purple-600 hover:text-purple-900">Xuất PDF</a>
+                        <a href="javascript:void(0)" onclick="viewContract(${contract.contract_id})" class="text-blue-600">Xem</a>
+                        <a href="/brand/export_contract/${contract.contract_id}" target="_blank" class="text-purple-600">Xuất PDF</a>
                     </td>
                 </tr>
                 `;
@@ -2422,7 +2437,7 @@
         fetchBrandCount();
         fetchCountUsers();
         fetchCountTotalUser();
-        fetchCountAmin();
+        fetchCountAdmin();
         fetchCountUser();
         loadBrands();
         loadPendingCampaigns();
@@ -2531,4 +2546,259 @@
             },
         },
     });
+
+    async function editUser(userId) {
+        const email = prompt("Nhập email mới:");
+        const phone = prompt("Nhập số điện thoại mới:");
+        const status = confirm("Có muốn kích hoạt tài khoản này không?") ? 1 : 0;
+
+        if (!email || !phone) {
+            alert("Thông tin không hợp lệ!");
+            return;
+        }
+
+        const res = await fetch(`/user/update_account/${userId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, phone, status })
+        });
+        const data = await res.json();
+        alert(data.message);
+        loadAccounts("khachhang"); // refresh lại
+    }
+
+    async function deleteUser(userId) {
+        if (confirm("Bạn có chắc muốn xoá user ID " + userId + "?")) {
+            const res = await fetch(`/user/delete_account/${userId}`, { method: "DELETE" });
+            const data = await res.json();
+            alert(data.message);
+            loadAccounts("khachhang");
+        }
+    }
+
+    async function viewContract(id) {
+        try {
+            const res = await fetch(`/brand/contract/${id}`);
+            const data = await res.json();
+            if (!data.success) {
+                alert("Không tìm thấy hợp đồng");
+                return;
+            }
+            const c = data.contract;
+            document.getElementById("contract-detail").innerHTML = `
+            <p><b>Mã hợp đồng:</b> #CON${c.contract_id}</p>
+            <p><b>Brand:</b> ${c.brandname}</p>
+            <p><b>Ngày bắt đầu:</b> ${formatDate(c.start_at)}</p>
+            <p><b>Ngày kết thúc:</b> ${formatDate(c.end_at)}</p>
+            <p><b>Giá trị:</b> ${formatCurrency(c.total_amount)}</p>
+            <p><b>Trạng thái:</b> ${c.status == 1
+                    ? '<span class="text-green-600">Đang hoạt động</span>'
+                    : '<span class="text-red-600">Hết hạn</span>'}</p>
+            `;
+            document.getElementById("renew-id").value = c.contract_id;
+            document.getElementById("contract-modal").classList.remove("hidden");
+            toggleRenew(false);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+
+    function closeContractModal() {
+        document.getElementById("contract-modal").classList.add("hidden");
+    }
+
+    function toggleRenew(show) {
+        document.getElementById("renew-section").classList.toggle("hidden", !show);
+        document.getElementById("contract-actions").classList.toggle("hidden", show);
+    }
+
+    document.getElementById("renew-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("renew-id").value;
+        const newDate = document.getElementById("renew-date").value;
+        try {
+            const res = await fetch(`/brand/contract/renew/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ end_date: newDate })
+            });
+            const data = await res.json();
+            if (!data.success) {
+                alert("❌ " + data.message);
+                return;
+            }
+            alert("✅ " + data.message);
+            closeContractModal();
+            loadContracts(); // reload bảng hợp đồng
+        } catch (err) {
+            console.error(err);
+            alert("Có lỗi khi gia hạn hợp đồng");
+        }
+    });
+
+</script>
+<script>
+    async function loadAccount(type) {
+        const loading = document.getElementById('loading');
+        const errorMsg = document.getElementById('error-message');
+        const headersRow = document.getElementById('table-headers');
+        const tbody = document.getElementById('table-body');
+
+        loading.classList.remove('hidden');
+        errorMsg.classList.add('hidden');
+        headersRow.innerHTML = '';
+        tbody.innerHTML = '';
+
+        let url = '';
+        if (type === 'khachhang') url = '/user/account_customer';
+        if (type === 'brand') url = '/user/account_brand';
+        if (type === 'mall') url = '/user/account_mall';
+
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            loading.classList.add('hidden');
+
+            if (!data.user || data.user.length === 0) {
+                errorMsg.textContent = "Không có dữ liệu";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            const headers = ["Tên đăng nhập", "Họ tên", "Email", "SĐT", "Vai trò", "Trạng thái", "Hành động"];
+            headersRow.innerHTML = headers.map(h =>
+                `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">${h}</th>`
+            ).join("");
+
+            tbody.innerHTML = "";
+            data.user.forEach(u => {
+                const roleMap = { customer: "Khách hàng", brand: "Thương hiệu", mall: "Quản trị Mall" };
+                const statusBadge = u.status == 1
+                    ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Hoạt động</span>`
+                    : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Khóa</span>`;
+
+                let row = `
+                        <tr>
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">${u.username || ""}</td>
+                        <td class="px-6 py-4 text-sm">${u.fullname || ""}</td>
+                        <td class="px-6 py-4 text-sm">${u.email || ""}</td>
+                        <td class="px-6 py-4 text-sm">${u.phone || ""}</td>
+                        <td class="px-6 py-4 text-sm">${roleMap[u.role] || "-"}</td>
+                        <td class="px-6 py-4 text-sm">${statusBadge}</td>
+                        <td class="px-6 py-4 text-sm">
+                            <a href="javascript:void(0)" onclick="editAccount(${u.user_id})" class="text-blue-600 hover:underline mr-3">Chi tiết</a>
+                            <a href="javascript:void(0)" onclick="deleteAccount(${u.user_id})" class="text-red-600 hover:underline">Xóa</a>
+                        </td>
+                        </tr>`;
+                tbody.innerHTML += row;
+            });
+
+        } catch (err) {
+            console.error(err);
+            loading.classList.add('hidden');
+            errorMsg.textContent = "Lỗi tải dữ liệu";
+            errorMsg.classList.remove('hidden');
+        }
+    }
+
+    async function editAccount(id) {
+        try {
+            const res = await fetch(`/user/get_account/${id}`);
+            const result = await res.json();
+            if (!result.success) {
+                alert(result.message || "Không tìm thấy tài khoản");
+                return;
+            }
+            const user = result.account;
+            openAccountModal(user);
+        } catch (err) {
+            console.error(err);
+            alert("Có lỗi khi tải tài khoản!");
+        }
+    }
+
+    function openAccountModal(user = null) {
+        const modal = document.getElementById("account-modal");
+        const form = document.getElementById("account-form");
+        const title = document.getElementById("modal-title");
+        modal.classList.remove("hidden");
+
+        if (user) {
+            title.textContent = "Chỉnh sửa tài khoản";
+            document.getElementById("account-id").value = user.user_id;
+            document.getElementById("username").value = user.username || "";
+            document.getElementById("email").value = user.email || "";
+            document.getElementById("phone").value = user.phone || "";
+            document.getElementById("address").value = user.address || "";
+            document.getElementById("role").value = user.role || "customer";
+            document.getElementById("status").value = user.status;
+        } else {
+            title.textContent = "Thêm tài khoản";
+            form.reset();
+            document.getElementById("account-id").value = "";
+        }
+    }
+
+    function closeAccountModal() {
+        document.getElementById("account-modal").classList.add("hidden");
+    }
+
+    document.getElementById("account-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const id = document.getElementById("account-id").value;
+        const data = {
+            username: document.getElementById("username").value,
+            email: document.getElementById("email").value,
+            phone: document.getElementById("phone").value,
+            address: document.getElementById("address").value,
+            status: parseInt(document.getElementById("status").value),
+            role: document.getElementById("role").value
+        };
+
+        try {
+            let url, method;
+            if (id) {
+                url = `/user/update_account/${id}`;
+                method = "PUT";
+            } else {
+                url = "/user/create_account";
+                method = "POST";
+            }
+
+            const res = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            alert(result.message || "Lưu thành công!");
+            closeAccountModal();
+            loadAccount("khachhang");
+        } catch (err) {
+            console.error(err);
+            alert("Có lỗi xảy ra!");
+        }
+    });
+
+    async function deleteAccount(id) {
+        if (!confirm("Bạn có chắc muốn xóa tài khoản này?")) return;
+        try {
+            const res = await fetch(`/user/delete_account/${id}`, { method: "DELETE" });
+            const result = await res.json();
+            alert(result.message || "Đã xóa!");
+            loadAccount("khachhang");
+        } catch (err) {
+            console.error(err);
+            alert("Có lỗi xảy ra khi xóa!");
+        }
+    }
+
+    // Tab events
+    document.getElementById('tab-khachhang').addEventListener('click', () => loadAccount('khachhang'));
+    document.getElementById('tab-brand').addEventListener('click', () => loadAccount('brand'));
+    document.getElementById('tab-mall').addEventListener('click', () => loadAccount('mall'));
+
+    // Load mặc định
+    loadAccount('khachhang');
 </script>

@@ -22,11 +22,24 @@ CREATE TABLE Point_Log (
 );
 
 CREATE TABLE ConversionRule (
-  rule_id INT AUTO_INCREMENT PRIMARY KEY,
-  rate FLOAT NOT NULL,  
-  effective_from DATETIME NOT NULL,
-  effective_to DATETIME
+    conversion_rule_id INT AUTO_INCREMENT PRIMARY KEY,
+    rule_name VARCHAR(100) NOT NULL,             -- Tên chính sách (VD: Ưu đãi F&B)
+    apply_scope ENUM('ALL', 'CATEGORY', 'BRAND') NOT NULL,  
+        -- ALL = áp dụng cho tất cả brand
+        -- CATEGORY = áp dụng theo ngành hàng
+        -- BRAND = áp dụng cho 1 brand cụ thể
+    brand_id INT NULL,                           -- Nếu apply_scope = BRAND
+    category_id INT NULL,                        -- Nếu apply_scope = CATEGORY
+    rate DECIMAL(10,2) NOT NULL,                 -- Tỷ lệ quy đổi (VD: 1000 = 1 điểm)
+    effective_from DATE NOT NULL,                -- Ngày bắt đầu
+    effective_to DATE NULL,                      -- Ngày kết thúc
+    status TINYINT NOT NULL DEFAULT 1,           -- 1 = Đang áp dụng, 0 = Hết hiệu lực
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (brand_id) REFERENCES Brand(brand_id),
+    FOREIGN KEY (category_id) REFERENCES Category(category_id)
 );
+
 CREATE TABLE User_Snapshot
 (
   user_snapshot_id int not null AUTO_INCREMENT PRIMARY KEY,
