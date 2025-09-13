@@ -937,3 +937,24 @@ def init_wallet():
             conn.close()
         print("init_wallet error:", e)
         return jsonify({"success": False, "message": str(e)}), 500
+@point_bp.route('/wallet/<int:user_id>', methods=['GET'])
+def get_wallet(user_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT point_wallet_id, user_id, total_points, last_update
+            FROM PointWallet
+            WHERE user_id = %s
+        """, (user_id,))
+        wallet = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not wallet:
+            # Nếu user chưa có ví -> trả mặc định
+            return jsonify({"success": True, "total_points": 0}), 200
+
+        return jsonify({"success": True, "total_points": wallet["total_points"]}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500

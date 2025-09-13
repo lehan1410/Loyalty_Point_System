@@ -652,7 +652,7 @@ Mã xác thực để đặt lại mật khẩu của bạn là:
 Mã có hiệu lực trong 60 phút. Nếu bạn không yêu cầu, vui lòng bỏ qua email này.
 
 Trân trọng,
-Mall
+Loyalty Point System Team
 """
     msg = EmailMessage()
     msg["From"] = EMAIL_FROM
@@ -898,3 +898,71 @@ def register():
     except Exception as e:
         print("register error:", e)
         return jsonify({"success": False, "message": str(e)}), 500
+# Lấy thông tin user_profile theo user_id
+@user_bp.route('/profile/<int:user_id>', methods=['GET'])
+def get_profile(user_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM User_Profile WHERE user_id = %s", (user_id,))
+        profile = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        if not profile:
+            return jsonify({"success": False, "message": "Không tìm thấy user"}), 404
+        return jsonify({"success": True, "profile": profile}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+# Cập nhật thông tin user_profile
+@user_bp.route('/profile/<int:user_id>', methods=['PUT'])
+def update_profile(user_id):
+    try:
+        data = request.get_json() or {}
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE User_Profile
+            SET date_of_birth = %s, address = %s, gender = %s, phone = %s
+            WHERE user_id = %s
+        """, (
+            data.get("date_of_birth"),
+            data.get("address"),
+            data.get("gender"),
+            data.get("phone"),
+            user_id
+        ))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"success": True, "message": "Cập nhật thành công"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@user_bp.route('/referrals/info/<int:user_id>', methods=['GET'])
+def get_referral_info(user_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # 1. Lấy mã giới thiệu của user
+        cursor.execute("SELECT referral_code FROM Users WHERE user_id = %s", (user_id,))
+        user = cursor.fetchone()
+        referral_code = user['referral_code'] if user else None
+
+        # 2. Đếm số lần giới thiệu thành công
+        cursor.execute("SELECT COUNT(*) AS count FROM Users WHERE referred_by = %s", (user_id,))
+        count = cursor.fetchone()['count']
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "code": referral_code,
+            "count": count
+        }), 200
+
+    except mysql.connector.Error as err:
+        return jsonify({"success": False, "error": str(err)}), 500

@@ -721,3 +721,22 @@ def export_campaign_invoice(campaign_id):
 
     except Exception as e:
         return jsonify({"error": f"Lỗi khi xuất hóa đơn: {str(e)}"}), 500
+
+@campaign_bp.route('/joined/<int:user_id>', methods=['GET'])
+def get_joined_campaigns(user_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT c.campaign_id, c.title, cr.points_spent
+            FROM Campaign_Redemption cr
+            JOIN Campaign c ON cr.campaign_id = c.campaign_id
+            WHERE cr.user_id = %s
+        """, (user_id,))
+        campaigns = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        return jsonify(campaigns), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

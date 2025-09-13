@@ -3026,3 +3026,44 @@
     document.addEventListener("DOMContentLoaded", loadConversionRules);
 
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const contentSections = document.querySelectorAll('[data-content]');
+
+        // Lấy tab đã lưu trong localStorage
+        const savedTab = localStorage.getItem("activeTab") || "dashboard";
+
+        // Ẩn tất cả, chỉ hiển thị tab đã lưu
+        contentSections.forEach(section => section.classList.remove("active"));
+        document.getElementById(savedTab).classList.add("active");
+
+        // Cập nhật trạng thái active trên sidebar
+        sidebarItems.forEach(item => {
+            item.classList.remove("active");
+            if (item.getAttribute("data-target") === savedTab) {
+                item.classList.add("active");
+            }
+        });
+
+        // Gán sự kiện click cho từng sidebar item
+        sidebarItems.forEach(item => {
+            item.addEventListener("click", function (event) {
+                event.preventDefault();
+                const targetId = this.getAttribute("data-target");
+
+                // Ẩn tất cả, hiện tab được chọn
+                contentSections.forEach(section => section.classList.remove("active"));
+                document.getElementById(targetId).classList.add("active");
+
+                // Cập nhật sidebar
+                sidebarItems.forEach(i => i.classList.remove("active"));
+                this.classList.add("active");
+
+                // Lưu tab vào localStorage
+                localStorage.setItem("activeTab", targetId);
+            });
+        });
+    });
+</script>

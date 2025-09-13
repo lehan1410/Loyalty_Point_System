@@ -279,7 +279,7 @@
         <!-- Navigation Tabs -->
         <div class="flex border-b mb-8">
             <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all tab-active"
-                data-target="promotions">Ưu đãi</button>
+                data-target="promotions">Chiến dịch</button>
             <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all" data-target="points">Quản lý
                 điểm</button>
             <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all" data-target="vouchers">Voucher
@@ -290,17 +290,118 @@
                 data-target="voucher-history">Lịch sử sử dụng voucher</button>
             <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all" data-target="ad">Quảng
                 cáo</button>
+            <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all" data-target="profile">Hồ
+                sơ</button>
+        </div>
+
+        <!-- Profile Content -->
+        <div data-content id="profile">
+            <div class="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-100">
+                <h3 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                    <i class="fas fa-user-circle mr-2 text-blue-600"></i> Hồ sơ khách hàng
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Avatar -->
+                    <div class="flex flex-col items-center space-y-4">
+                        <div id="avatar"
+                            class="w-32 h-32 rounded-full border-4 border-blue-100 shadow-md flex items-center justify-center text-4xl font-bold text-white bg-blue-600 select-none">
+                            U</div>
+
+                    </div>
+
+                    <!-- Thông tin chính -->
+                    <div class="md:col-span-2 space-y-6">
+                        <!-- Grid form -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600">Họ và tên</label>
+                                <input id="fullname" type="text" readonly
+                                    class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                    placeholder="Nguyễn Văn A">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600">Email</label>
+                                <input id="email" type="email" readonly
+                                    class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                    placeholder="abc@example.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600">Số điện thoại</label>
+                                <input id="phone" type="text"
+                                    class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                    placeholder="090xxxxxxx">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600">Ngày sinh (tùy chọn)</label>
+                                <input id="date_of_birth" type="date"
+                                    class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600">Giới tính (tùy chọn)</label>
+                                <select id="gender"
+                                    class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                    <option value="0">Nữ</option>
+                                    <option value="1">Nam</option>
+                                    <option value="2">Khác</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600">Địa chỉ (tùy chọn)</label>
+                                <input id="address" type="text"
+                                    class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                    placeholder="TP. Hồ Chí Minh">
+                            </div>
+                        </div>
+
+                        <!-- Thông tin điểm & referral -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div
+                                class="bg-gradient-to-r from-blue-50 to-blue-100 p-5 rounded-xl shadow hover:shadow-md transition">
+                                <p class="text-sm text-gray-600">Điểm hiện có</p>
+                                <p id="profile-points" class="text-3xl font-extrabold text-blue-700 mt-1">0</p>
+                            </div>
+                            <div
+                                class="bg-gradient-to-r from-green-50 to-green-100 p-5 rounded-xl shadow hover:shadow-md transition">
+                                <p class="text-sm text-gray-600">Mã giới thiệu của bạn</p>
+                                <div class="flex items-center mt-1">
+                                    <span id="referral-code"
+                                        class="text-lg font-mono font-bold text-green-700">ABC123</span>
+                                    <button onclick="copyReferralCode()"
+                                        class="ml-3 px-3 py-1 bg-green-600 text-white rounded-full shadow hover:bg-green-700 text-sm">
+                                        Sao chép
+                                    </button>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-2">Số lần giới thiệu thành công:
+                                    <span id="referral-count" class="font-bold text-green-700">0</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Ngày đăng ký -->
+                        <p class="text-sm text-gray-500">Ngày đăng ký:
+                            <span id="register-date" class="font-medium">--/--/----</span>
+                        </p>
+
+                        <!-- Nút cập nhật -->
+                        <button id="btnUpdate"
+                            class="mt-4 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition">
+                            <i class="fas fa-save mr-2"></i> Cập nhật hồ sơ
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Promotions Content -->
         <div data-content id="promotions" class="active">
-            <h3 class="text-xl font-bold mb-6">Ưu đãi hiện có</h3>
+            <h3 class="text-xl font-bold mb-6">Chiến dịch đang diễn ra</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" id="current-promotions">
                 <div class="loading-overlay">
                     <div class="spinner"></div>
                 </div>
             </div>
-            <h3 class="text-xl font-bold mb-6">Ưu đãi sắp tới</h3>
+            <h3 class="text-xl font-bold mb-6">Chiến dịch sắp bắt đầu</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="upcoming-promotions">
                 <div class="loading-overlay">
                     <div class="spinner"></div>
@@ -355,7 +456,7 @@
             </div>
 
             <!-- Reward Catalog -->
-            <h3 class="text-xl font-bold mb-6">Quà tặng đổi điểm</h3>
+            <h3 class="text-xl font-bold mb-6">Quà tặng đổi điểm từ Mall</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" id="rewards-catalog">
                 <div class="loading-overlay">
                     <div class="spinner"></div>
@@ -634,14 +735,12 @@
         </div>
     </footer>
 
+
+
+
     <script>
-        // Biến toàn cục từ server
+
         window.CURRENT_USER = { id: "{{ user.user_id }}", username: "{{ user.user_name }}", role: "{{ user.role }}", brand_id: "{{user.brand_id or 'null' }}" };
-    </script>
-
-
-    <script>
-        // Configuration
         const USER_ID = window.CURRENT_USER.id;
         const BRAND_ID = window.CURRENT_USER.brand_id;
 
@@ -710,7 +809,7 @@
             try {
                 const response = await fetch(`/campaign/campaigns`);
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Lỗi tải ưu đãi');
+                if (!response.ok) throw new Error(data.error || 'Lỗi tải chiến dịch');
 
                 const current = data.filter(c => c.status === 'Đang hoạt động');
                 if (current.length > 0) {
@@ -733,7 +832,7 @@
                         </div>
                     `).join('');
                 } else {
-                    currentContainer.innerHTML = '<div class="text-gray-600 text-center col-span-full">Không có ưu đãi hiện tại.</div>';
+                    currentContainer.innerHTML = '<div class="text-gray-600 text-center col-span-full">Không có chiến dịch đang diễn ra hiện tại.</div>';
                 }
 
                 const upcoming = data.filter(c => c.status === 'Sắp bắt đầu');
@@ -981,7 +1080,7 @@
                 const pointsData = await pointsResponse.json();
                 if (!pointsResponse.ok) throw new Error(pointsData.error || 'Lỗi kiểm tra điểm');
                 if (pointsData.total_points < pointsRequired) {
-                    alert('Bạn không đủ điểm để đổi ưu đãi này.');
+                    alert('Bạn không đủ điểm để đổi chiến dịch này.');
                     return;
                 }
 
@@ -991,7 +1090,7 @@
                     body: JSON.stringify({ user_id: USER_ID })
                 });
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Lỗi khi đổi ưu đãi');
+                if (!response.ok) throw new Error(data.error || 'Lỗi khi đổi chiến dịch');
 
                 await fetch('/point/redeem_points', {
                     method: 'POST',
@@ -1005,7 +1104,7 @@
                     })
                 });
 
-                alert(`Đổi ưu đãi thành công! Mã đổi: ${data.redemption_code}`);
+                alert(`Đổi ưu đãi từ chiến dịch thành công! Mã đổi: ${data.redemption_code}`);
                 loadTotalPoints();
                 loadTransactionHistory();
                 loadUserBrandVouchers();
@@ -1451,10 +1550,14 @@
             const data = await response.json();
             if (!response.ok) return;
 
-            const activeAdIds = data.map(ad => ad.ad_id);
+            // Nếu API trả về object { ads: [...] }
+            const ads = Array.isArray(data) ? data : data.ads || [];
+
+            const activeAdIds = ads.map(ad => ad.ad_id);
             dismissedAds = dismissedAds.filter(adId => activeAdIds.includes(adId));
             localStorage.setItem('dismissedAds', JSON.stringify(dismissedAds));
         }
+
 
         // Biến toàn cục để lưu trữ lịch sử voucher đã sử dụng
         let usedBrandVouchers = [];
@@ -1629,6 +1732,111 @@
             renderVoucherHistory();
         }
 
+        async function loadProfile() {
+            try {
+                const res = await fetch(`/user/profile/${USER_ID}`);
+                const data = await res.json();
+                console.log("Profile API trả về:", data);
+
+                if (!res.ok) throw new Error(data.message || 'Lỗi tải hồ sơ');
+
+                const profile = data.profile;
+
+                // Hiển thị avatar bằng chữ cái đầu
+                const name = profile.fullname || "User";
+                const initial = name.trim().charAt(0).toUpperCase();
+
+                const avatarDiv = document.getElementById("avatar");
+                avatarDiv.textContent = initial;
+
+                // random màu avatar (xanh, tím, hồng, xanh lá, vàng)
+                const colors = ["bg-blue-600", "bg-purple-600", "bg-pink-600", "bg-green-600", "bg-yellow-600"];
+                const randomColor = colors[profile.user_id % colors.length];
+                avatarDiv.className =
+                    "w-32 h-32 rounded-full border-4 border-blue-100 shadow-md flex items-center justify-center " +
+                    "text-4xl font-bold text-white select-none " + randomColor;
+
+                // Hiển thị form
+                document.getElementById("fullname").value = profile.fullname || "";
+                document.getElementById("email").value = profile.email || "";
+                document.getElementById("date_of_birth").value = profile.date_of_birth
+                    ? new Date(profile.date_of_birth).toISOString().split("T")[0]
+                    : "";
+                document.getElementById("gender").value = profile.gender == 1 ? "1" : "0";
+                document.getElementById("phone").value = profile.phone || "";
+                document.getElementById("address").value = profile.address || "";
+
+                // Điểm hiện có
+                const pointRes = await fetch(`/point/wallet/${USER_ID}`);
+                const pointData = await pointRes.json();
+                document.getElementById("profile-points").textContent = pointData.total_points ?? 0;
+
+                // Mã giới thiệu + số lần giới thiệu
+                const referralRes = await fetch(`/user/referrals/info/${USER_ID}`);
+                const referralData = await referralRes.json();
+                document.getElementById("referral-code").textContent = referralData.code || "N/A";
+                document.getElementById("referral-count").textContent = referralData.count ?? 0;
+
+                // Ngày đăng ký
+                document.getElementById("register-date").textContent = profile.created_at
+                    ? new Date(profile.created_at).toLocaleDateString("vi-VN")
+                    : "--/--/----";
+
+                // Chiến dịch đã tham gia
+                const campaignRes = await fetch(`/campaign/joined/${USER_ID}`);
+                const campaigns = await campaignRes.json();
+                const ul = document.getElementById("joined-campaigns");
+                ul.innerHTML = "";
+                if (!campaigns || campaigns.length === 0) {
+                    ul.innerHTML = "<li class='text-gray-500'>Chưa tham gia chiến dịch nào</li>";
+                } else {
+                    campaigns.forEach(c => {
+                        const li = document.createElement("li");
+                        li.className = "text-gray-700";
+                        li.textContent = `• ${c.title} (Điểm đã dùng: ${c.points_spent})`;
+                        ul.appendChild(li);
+                    });
+                }
+            } catch (err) {
+                console.error("Lỗi load hồ sơ:", err);
+            }
+        }
+
+        document.getElementById("btnUpdate").addEventListener("click", async () => {
+            try {
+                const payload = {
+                    date_of_birth: document.getElementById("date_of_birth").value,
+                    gender: document.getElementById("gender").value,
+                    phone: document.getElementById("phone").value,
+                    address: document.getElementById("address").value
+                };
+
+                const response = await fetch(`/user/profile/${USER_ID}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || "Cập nhật thất bại");
+
+                alert("Cập nhật thành công!");
+                loadProfile(); // reload lại form sau khi cập nhật
+            } catch (err) {
+                console.error("Lỗi updateProfile:", err);
+                alert("Cập nhật thất bại!");
+            }
+        });
+        function copyReferralCode() {
+            const code = document.getElementById("referral-code").textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert("Đã sao chép mã: " + code);
+            }).catch(err => {
+                console.error("Không thể copy mã:", err);
+            });
+        }
+
+
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -1697,7 +1905,8 @@
                 loadUserVouchers(),
                 loadTransactionHistory(),
                 loadAds(),
-                loadUsedVouchers()
+                loadUsedVouchers(),
+                // loadProfile(),
             ]).then(results => {
                 results.forEach((result, index) => {
                     if (result.status === 'rejected') {
@@ -1706,7 +1915,9 @@
                 });
             });
         });
+        document.addEventListener('DOMContentLoaded', loadProfile);
     </script>
+
 </body>
 
 </html>

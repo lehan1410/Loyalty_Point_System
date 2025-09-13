@@ -15,6 +15,13 @@ ALTER TABLE Users
 ADD COLUMN referral_code VARCHAR(20) UNIQUE,
 ADD COLUMN referred_by VARCHAR(20) NULL;
 
+ALTER TABLE user_profile 
+ADD COLUMN created_at DATETIME NULL;
+UPDATE user_profile up
+JOIN users u ON up.user_id = u.user_id
+SET up.created_at = u.created_at;
+
+
 -- Thêm referral_code tự sinh cho tất cả user chưa có mã
 UPDATE Users
 SET referral_code = CONCAT(UPPER(SUBSTRING(REPLACE(UUID(), '-', ''), 1, 8)))
