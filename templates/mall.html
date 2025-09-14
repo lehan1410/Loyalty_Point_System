@@ -299,37 +299,26 @@
                 <div class="flex items-center space-x-6">
                     <!-- Biểu tượng thông báo -->
                     <div class="relative group">
-                        <button id="notificationBtn" class="relative">
-                            <i class="fas fa-bell text-xl"></i>
-                            <span
-                                class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                3
+                        <!-- Nút chuông thông báo -->
+                        <button id="notificationBtn" class="relative p-2 text-gray-600 hover:text-blue-600">
+                            <i class="fas fa-bell text-white"></i>
+                            <span id="notificationBadge"
+                                class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                                0
                             </span>
                         </button>
+
                         <!-- Dropdown thông báo -->
                         <div id="notificationDropdown"
-                            class="hidden absolute right-0 mt-2 w-64 bg-white text-black rounded-md shadow-lg z-50">
-                            <div class="p-4 border-b">
-                                <h3 class="font-bold text-gray-800">Thông báo</h3>
+                            class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                            <div class="flex justify-between items-center p-3 border-b">
+                                <h4 class="font-bold text-gray-700">Thông báo hệ thống</h4>
+                                <button id="markAllReadBtn" class="text-sm text-blue-600 hover:underline">Đánh dấu tất
+                                    cả đã đọc</button>
                             </div>
-                            <div class="divide-y divide-gray-200">
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-100">
-                                    <p class="text-sm font-medium text-gray-900">Hợp đồng với Nike sắp hết hạn</p>
-                                    <p class="text-xs text-gray-500">2 giờ trước</p>
-                                </a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-100">
-                                    <p class="text-sm font-medium text-gray-900">Chiến dịch Black Friday đã được tạo</p>
-                                    <p class="text-xs text-gray-500">1 ngày trước</p>
-                                </a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-100">
-                                    <p class="text-sm font-medium text-gray-900">5 tài khoản mới đăng ký</p>
-                                    <p class="text-xs text-gray-500">2 ngày trước</p>
-                                </a>
-                            </div>
-                            <div class="p-2 text-center bg-gray-50">
-                                <a href="#" class="text-sm text-blue-600 font-medium">Xem tất cả</a>
-                            </div>
+                            <div id="notificationList" class="max-h-80 overflow-y-auto"></div>
                         </div>
+
                     </div>
 
                     <!-- Tài khoản -->
@@ -872,7 +861,7 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="text-gray-500">Tỷ lệ quy đổi</p>
-                                <h3 class="text-2xl font-bold mt-2">1,000đ = 1 điểm</h3>
+                                <p class="text-2xl font-bold mt-2">100.000đ = 1 điểm</h3>
                             </div>
                             <div class="bg-blue-100 text-blue-600 p-3 rounded-lg">
                                 <i class="fas fa-exchange-alt text-xl"></i>
@@ -1290,41 +1279,105 @@
 
             <!-- Notifications Content -->
             <div data-content id="notifications">
-                <div class="bg-white rounded-xl p-6 shadow-md">
-                    <h3 class="text-xl font-bold mb-4">Thông báo</h3>
-                    <div class="space-y-4">
-                        <div class="flex items-start space-x-3 border-b pb-4">
-                            <div class="bg-blue-100 text-blue-600 p-2 rounded-full">
-                                <i class="fas fa-info-circle"></i>
-                            </div>
+                <!-- Nút mở form tạo thông báo -->
+                <div class="flex justify-end mb-4">
+                    <button id="btnOpenCreateNotification"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-plus mr-2"></i> Tạo Thông Báo
+                    </button>
+                </div>
+
+                <!-- Modal Tạo Thông Báo -->
+                <div id="createNotificationModal"
+                    class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">Tạo thông báo mới</h2>
+
+                        <form id="createNotificationForm" class="space-y-4">
+                            <!-- Tiêu đề -->
                             <div>
-                                <p class="font-medium">Hợp đồng với Nike sắp hết hạn</p>
-                                <p class="text-sm text-gray-500">Cần gia hạn trước 15/05/2024</p>
-                                <p class="text-xs text-gray-400">2 giờ trước</p>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tiêu đề</label>
+                                <input type="text" id="notificationTitle"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required>
                             </div>
-                            <button class="ml-auto text-blue-600 hover:text-blue-800">
-                                <i class="fas fa-check"></i> Đánh dấu đã đọc
-                            </button>
-                        </div>
-                        <div class="flex items-start space-x-3 border-b pb-4">
-                            <div class="bg-green-100 text-green-600 p-2 rounded-full">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
+
+                            <!-- Nội dung -->
                             <div>
-                                <p class="font-medium">Chiến dịch Black Friday đã được phê duyệt</p>
-                                <p class="text-sm text-gray-500">Sẵn sàng để triển khai</p>
-                                <p class="text-xs text-gray-400">1 ngày trước</p>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nội dung</label>
+                                <textarea id="notificationMessage"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    rows="3" required></textarea>
                             </div>
-                            <button class="ml-auto text-blue-600 hover:text-blue-800">
-                                <i class="fas fa-check"></i> Đánh dấu đã đọc
-                            </button>
-                        </div>
+
+                            <!-- Ngày hết hạn -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Ngày hết hạn</label>
+                                <input type="date" id="notificationEndAt"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required>
+                            </div>
+
+                            <!-- Loại thông báo -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Loại thông báo</label>
+                                <select id="notificationType"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="marketing">Marketing</option>
+                                    <!-- Không cho phép chọn system trong modal -->
+                                </select>
+                            </div>
+
+
+                            <!-- Đối tượng nhận -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Gửi đến</label>
+                                <select id="notificationTarget"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="all">Tất cả</option>
+                                    <option value="customer">Khách hàng</option>
+                                    <option value="brand">Thương hiệu</option>
+                                </select>
+                            </div>
+
+                            <!-- Nếu chọn brand thì hiện input brand_id -->
+                            <div id="brandTargetInput" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Brand ID</label>
+                                <input type="number" id="notificationTargetId"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Nhập ID thương hiệu cụ thể">
+                            </div>
+
+                            <!-- Nút submit -->
+                            <div class="flex justify-end space-x-3 pt-4">
+                                <button type="button"
+                                    onclick="document.getElementById('createNotificationModal').classList.add('hidden')"
+                                    class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition">Hủy</button>
+                                <button type="submit"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Tạo</button>
+                            </div>
+                        </form>
                     </div>
+                </div>
+
+
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">Thông báo</h3>
+                        <button id="markAllReadBtn" class="text-sm text-blue-600 hover:underline">
+                            Đánh dấu tất cả đã đọc
+                        </button>
+                    </div>
+
+                    <!-- Danh sách thông báo động -->
+                    <div id="notificationList" class="space-y-4"></div>
+
                     <div class="mt-4 text-center">
                         <a href="#" class="text-blue-600 font-medium">Xem tất cả thông báo</a>
                     </div>
                 </div>
             </div>
+
 
             <!-- Promotions Content -->
             <div data-content id="promotions">
@@ -2456,6 +2509,7 @@
         loadAds();
         loadPendingAds();
         loadMallVouchers();
+        loadNotifications()
 
         const sidebarItems = document.querySelectorAll('.sidebar-item');
         sidebarItems.forEach(item => {
@@ -3066,4 +3120,218 @@
             });
         });
     });
+</script>
+
+<script>
+
+    async function checkContracts() {
+        await fetch("/brand/check_expiring", { method: "POST" });
+        loadSystemNotifications(); // reload chuông thông báo
+    }
+
+    async function loadNotifications() {
+        try {
+            const res = await fetch("/notification/list");
+            const data = await res.json();
+            const list = document.getElementById("notificationList");
+            list.innerHTML = "";
+
+            if (!data.success || !data.notifications || data.notifications.length === 0) {
+                list.innerHTML = "<p class='text-gray-500'>Không có thông báo</p>";
+                return;
+            }
+
+            data.notifications.forEach(n => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "flex items-start space-x-3 border-b pb-4";
+
+                // icon tùy theo loại status (chưa đọc / đã đọc)
+                const iconClass = n.status === 1
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-gray-100 text-gray-400";
+
+                wrapper.innerHTML = `
+        <div class="${iconClass} p-2 rounded-full">
+          <i class="fas fa-info-circle"></i>
+        </div>
+        <div>
+          <p class="font-medium">${n.title}</p>
+          <p class="text-sm text-gray-500">${n.message}</p>
+          <p class="text-xs text-gray-400">${new Date(n.created_at).toLocaleString("vi-VN")}</p>
+        </div>
+        <button class="ml-auto text-blue-600 hover:text-blue-800 mark-read-btn" data-id="${n.notification_id}">
+          <i class="fas fa-check"></i> Đánh dấu đã đọc
+        </button>
+      `;
+
+                list.appendChild(wrapper);
+            });
+
+            // Gắn sự kiện cho nút "Đánh dấu đã đọc"
+            document.querySelectorAll(".mark-read-btn").forEach(btn => {
+                btn.addEventListener("click", async () => {
+                    const id = btn.dataset.id;
+                    await fetch(`/notification/mark_read/${id}`, { method: "POST" });
+                    loadNotifications(); // reload lại
+                });
+            });
+
+        } catch (err) {
+            console.error("loadNotifications()", err);
+        }
+    }
+
+
+    // Đánh dấu tất cả đã đọc
+    document.getElementById("markAllReadBtn").addEventListener("click", async () => {
+        await fetch("/notification/mark_all_read", { method: "POST" });
+        loadNotifications();
+    });
+
+
+    // Gọi khi mở trang + định kỳ
+    document.addEventListener('DOMContentLoaded', () => {
+        checkContracts();
+        setInterval(checkContracts, 10 * 60 * 1000);
+    });
+    document.getElementById('notificationBtn').addEventListener('click', loadNotifications);
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btnOpen = document.getElementById("btnOpenCreateNotification");
+        const btnCancel = document.getElementById("btnCancelCreateNotification");
+        const modal = document.getElementById("createNotificationModal");
+        const form = document.getElementById("createNotificationForm");
+        const targetSelect = document.getElementById("notificationTarget");
+        const brandInputWrap = document.getElementById("brandTargetInput");
+
+        // Mở modal
+        if (btnOpen && modal) {
+            btnOpen.addEventListener("click", () => {
+                modal.classList.remove("hidden");
+            });
+        }
+
+        // Đóng modal
+        if (btnCancel && modal) {
+            btnCancel.addEventListener("click", () => {
+                modal.classList.add("hidden");
+            });
+        }
+
+        // Submit form
+        if (form) {
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const title = document.getElementById("notificationTitle")?.value || "";
+                const message = document.getElementById("notificationMessage")?.value || "";
+                const end_at = document.getElementById("notificationEndAt")?.value || "";
+                const noti_type = document.getElementById("notificationType")?.value || "marketing";
+                const target_type = targetSelect ? targetSelect.value : "all";
+                const target_id = (target_type === "brand")
+                    ? (document.getElementById("notificationTargetId")?.value || null)
+                    : null;
+
+                try {
+                    const res = await fetch("/notification/create", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            title, message, end_at,
+                            status: 1,
+                            noti_type,
+                            target_type, target_id
+                        })
+                    });
+
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        alert("✅ Tạo thông báo thành công!");
+                        modal.classList.add("hidden");
+                        form.reset();
+                        if (brandInputWrap) brandInputWrap.classList.add("hidden");
+                    } else {
+                        alert("❌ Lỗi: " + (data.message || "Không thể tạo thông báo"));
+                    }
+                } catch (err) {
+                    console.error("Lỗi tạo thông báo:", err);
+                    alert("❌ Có lỗi xảy ra khi gửi thông báo");
+                }
+            });
+        }
+
+        // Toggle input Brand ID
+        if (targetSelect && brandInputWrap) {
+            targetSelect.addEventListener("change", (e) => {
+                if (e.target.value === "brand") {
+                    brandInputWrap.classList.remove("hidden");
+                } else {
+                    brandInputWrap.classList.add("hidden");
+                }
+            });
+        }
+    });
+</script>
+
+<script>
+    async function loadSystemNotifications() {
+        try {
+            const res = await fetch("/notification/list/system");
+            const data = await res.json();
+
+            const list = document.getElementById("notificationList");
+            const badge = document.getElementById("notificationBadge");
+
+            list.innerHTML = "";
+
+            if (!data.success || !data.notifications || data.notifications.length === 0) {
+                list.innerHTML = "<p class='p-3 text-gray-500'>Không có thông báo</p>";
+                badge.classList.add("hidden");
+                return;
+            }
+
+            // render danh sách
+            let unreadCount = 0;
+            data.notifications.forEach(n => {
+                if (n.status === 1) unreadCount++;
+                const item = document.createElement("div");
+                item.className = "p-3 border-b hover:bg-gray-50";
+                item.innerHTML = `
+        <p class="font-medium text-gray-800">${n.title}</p>
+        <p class="text-sm text-gray-600">${n.message}</p>
+        <p class="text-xs text-gray-400">${new Date(n.created_at).toLocaleString("vi-VN")}</p>
+      `;
+                list.appendChild(item);
+            });
+
+            // badge số chưa đọc
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.classList.remove("hidden");
+            } else {
+                badge.classList.add("hidden");
+            }
+        } catch (err) {
+            console.error("loadSystemNotifications()", err);
+        }
+    }
+
+    // Toggle dropdown khi click chuông
+    document.getElementById("notificationBtn").addEventListener("click", () => {
+        const dropdown = document.getElementById("notificationDropdown");
+        dropdown.classList.toggle("hidden");
+        if (!dropdown.classList.contains("hidden")) {
+            loadSystemNotifications();
+        }
+    });
+
+    // Đánh dấu tất cả đã đọc
+    document.getElementById("markAllReadBtn").addEventListener("click", async () => {
+        await fetch("/notification/mark_all_read", { method: "POST" });
+        loadSystemNotifications();
+    });
+
+    // Gọi khi load trang để cập nhật badge
+    document.addEventListener("DOMContentLoaded", loadSystemNotifications);
 </script>

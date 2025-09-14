@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, json
-import mysql.connector
+from flask import Blueprint, render_template, jsonify, redirect, url_for, json, request
+import mysql.connector, requests
 from flask_cors import CORS
 from datetime import datetime, timedelta
 import secrets, hashlib, uuid, smtplib, urllib.parse
@@ -882,6 +882,14 @@ def register():
         cursor.execute("SELECT referral_code FROM Users WHERE user_id = %s", (new_user_id,))
         row = cursor.fetchone()
         referral_code = row["referral_code"] if row else None
+
+        requests.post("http://localhost:5000/notification/create_no", json={
+            "title": "Khách hàng mới đăng ký",
+            "message": f"Khách hàng {fullname} vừa tạo tài khoản.",
+            "status": 1,
+            "type": "system"
+        })
+
 
         conn.commit()
         cursor.close()

@@ -37,6 +37,8 @@ CREATE TABLE Contract
   PRIMARY KEY (contract_id),
   FOREIGN KEY (brand_id) REFERENCES Brand(brand_id)
 );
+ALTER TABLE Contract
+ADD COLUMN notified TINYINT DEFAULT 0;
 
 
 

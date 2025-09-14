@@ -201,36 +201,34 @@
                 <h1 class="text-xl font-bold">Customer</h1>
             </div>
             <div class="flex items-center space-x-6">
-                <div class="relative group">
-                    <button id="notificationBtn" class="flex items-center space-x-2">
-                        <i class="fas fa-bell text-xl"></i>
-                        <span
-                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                <!-- Nút chuông thông báo -->
+                <div class="relative">
+                    <!-- Nút chuông -->
+                    <button id="notificationBtn" class="relative p-2 text-gray-600 hover:text-blue-600">
+                        <i class="fas fa-bell text-white"></i>
+                        <span id="notificationBadge"
+                            class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                            0
+                        </span>
                     </button>
+
+                    <!-- Dropdown thông báo -->
                     <div id="notificationDropdown"
-                        class="hidden absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-50">
-                        <div class="p-4 border-b">
-                            <h3 class="font-bold text-gray-800">Thông báo (3)</h3>
+                        class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                        <div class="flex justify-between items-center p-3 border-b">
+                            <h4 class="font-bold text-gray-700">Thông báo</h4>
                         </div>
-                        <div class="divide-y divide-gray-200">
-                            <a href="#" class="block px-4 py-3 hover:bg-gray-100">
-                                <p class="text-sm font-medium text-gray-900">Ưu đãi mới từ Nike</p>
-                                <p class="text-xs text-gray-500">2 giờ trước</p>
-                            </a>
-                            <a href="#" class="block px-4 py-3 hover:bg-gray-100">
-                                <p class="text-sm font-medium text-gray-900">Điểm của bạn đã được cập nhật</p>
-                                <p class="text-xs text-gray-500">1 ngày trước</p>
-                            </a>
-                            <a href="#" class="block px-4 py-3 hover:bg-gray-100">
-                                <p class="text-sm font-medium text-gray-900">Quà tặng mới đã được thêm vào</p>
-                                <p class="text-xs text-gray-500">2 ngày trước</p>
-                            </a>
+                        <div id="notificationList" class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                            <div class="p-4 text-center text-gray-500 text-sm">Không có thông báo</div>
                         </div>
                         <div class="p-2 text-center bg-gray-50">
                             <a href="#" class="text-sm text-blue-600 font-medium">Xem tất cả</a>
                         </div>
                     </div>
                 </div>
+
+
+
                 <div class="relative group">
                     <button id="profileBtn" class="flex items-center space-x-2">
                         <span class="font-medium" id="customer-name-header">{{user.user_name }}</span>
@@ -242,7 +240,6 @@
                             <p class="text-xs text-gray-500" id="customer-tier-dropdown">{{user.membership}}</p>
                         </div>
                         <div class="py-1">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Hồ sơ</a>
                             <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cài đặt</a>
                         </div>
                         <div class="py-1 border-t">
@@ -252,7 +249,6 @@
                     </div>
                 </div>
             </div>
-        </div>
     </header>
 
     <!-- Main Content -->
@@ -1738,47 +1734,54 @@
                 const data = await res.json();
                 console.log("Profile API trả về:", data);
 
-                if (!res.ok) throw new Error(data.message || 'Lỗi tải hồ sơ');
+                if (!res.ok) throw new Error(data.message || "Lỗi tải hồ sơ");
 
                 const profile = data.profile;
 
-                // Hiển thị avatar bằng chữ cái đầu
+                // Avatar = chữ cái đầu
                 const name = profile.fullname || "User";
                 const initial = name.trim().charAt(0).toUpperCase();
 
                 const avatarDiv = document.getElementById("avatar");
-                avatarDiv.textContent = initial;
+                if (avatarDiv) {
+                    avatarDiv.textContent = initial;
+                    const colors = ["bg-blue-600", "bg-purple-600", "bg-pink-600", "bg-green-600", "bg-yellow-600"];
+                    const randomColor = colors[profile.user_id % colors.length];
+                    avatarDiv.className =
+                        "w-32 h-32 rounded-full border-4 border-blue-100 shadow-md flex items-center justify-center " +
+                        "text-4xl font-bold text-white select-none " + randomColor;
+                }
 
-                // random màu avatar (xanh, tím, hồng, xanh lá, vàng)
-                const colors = ["bg-blue-600", "bg-purple-600", "bg-pink-600", "bg-green-600", "bg-yellow-600"];
-                const randomColor = colors[profile.user_id % colors.length];
-                avatarDiv.className =
-                    "w-32 h-32 rounded-full border-4 border-blue-100 shadow-md flex items-center justify-center " +
-                    "text-4xl font-bold text-white select-none " + randomColor;
+                // Form dữ liệu cá nhân
+                const setVal = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = val ?? "";
+                };
 
-                // Hiển thị form
-                document.getElementById("fullname").value = profile.fullname || "";
-                document.getElementById("email").value = profile.email || "";
-                document.getElementById("date_of_birth").value = profile.date_of_birth
-                    ? new Date(profile.date_of_birth).toISOString().split("T")[0]
-                    : "";
-                document.getElementById("gender").value = profile.gender == 1 ? "1" : "0";
-                document.getElementById("phone").value = profile.phone || "";
-                document.getElementById("address").value = profile.address || "";
+                setVal("fullname", profile.fullname);
+                setVal("email", profile.email);
+                setVal("date_of_birth", profile.date_of_birth ? new Date(profile.date_of_birth).toISOString().split("T")[0] : "");
+                setVal("gender", profile.gender == 1 ? "1" : "0");
+                setVal("phone", profile.phone);
+                setVal("address", profile.address);
 
                 // Điểm hiện có
                 const pointRes = await fetch(`/point/wallet/${USER_ID}`);
                 const pointData = await pointRes.json();
-                document.getElementById("profile-points").textContent = pointData.total_points ?? 0;
+                const pointsEl = document.getElementById("profile-points");
+                if (pointsEl) pointsEl.textContent = pointData.total_points ?? 0;
 
                 // Mã giới thiệu + số lần giới thiệu
                 const referralRes = await fetch(`/user/referrals/info/${USER_ID}`);
                 const referralData = await referralRes.json();
-                document.getElementById("referral-code").textContent = referralData.code || "N/A";
-                document.getElementById("referral-count").textContent = referralData.count ?? 0;
+                const codeEl = document.getElementById("referral-code");
+                if (codeEl) codeEl.textContent = referralData.code || "N/A";
+                const countEl = document.getElementById("referral-count");
+                if (countEl) countEl.textContent = referralData.count ?? 0;
 
                 // Ngày đăng ký
-                document.getElementById("register-date").textContent = profile.created_at
+                const regDateEl = document.getElementById("register-date");
+                if (regDateEl) regDateEl.textContent = profile.created_at
                     ? new Date(profile.created_at).toLocaleDateString("vi-VN")
                     : "--/--/----";
 
@@ -1786,21 +1789,25 @@
                 const campaignRes = await fetch(`/campaign/joined/${USER_ID}`);
                 const campaigns = await campaignRes.json();
                 const ul = document.getElementById("joined-campaigns");
-                ul.innerHTML = "";
-                if (!campaigns || campaigns.length === 0) {
-                    ul.innerHTML = "<li class='text-gray-500'>Chưa tham gia chiến dịch nào</li>";
-                } else {
-                    campaigns.forEach(c => {
-                        const li = document.createElement("li");
-                        li.className = "text-gray-700";
-                        li.textContent = `• ${c.title} (Điểm đã dùng: ${c.points_spent})`;
-                        ul.appendChild(li);
-                    });
+                if (ul) {
+                    ul.innerHTML = "";
+                    if (!campaigns || campaigns.length === 0) {
+                        ul.innerHTML = "<li class='text-gray-500'>Chưa tham gia chiến dịch nào</li>";
+                    } else {
+                        campaigns.forEach(c => {
+                            const li = document.createElement("li");
+                            li.className = "text-gray-700";
+                            li.textContent = `• ${c.title} (Điểm đã dùng: ${c.points_spent})`;
+                            ul.appendChild(li);
+                        });
+                    }
                 }
+
             } catch (err) {
                 console.error("Lỗi load hồ sơ:", err);
             }
         }
+
 
         document.getElementById("btnUpdate").addEventListener("click", async () => {
             try {
@@ -1906,7 +1913,7 @@
                 loadTransactionHistory(),
                 loadAds(),
                 loadUsedVouchers(),
-                // loadProfile(),
+                loadProfile()
             ]).then(results => {
                 results.forEach((result, index) => {
                     if (result.status === 'rejected') {
@@ -1917,6 +1924,95 @@
         });
         document.addEventListener('DOMContentLoaded', loadProfile);
     </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const btn = document.getElementById("notificationBtn");
+            const dropdown = document.getElementById("notificationDropdown");
+            const list = document.getElementById("notificationList");
+            const badge = document.getElementById("notificationBadge");
+
+            if (!btn || !dropdown || !list || !badge) return;
+
+            // 1) Badge khi vào trang
+            updateBadge();
+
+            // 2) Click chuông: mở dropdown -> hiển thị "Đang tải..." -> fetch rồi render
+            btn.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                if (dropdown.classList.contains("hidden")) {
+                    dropdown.classList.remove("hidden");
+                    list.innerHTML = `<div class="p-4 text-center text-gray-500">Đang tải...</div>`;
+                    await loadNotifications();
+                } else {
+                    dropdown.classList.add("hidden");
+                }
+            });
+
+            // 3) Click ra ngoài mới ẩn (outside click)
+            document.addEventListener("click", (e) => {
+                if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add("hidden");
+                }
+            });
+
+            async function loadNotifications() {
+                try {
+                    const res = await fetch(`/notification/list/customer/${USER_ID}`);
+                    const data = await res.json();
+
+                    if (!res.ok || !data.success) throw new Error(data.message || "Lỗi tải thông báo");
+
+                    const items = data.notifications || [];
+                    if (items.length === 0) {
+                        list.innerHTML = `<div class="p-4 text-center text-gray-500">Không có thông báo</div>`;
+                        badge.classList.add("hidden");
+                    } else {
+                        list.innerHTML = items.map(n => `
+          <div class="px-4 py-3 hover:bg-gray-50 border-b">
+            <p class="text-sm font-medium text-gray-800">${n.title}</p>
+            <p class="text-xs text-gray-600">${n.message || ""}</p>
+            <p class="text-xs text-gray-400">${new Date(n.created_at).toLocaleString('vi-VN')}</p>
+          </div>
+        `).join("");
+                        badge.textContent = items.length;
+                        badge.classList.remove("hidden");
+                    }
+                } catch (err) {
+                    console.error("Lỗi load thông báo:", err);
+                    list.innerHTML = `<div class="p-4 text-center text-red-500">Không tải được thông báo</div>`;
+                    badge.classList.add("hidden");
+                }
+            }
+
+            async function updateBadge() {
+                try {
+                    const res = await fetch(`/notification/list/customer/${USER_ID}`);
+                    const data = await res.json();
+                    const items = (res.ok && data.success && data.notifications) ? data.notifications : [];
+                    if (items.length > 0) {
+                        badge.textContent = items.length;
+                        badge.classList.remove("hidden");
+                    } else {
+                        badge.classList.add("hidden");
+                    }
+                } catch (err) {
+                    console.error("Badge error:", err);
+                }
+            }
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('hidden');
+                if (!dropdown.classList.contains('hidden')) {
+                    loadNotifications();
+                }
+            })
+        });
+
+    </script>
+
+
+
+
 
 </body>
 

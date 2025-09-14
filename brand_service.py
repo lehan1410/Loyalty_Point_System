@@ -8,7 +8,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-import io
+import io, requests
 
 brand_bp = Blueprint("brand", __name__)
 CORS(brand_bp)
@@ -419,5 +419,64 @@ def renew_contract(contract_id):
         conn.close()
 
         return jsonify({"success": True, "message": "Gia hạn hợp đồng thành công"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@brand_bp.route("/check_expiring", methods=["POST"])
+def check_expiring_contracts():
+    """Quét hợp đồng còn <=7 ngày và tạo thông báo hệ thống"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT c.contract_id, b.brandname, c.end_at
+            FROM Contract c
+            JOIN Brand b ON c.brand_id = b.brand_id
+            WHERE c.end_at <= DATE_ADD(NOW(), INTERVAL 7 DAY)
+              AND c.notified = 0
+        """)
+        contracts = cursor.fetchall()
+
+        for c in contracts:
+            message = f"Hợp đồng với {c['brandname']} sẽ hết hạn vào {c['end_at']}"
+            
+            # Gửi sang Notification Service
+            requests.post("http://localhost:5000/notification/create", json={
+                "title": "Hợp đồng sắp hết hạn",
+                "message": message,
+                "end_at": c["end_at"].strftime("%Y-%m-%d %H:%M:%S"),
+                "status": 1,
+                "type": "system"
+            })
+
+            # Đánh dấu đã thông báo
+            cursor.execute("UPDATE Contract SET notified = 1 WHERE contract_id = %s", (c["contract_id"],))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"success": True, "contracts": len(contracts)}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@brand_bp.route('/contracts/mark_notified', methods=['POST'])
+def mark_contract_notified():
+    try:
+        data = requests.get_json()
+        contract_id = data.get("contract_id")
+
+        if not contract_id:
+            return jsonify({"success": False, "message": "Thiếu contract_id"}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE Contract SET notified = 1 WHERE contract_id = %s", (contract_id,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"success": True, "message": "Đã đánh dấu hợp đồng"}), 200
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500

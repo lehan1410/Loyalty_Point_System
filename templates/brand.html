@@ -109,31 +109,27 @@
             <!-- Khu vực bên phải: Thông báo + Tài khoản -->
             <div class="flex items-center space-x-6">
                 <!-- Biểu tượng thông báo -->
+                <!-- Thông báo -->
                 <div class="relative group">
-                    <button id="notificationBtn" class="relative">
-                        <i class="fas fa-bell text-xl"></i>
-                        <span
-                            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                            1
+                    <!-- Nút chuông -->
+                    <button id="notificationBtn" class="relative p-2 text-gray-600 hover:text-blue-600">
+                        <i class="fas fa-bell text-white"></i>
+                        <span id="notificationBadge"
+                            class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                            0
                         </span>
                     </button>
-                    <!-- Dropdown thông báo -->
+
+                    <!-- Dropdown -->
                     <div id="notificationDropdown"
-                        class="hidden absolute right-0 mt-2 w-64 bg-white text-black rounded-md shadow-lg z-50">
-                        <div class="p-4 border-b">
-                            <h3 class="font-bold text-gray-800">Thông báo</h3>
+                        class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                        <div class="flex justify-between items-center p-3 border-b">
+                            <h4 class="font-bold text-gray-700">Thông báo từ Mall</h4>
                         </div>
-                        <div class="divide-y divide-gray-200">
-                            <a href="#" class="block px-4 py-3 hover:bg-gray-100">
-                                <p class="text-sm font-medium text-gray-900">2 người dùng vừa đăng ký tài khoản</p>
-                                <p class="text-xs text-gray-500">1 ngày trước</p>
-                            </a>
-                        </div>
-                        <div class="p-2 text-center bg-gray-50">
-                            <a href="#" class="text-sm text-blue-600 font-medium">Xem tất cả</a>
-                        </div>
+                        <div id="notificationList" class="max-h-80 overflow-y-auto"></div>
                     </div>
                 </div>
+
 
                 <!-- Tài khoản -->
                 <div class="relative group">
@@ -1633,29 +1629,111 @@
         function closeCustomerDetail() {
             document.getElementById("customerDetailModal").classList.add("hidden");
         }
+    </script>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const btn = document.getElementById("notificationBtn");
+            const dropdown = document.getElementById("notificationDropdown");
+            const list = document.getElementById("notificationList");
+            const badge = document.getElementById("notificationBadge");
 
+            if (!btn || !dropdown || !list || !badge) return;
+            if (typeof BRAND_ID === "undefined") {
+                console.error("❌ BRAND_ID chưa được khai báo!");
+                return;
+            }
 
+            // Load badge khi load trang
+            updateBadge();
+
+            // Toggle dropdown + load thông báo
+            btn.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                if (dropdown.classList.contains("hidden")) {
+                    dropdown.classList.remove("hidden");
+                    list.innerHTML = `<div class="p-4 text-center text-gray-500">Đang tải...</div>`;
+                    await loadNotifications();
+                } else {
+                    dropdown.classList.add("hidden");
+                }
+            });
+
+            // Ẩn khi click ra ngoài
+            document.addEventListener("click", (e) => {
+                if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add("hidden");
+                }
+            });
+
+            async function loadNotifications() {
+                try {
+                    const res = await fetch(`/notification/list/brand/${BRAND_ID}`);
+                    const data = await res.json();
+                    if (!res.ok || !data.success) throw new Error(data.message || "Lỗi tải thông báo");
+
+                    const items = data.notifications || [];
+                    if (items.length === 0) {
+                        list.innerHTML = `<div class="p-4 text-center text-gray-500">Không có thông báo</div>`;
+                        badge.classList.add("hidden");
+                    } else {
+                        list.innerHTML = items.map(n => `
+          <div class="px-4 py-3 hover:bg-gray-50 border-b">
+            <p class="text-sm font-medium text-gray-800">${n.title}</p>
+            <p class="text-xs text-gray-600">${n.message || ""}</p>
+            <p class="text-xs text-gray-400">${new Date(n.created_at).toLocaleString('vi-VN')}</p>
+          </div>`).join("");
+                        badge.textContent = items.length;
+                        badge.classList.remove("hidden");
+                    }
+                } catch (err) {
+                    console.error("❌ Lỗi load brand notifications:", err);
+                    list.innerHTML = `<div class="p-4 text-center text-red-500">Không tải được thông báo</div>`;
+                    badge.classList.add("hidden");
+                }
+            }
+
+            async function updateBadge() {
+                try {
+                    const res = await fetch(`/notification/list/brand/${BRAND_ID}`);
+                    const data = await res.json();
+                    const items = (res.ok && data.success && data.notifications) ? data.notifications : [];
+                    if (items.length > 0) {
+                        badge.textContent = items.length;
+                        badge.classList.remove("hidden");
+                    } else {
+                        badge.classList.add("hidden");
+                    }
+                } catch (err) {
+                    console.error("Lỗi badge brand:", err);
+                }
+            }
+        });
     </script>
     <script>
-        document.getElementById('notificationBtn').addEventListener('click', function () {
-            document.getElementById('notificationDropdown').classList.toggle('hidden');
-        });
+        document.addEventListener("DOMContentLoaded", () => {
+            const profileBtn = document.getElementById("profileBtn");
+            const profileDropdown = document.getElementById("profileDropdown");
 
-        document.getElementById('profileBtn').addEventListener('click', function () {
-            document.getElementById('profileDropdown').classList.toggle('hidden');
-        });
+            if (profileBtn && profileDropdown) {
+                // Click để toggle
+                profileBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    profileDropdown.classList.toggle("hidden");
+                });
 
-        // Ẩn dropdown khi click bên ngoài
-        window.addEventListener('click', function (e) {
-            if (!document.getElementById('notificationBtn').contains(e.target)) {
-                document.getElementById('notificationDropdown').classList.add('hidden');
-            }
-            if (!document.getElementById('profileBtn').contains(e.target)) {
-                document.getElementById('profileDropdown').classList.add('hidden');
+                // Click ra ngoài để ẩn
+                document.addEventListener("click", (e) => {
+                    if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                        profileDropdown.classList.add("hidden");
+                    }
+                });
             }
         });
     </script>
+
+
+
 </body>
 
 </html>
