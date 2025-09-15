@@ -13,7 +13,7 @@ CREATE TABLE Notification
 );
 
 ALTER TABLE Notification
-ADD COLUMN target_type ENUM('brand','customer') DEFAULT 'customer',
+ADD COLUMN target_type ENUM('brand','customer','all') DEFAULT 'customer',
 ADD COLUMN target_id INT NULL;
 
 

@@ -212,8 +212,8 @@ def redeem_voucher(voucher_id):
             conn.close()
         return jsonify({"error": str(e)}), 500
 
-@voucher_bp.route('/get_rewards/<int:brand_id>', methods=['GET'])
-def get_rewards(brand_id):
+@voucher_bp.route('/get_rewards', methods=['GET'])
+def get_rewards():
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
@@ -233,8 +233,7 @@ def get_rewards(brand_id):
                 stock ,
                 initial_stock
             FROM Voucher
-            WHERE brand_id = %s
-        """, (brand_id,))
+        """)
         rewards = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -246,8 +245,8 @@ def get_rewards(brand_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@voucher_bp.route('/get_reward_chart/<int:brand_id>', methods=['GET'])
-def get_reward_chart(brand_id):
+@voucher_bp.route('/get_reward_chart', methods=['GET'])
+def get_reward_chart():
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
@@ -256,10 +255,9 @@ def get_reward_chart(brand_id):
                    COUNT(vr.redemption_id) AS redeemed
             FROM Voucher v
             LEFT JOIN Voucher_Redemption vr ON v.voucher_id = vr.voucher_id
-            WHERE v.brand_id = %s
             GROUP BY v.voucher_id, v.title
             ORDER BY redeemed DESC LIMIT 5
-        """, (brand_id,))
+        """)
         reward_data = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -276,12 +274,12 @@ def get_reward_chart(brand_id):
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
 
-@voucher_bp.route('/get_rewards_redeemed/<int:brand_id>', methods=['GET'])
-def get_rewards_redeemed(brand_id):
+@voucher_bp.route('/get_rewards_redeemed', methods=['GET'])
+def get_rewards_redeemed():
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT COUNT(*) AS rewards_redeemed FROM Voucher_Redemption WHERE voucher_id IN (SELECT voucher_id FROM Voucher WHERE brand_id = %s)", (brand_id,))
+        cursor.execute("SELECT COUNT(*) AS rewards_redeemed FROM Voucher_Redemption WHERE voucher_id IN (SELECT voucher_id FROM Voucher)")
         rewards_redeemed = cursor.fetchone()['rewards_redeemed']
         cursor.close()
         conn.close()

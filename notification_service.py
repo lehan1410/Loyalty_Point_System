@@ -25,29 +25,34 @@ def get_db_connection():
 
 # 1. Lấy danh sách thông báo
 
-@notification_bp.route('/create', methods=['POST'])
-def create_notification():
+@notification_bp.route('/create/system', methods=['POST'])
+def create_system_notification():
+    """Tạo thông báo hệ thống (system) cho brand/customer"""
     try:
         data = request.get_json()
         title = data.get("title")
         message = data.get("message")
         end_at = data.get("end_at")
         status = data.get("status", 1)
-        # Chỉ cho phép marketing từ UI; system là do backend auto sinh
-        noti_type = "marketing"
+        noti_type = "system"
 
-        target_type = data.get("target_type", "all")  # customer | brand | all
-        target_id = data.get("target_id")
+        target_type = data.get("target_type")  # brand | customer
+        target_id = data.get("target_id")      # brand_id nếu là hợp đồng, NULL nếu là customer broadcast
 
         # Validate
         if not title or not message:
             return jsonify({"success": False, "message": "Thiếu tiêu đề hoặc nội dung"}), 400
 
-        if target_type not in ("customer", "brand", "all"):
+        if target_type not in ("brand", "customer"):
             return jsonify({"success": False, "message": "target_type không hợp lệ"}), 400
 
+        # Với brand thì bắt buộc phải có brand_id
         if target_type == "brand" and not target_id:
-            return jsonify({"success": False, "message": "Thiếu brand_id cho thông báo brand"}), 400
+            return jsonify({"success": False, "message": "Thiếu brand_id cho thông báo hợp đồng"}), 400
+
+        # Với customer (account mới) thì target_id phải NULL (broadcast)
+        if target_type == "customer":
+            target_id = None
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -59,11 +64,12 @@ def create_notification():
 
         conn.commit()
         cursor.close(); conn.close()
-        return jsonify({"success": True, "message": "Tạo thông báo thành công"}), 201
+        return jsonify({"success": True, "message": "Tạo system notification thành công"}), 201
 
     except Exception as e:
-        print("❌ Lỗi create_notification:", e)
+        print("❌ Lỗi create_system_notification:", e)
         return jsonify({"success": False, "message": str(e)}), 500
+
 
 
 
@@ -239,21 +245,31 @@ def customer_notifications(customer_id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT notification_id, title, message, created_at, end_at, status
+
+        # Chỉ lấy thông báo type=marketing (đặt `type` trong backtick để tránh conflict MySQL)
+        query = """
+            SELECT 
+                notification_id, title, message, created_at, end_at, status, `type`, target_type
             FROM Notification
             WHERE status = 1
-              AND type = 'marketing'
+              AND `type` = 'marketing'
               AND (end_at IS NULL OR end_at >= NOW())
               AND (target_type = 'customer' OR target_type = 'all')
               AND (target_id = %s OR target_id IS NULL)
             ORDER BY created_at DESC
-        """, (customer_id,))
+        """
+        cursor.execute(query, (customer_id,))
         rows = cursor.fetchall()
-        cursor.close(); conn.close()
+
+        cursor.close()
+        conn.close()
+
         return jsonify({"success": True, "notifications": rows}), 200
+
     except Exception as e:
+        print("❌ Lỗi customer_notifications:", e)
         return jsonify({"success": False, "message": str(e)}), 500
+
 @notification_bp.route('/create_no', methods=['POST'])
 def create_notification_account():
     try:
@@ -262,9 +278,7 @@ def create_notification_account():
         message = data.get("message")
         end_at = data.get("end_at")
         status = data.get("status", 1)
-        # Chỉ cho phép marketing từ UI; system là do backend auto sinh
         noti_type = "system"
-
         target_type = data.get("target_type", "all")  # customer | brand | all
         target_id = data.get("target_id")
 
@@ -292,4 +306,58 @@ def create_notification_account():
 
     except Exception as e:
         print("❌ Lỗi create_notification:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
+@notification_bp.route('/list/brand/marketing/<int:brand_id>', methods=['GET'])
+def brand_marketing_notifications(brand_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT 
+                notification_id, title, message, created_at, end_at, status, `type`, target_type
+            FROM Notification
+            WHERE status = 1
+              AND `type` = 'marketing'
+              AND (end_at IS NULL OR end_at >= NOW())
+              AND (target_type = 'brand' OR target_type = 'all')
+              AND (target_id = %s OR target_id IS NULL)
+            ORDER BY created_at DESC
+        """
+        cursor.execute(query, (brand_id,))
+        rows = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+        return jsonify({"success": True, "notifications": rows}), 200
+
+    except Exception as e:
+        print("❌ Lỗi brand_marketing_notifications:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
+@notification_bp.route('/list/brand/system/<int:brand_id>', methods=['GET'])
+def brand_system_notifications(brand_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT 
+                notification_id, title, message, created_at, end_at, status, `type`, target_type
+            FROM Notification
+            WHERE status = 1
+              AND `type` = 'system'
+              AND (end_at IS NULL OR end_at >= NOW())
+              AND target_type = 'brand'
+              AND target_id = %s
+            ORDER BY created_at DESC
+        """
+        cursor.execute(query, (brand_id,))
+        rows = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+        return jsonify({"success": True, "notifications": rows}), 200
+
+    except Exception as e:
+        print("❌ Lỗi brand_system_notifications:", e)
         return jsonify({"success": False, "message": str(e)}), 500

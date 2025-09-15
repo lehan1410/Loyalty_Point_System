@@ -122,13 +122,26 @@
 
                     <!-- Dropdown -->
                     <div id="notificationDropdown"
-                        class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                        <div class="flex justify-between items-center p-3 border-b">
-                            <h4 class="font-bold text-gray-700">Thông báo từ Mall</h4>
+                        class="hidden absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+
+                        <!-- Header Tabs -->
+                        <div class="flex border-b">
+                            <button id="tabMarketing"
+                                class="flex-1 px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
+                                Marketing
+                            </button>
+                            <button id="tabSystem"
+                                class="flex-1 px-4 py-2 text-sm font-medium text-gray-500 hover:text-blue-600">
+                                Hệ thống
+                            </button>
                         </div>
-                        <div id="notificationList" class="max-h-80 overflow-y-auto"></div>
+
+
+                        <!-- Danh sách thông báo -->
+                        <div id="notificationList" class="max-h-80 overflow-y-auto divide-y"></div>
                     </div>
                 </div>
+
 
 
                 <!-- Tài khoản -->
@@ -248,6 +261,11 @@
                         class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent"
                         data-tab="rewards" role="tab" aria-controls="rewards-panel" aria-selected="false">
                         <i class="fas fa-gift mr-2"></i> Phần thưởng
+                    </button>
+                    <button
+                        class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent"
+                        data-tab="ad-performance" role="tab" aria-controls="ad-performance-panel" aria-selected="false">
+                        <i class="fas fa-chart-bar mr-2"></i> Hiệu suất quảng cáo
                     </button>
                 </nav>
             </div>
@@ -498,6 +516,55 @@
                         </table>
                     </div>
                 </div>
+                <div id="ad-performance-panel" class="tab-content hidden" role="tabpanel"
+                    aria-labelledby="ad-performance-tab">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                        <h3 class="text-xl font-bold text-gray-800">Hiệu suất quảng cáo</h3>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tên quảng cáo
+                                        </th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Mô tả
+                                        </th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Thời gian
+                                        </th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Số lần mở
+                                        </th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Số lần tắt
+                                        </th>
+                                        <th scope="col"
+                                            class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Hành động
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="ad-performance-table-container">
+                                    <tr>
+                                        <td colspan="6" class="py-4 px-4 text-center">
+                                            <div class="placeholder-message loading-overlay">
+                                                <div class="spinner"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Reward Detail Modal -->
                 <div id="rewardDetailModal"
@@ -551,6 +618,7 @@
 
         const USER_ID = window.CURRENT_USER.id;
         const BRAND_ID = window.CURRENT_USER.brand_id;
+        console.log(BRAND_ID);
         const API_BASE_URL = 'http://127.0.0.1:5000';
         const MOCK_API = false;
 
@@ -725,7 +793,7 @@
                 { id: 'total-points', endpoint: `/point/get_total_points/${BRAND_ID}`, title: 'Tổng điểm đã tích', icon: 'fa-coins', color: 'blue', parseFn: (data) => formatNumber(data?.total_points), trendText: '+12% vs tháng trước', mock: { data: { total_points: 123456 } } },
                 { id: 'active-campaigns', endpoint: `/campaign/get_active_campaigns/${BRAND_ID}`, title: 'Chiến dịch đang chạy', icon: 'fa-rocket', color: 'green', parseFn: (data) => formatNumber(data?.active_campaigns), trendText: data => data?.active_campaigns > 0 ? '2 sắp hết hạn' : '', mock: { data: { active_campaigns: 5 } } },
                 { id: 'total-customers', endpoint: `/user/get_total_customers/${BRAND_ID}`, title: 'Khách hàng tham gia', icon: 'fa-users', color: 'purple', parseFn: (data) => formatNumber(data?.total_customers), trendText: '+8% vs tháng trước', mock: { data: { total_customers: 1580 } } },
-                { id: 'rewards-redeemed', endpoint: `/voucher/get_rewards_redeemed/${BRAND_ID}`, title: 'Đổi quà thành công', icon: 'fa-gift', color: 'yellow', parseFn: (data) => formatNumber(data?.rewards_redeemed), trendText: data => data?.rewards_redeemed > 0 ? '5 đơn chờ xử lý' : '', mock: { data: { rewards_redeemed: 42 } } }
+                { id: 'rewards-redeemed', endpoint: `/voucher/get_rewards_redeemed`, title: 'Đổi quà thành công', icon: 'fa-gift', color: 'yellow', parseFn: (data) => formatNumber(data?.rewards_redeemed), trendText: data => data?.rewards_redeemed > 0 ? '5 đơn chờ xử lý' : '', mock: { data: { rewards_redeemed: 42 } } }
 
             ];
 
@@ -958,7 +1026,7 @@
             try {
                 showMessage(rewardsTableContainer, 'loading');
 
-                const data = await fetchData(`/voucher/get_rewards/${BRAND_ID}`);
+                const data = await fetchData(`/voucher/get_rewards`);
 
                 if (data && data.rewards && data.rewards.length > 0) {
                     rewardsTableContainer.innerHTML = data.rewards.map(r => `
@@ -1179,7 +1247,7 @@
             setChartState(rewardChartContainer, true);
 
             try {
-                const data = await fetchData(`/voucher/get_reward_chart/${BRAND_ID}`, {}, mockRewardChartData);
+                const data = await fetchData(`/voucher/get_reward_chart`, {}, mockRewardChartData);
 
                 if (!data || !data.reward_chart || !data.reward_chart.labels || !data.reward_chart.data) {
                     throw new Error("Dữ liệu biểu đồ phần thưởng không hợp lệ hoặc bị thiếu.");
@@ -1381,6 +1449,72 @@
                 });
             });
         }
+        async function loadAdPerformance() {
+            try {
+                const adTableContainer = document.getElementById('ad-performance-table-container');
+                showMessage(adTableContainer, 'loading');
+
+                // Bước 1: Lấy danh sách quảng cáo đang hoạt động
+                const activeAds = await fetchData(`/ad/active?brand_id=${BRAND_ID}`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                });
+
+                if (!activeAds || activeAds.length === 0) {
+                    showMessage(adTableContainer, 'placeholder', 'Không có quảng cáo đang hoạt động.');
+                    return;
+                }
+
+                // Bước 2: Gọi API thống kê cho từng quảng cáo
+                const adStatsPromises = activeAds.map(async (ad) => {
+                    try {
+                        const stats = await fetchData(`/ad/${ad.ad_id}/stats`, {
+                            method: "GET",
+                            headers: {
+                                "Accept": "application/json"
+                            }
+                        });
+                        return {
+                            ...ad,
+                            views: stats.views || 0,
+                            dismissals: stats.dismissals || 0
+                        };
+                    } catch (error) {
+                        console.warn(`Lỗi khi lấy thống kê cho quảng cáo ${ad.ad_id}:`, error);
+                        return {
+                            ...ad,
+                            views: 0,
+                            dismissals: 0
+                        };
+                    }
+                });
+
+                const adsWithStats = await Promise.all(adStatsPromises);
+
+                // Bước 3: Hiển thị dữ liệu vào bảng
+                adTableContainer.innerHTML = adsWithStats.map(ad => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-4 text-sm font-medium text-gray-900">${ad.title || 'Không có tiêu đề'}</td>
+                        <td class="py-3 px-4 text-sm text-gray-500">${ad.description || 'Không có mô tả'}</td>
+                        <td class="py-3 px-4 text-sm text-gray-500">${ad.start_at ? new Date(ad.start_at).toLocaleDateString('vi-VN') : 'N/A'} - ${ad.end_at ? new Date(ad.end_at).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                        <td class="py-3 px-4 text-sm text-green-600 font-medium">${formatNumber(ad.views)}</td>
+                        <td class="py-3 px-4 text-sm text-red-600 font-medium">${formatNumber(ad.dismissals)}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button class="text-blue-600 hover:text-blue-800 focus:outline-none" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('Lỗi khi tải hiệu suất quảng cáo:', error);
+                showMessage(document.getElementById('ad-performance-table-container'), 'error', `Lỗi tải dữ liệu: ${error.message}`);
+            }
+        }
+
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -1402,7 +1536,8 @@
                 loadCampaigns(),       // Item 3
                 loadPayments(),        // Item 4 (Loads page 1 by default)
                 loadCustomers(customerPage, customerLimit),       // Item 5 (Loads page 1 by default)
-                loadRewards()          // Item 6
+                loadRewards(),          // Item 6
+                loadAdPerformance()     // Item 7
             ]).then(results => {
                 console.log("Initial data load finished. Results:", results);
                 results.forEach((result, index) => {
@@ -1638,97 +1773,129 @@
             const list = document.getElementById("notificationList");
             const badge = document.getElementById("notificationBadge");
 
-            if (!btn || !dropdown || !list || !badge) return;
-            if (typeof BRAND_ID === "undefined") {
-                console.error("❌ BRAND_ID chưa được khai báo!");
-                return;
-            }
+            const tabMarketing = document.getElementById("tabMarketing");
+            const tabSystem = document.getElementById("tabSystem");
 
-            // Load badge khi load trang
-            updateBadge();
+            let currentTab = "marketing";
 
-            // Toggle dropdown + load thông báo
+            // Khi mở dropdown -> load marketing mặc định
             btn.addEventListener("click", async (e) => {
                 e.stopPropagation();
                 if (dropdown.classList.contains("hidden")) {
                     dropdown.classList.remove("hidden");
                     list.innerHTML = `<div class="p-4 text-center text-gray-500">Đang tải...</div>`;
-                    await loadNotifications();
+                    await loadNotifications("marketing");
                 } else {
                     dropdown.classList.add("hidden");
                 }
             });
 
-            // Ẩn khi click ra ngoài
+            // Ẩn dropdown khi click ra ngoài
             document.addEventListener("click", (e) => {
                 if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
                     dropdown.classList.add("hidden");
                 }
             });
 
-            async function loadNotifications() {
+            // Tab switching
+            // Khi click Marketing
+            tabMarketing.addEventListener("click", async () => {
+                currentTab = "marketing";
+
+                // Active style cho Marketing
+                tabMarketing.classList.add("text-blue-600", "border-b-2", "border-blue-600");
+                tabMarketing.classList.remove("text-gray-500");
+
+                // Reset style cho System
+                tabSystem.classList.remove("text-blue-600", "border-b-2", "border-blue-600");
+                tabSystem.classList.add("text-gray-500");
+
+                list.innerHTML = `<div class="p-4 text-center text-gray-500">Đang tải...</div>`;
+                await loadNotifications("marketing");
+            });
+
+            // Khi click System
+            tabSystem.addEventListener("click", async () => {
+                currentTab = "system";
+
+                // Active style cho System
+                tabSystem.classList.add("text-blue-600", "border-b-2", "border-blue-600");
+                tabSystem.classList.remove("text-gray-500");
+
+                // Reset style cho Marketing
+                tabMarketing.classList.remove("text-blue-600", "border-b-2", "border-blue-600");
+                tabMarketing.classList.add("text-gray-500");
+
+                list.innerHTML = `<div class="p-4 text-center text-gray-500">Đang tải...</div>`;
+                await loadNotifications("system");
+            });
+
+
+
+            // Hàm load thông báo theo tab
+            async function loadNotifications(type) {
                 try {
-                    const res = await fetch(`/notification/list/brand/${BRAND_ID}`);
+                    const url = type === "system"
+                        ? `/notification/list/brand/system/${BRAND_ID}`
+                        : `/notification/list/brand/marketing/${BRAND_ID}`;
+
+                    const res = await fetch(url);
                     const data = await res.json();
                     if (!res.ok || !data.success) throw new Error(data.message || "Lỗi tải thông báo");
 
-                    const items = data.notifications || [];
-                    if (items.length === 0) {
+                    const notifications = data.notifications || [];
+                    if (notifications.length === 0) {
                         list.innerHTML = `<div class="p-4 text-center text-gray-500">Không có thông báo</div>`;
-                        badge.classList.add("hidden");
-                    } else {
-                        list.innerHTML = items.map(n => `
-          <div class="px-4 py-3 hover:bg-gray-50 border-b">
-            <p class="text-sm font-medium text-gray-800">${n.title}</p>
-            <p class="text-xs text-gray-600">${n.message || ""}</p>
-            <p class="text-xs text-gray-400">${new Date(n.created_at).toLocaleString('vi-VN')}</p>
-          </div>`).join("");
-                        badge.textContent = items.length;
-                        badge.classList.remove("hidden");
+                        return;
+                    }
+
+                    list.innerHTML = notifications.map(n => `
+                <div class="px-4 py-3 hover:bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-800">${n.title}</p>
+                        <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded ${n.type === 'system' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}">
+                            ${n.type}
+                        </span>
+                    </div>
+                    <p class="text-xs text-gray-600 mt-1">${n.message || ""}</p>
+                    <p class="text-xs text-gray-400 mt-1">${new Date(n.created_at).toLocaleString('vi-VN')}</p>
+                </div>
+            `).join("");
+
+                } catch (err) {
+                    console.error("❌ Lỗi load thông báo:", err);
+                    list.innerHTML = `<div class="p-4 text-center text-red-500">Không tải được thông báo</div>`;
+                }
+            }
+
+            // Hàm load tổng badge (marketing + system)
+            async function loadTotalBadge() {
+                try {
+                    const [marketingRes, systemRes] = await Promise.all([
+                        fetch(`/notification/list/brand/marketing/${BRAND_ID}`),
+                        fetch(`/notification/list/brand/system/${BRAND_ID}`)
+                    ]);
+
+                    const marketingData = await marketingRes.json();
+                    const systemData = await systemRes.json();
+
+                    if ((marketingRes.ok && marketingData.success) || (systemRes.ok && systemData.success)) {
+                        const total = (marketingData.notifications?.length || 0) + (systemData.notifications?.length || 0);
+                        if (total > 0) {
+                            badge.textContent = total;
+                            badge.classList.remove("hidden");
+                        } else {
+                            badge.classList.add("hidden");
+                        }
                     }
                 } catch (err) {
-                    console.error("❌ Lỗi load brand notifications:", err);
-                    list.innerHTML = `<div class="p-4 text-center text-red-500">Không tải được thông báo</div>`;
+                    console.error("❌ Lỗi load badge:", err);
                     badge.classList.add("hidden");
                 }
             }
 
-            async function updateBadge() {
-                try {
-                    const res = await fetch(`/notification/list/brand/${BRAND_ID}`);
-                    const data = await res.json();
-                    const items = (res.ok && data.success && data.notifications) ? data.notifications : [];
-                    if (items.length > 0) {
-                        badge.textContent = items.length;
-                        badge.classList.remove("hidden");
-                    } else {
-                        badge.classList.add("hidden");
-                    }
-                } catch (err) {
-                    console.error("Lỗi badge brand:", err);
-                }
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const profileBtn = document.getElementById("profileBtn");
-            const profileDropdown = document.getElementById("profileDropdown");
-
-            if (profileBtn && profileDropdown) {
-                // Click để toggle
-                profileBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    profileDropdown.classList.toggle("hidden");
-                });
-
-                // Click ra ngoài để ẩn
-                document.addEventListener("click", (e) => {
-                    if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
-                        profileDropdown.classList.add("hidden");
-                    }
-                });
-            }
+            // Gọi load badge ngay khi vào trang
+            loadTotalBadge();
         });
     </script>
 
