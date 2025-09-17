@@ -7,42 +7,42 @@
     <title>Brand Dashboard - Loyalty Point System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Gradient background for header and banner */
+        
         .gradient-bg {
             background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
         }
-
         /* Hover effect for cards */
+        
         .card-hover:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-
         /* Smooth transitions */
+        
         .transition-all {
             transition: all 0.3s ease;
         }
-
         /* Style for active tab */
+        
         .tab-active {
             border-bottom: 3px solid #1e40af;
             color: #1e40af;
             font-weight: 600;
         }
-
         /* Container for charts to ensure responsiveness */
+        
         .chart-container {
             position: relative;
             height: 300px;
             /* Adjust height as needed */
             width: 100%;
         }
-
         /* Placeholder for loading/error states */
+        
         .placeholder-message {
             display: flex;
             justify-content: center;
@@ -54,7 +54,7 @@
             font-style: italic;
             text-align: center;
         }
-
+        
         .error-message {
             display: flex;
             justify-content: center;
@@ -66,8 +66,8 @@
             font-style: italic;
             text-align: center;
         }
-
         /* Loading spinner */
+        
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
             width: 36px;
@@ -77,17 +77,16 @@
             /* blue-800 */
             animation: spin 1s ease infinite;
         }
-
+        
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
             }
-
             100% {
                 transform: rotate(360deg);
             }
         }
-
+        
         .loading-overlay {
             display: flex;
             justify-content: center;
@@ -121,17 +120,14 @@
                     </button>
 
                     <!-- Dropdown -->
-                    <div id="notificationDropdown"
-                        class="hidden absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
 
                         <!-- Header Tabs -->
                         <div class="flex border-b">
-                            <button id="tabMarketing"
-                                class="flex-1 px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
+                            <button id="tabMarketing" class="flex-1 px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
                                 Marketing
                             </button>
-                            <button id="tabSystem"
-                                class="flex-1 px-4 py-2 text-sm font-medium text-gray-500 hover:text-blue-600">
+                            <button id="tabSystem" class="flex-1 px-4 py-2 text-sm font-medium text-gray-500 hover:text-blue-600">
                                 Hệ thống
                             </button>
                         </div>
@@ -151,8 +147,7 @@
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <!-- Dropdown tài khoản -->
-                    <div id="profileDropdown"
-                        class="hidden absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-50">
+                    <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-50">
                         <div class="p-4 border-b">
                             <h3 class="font-bold text-gray-800">{{ user.user_name }}</h3>
                         </div>
@@ -172,20 +167,16 @@
 
 
     <main class="container mx-auto px-4 py-8">
-        <section aria-labelledby="welcome-heading"
-            class="gradient-bg rounded-xl text-white p-6 mb-8 shadow-lg flex flex-col md:flex-row justify-between items-center">
+        <section aria-labelledby="welcome-heading" class="gradient-bg rounded-xl text-white p-6 mb-8 shadow-lg flex flex-col md:flex-row justify-between items-center">
             <div class="flex-1 mb-4 md:mb-0 md:mr-6">
                 <h2 id="welcome-heading" class="text-2xl font-bold mb-2">Xin chào, Admin Brand!</h2>
-                <p class="mb-4">Hệ thống giúp bạn tạo chiến dịch ưu đãi, theo dõi thanh toán và tương tác với khách hàng
-                    qua cơ chế tích điểm linh hoạt.</p>
-                <button onclick="window.location.href='/campaign/create_campaign';"
-                    class="bg-white text-blue-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-100 transition-all shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-700 focus:ring-white">
+                <p class="mb-4">Hệ thống giúp bạn tạo chiến dịch ưu đãi, theo dõi thanh toán và tương tác với khách hàng qua cơ chế tích điểm linh hoạt.</p>
+                <button onclick="window.location.href='/campaign/create_campaign';" class="bg-white text-blue-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-100 transition-all shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-700 focus:ring-white">
                     <i class="fas fa-plus mr-2"></i> Tạo chiến dịch mới
                 </button>
             </div>
             <div class="flex-shrink-0">
-                <img src="https://placehold.co/256x160/ffffff/1e40af?text=LPS" alt="Minh họa hệ thống tích điểm"
-                    class="w-64 h-40 object-contain rounded">
+                <img src="https://placehold.co/256x160/ffffff/1e40af?text=LPS" alt="Minh họa hệ thống tích điểm" class="w-64 h-40 object-contain rounded">
             </div>
         </section>
 
@@ -242,29 +233,19 @@
         <section aria-label="Khu vực quản lý chính">
             <div class="mb-6 border-b border-gray-200">
                 <nav class="flex -mb-px space-x-6" aria-label="Tabs">
-                    <button
-                        class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent tab-active"
-                        data-tab="campaigns" role="tab" aria-controls="campaigns-panel" aria-selected="true">
+                    <button class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent tab-active" data-tab="campaigns" role="tab" aria-controls="campaigns-panel" aria-selected="true">
                         <i class="fas fa-bullhorn mr-2"></i> Chiến dịch
                     </button>
-                    <button
-                        class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent"
-                        data-tab="payments" role="tab" aria-controls="payments-panel" aria-selected="false">
+                    <button class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent" data-tab="payments" role="tab" aria-controls="payments-panel" aria-selected="false">
                         <i class="fas fa-money-bill-wave mr-2"></i> Thanh toán
                     </button>
-                    <button
-                        class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent"
-                        data-tab="customers" role="tab" aria-controls="customers-panel" aria-selected="false">
+                    <button class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent" data-tab="customers" role="tab" aria-controls="customers-panel" aria-selected="false">
                         <i class="fas fa-users mr-2"></i> Khách hàng
                     </button>
-                    <button
-                        class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent"
-                        data-tab="rewards" role="tab" aria-controls="rewards-panel" aria-selected="false">
+                    <button class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent" data-tab="rewards" role="tab" aria-controls="rewards-panel" aria-selected="false">
                         <i class="fas fa-gift mr-2"></i> Phần thưởng
                     </button>
-                    <button
-                        class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent"
-                        data-tab="ad-performance" role="tab" aria-controls="ad-performance-panel" aria-selected="false">
+                    <button class="tab-button px-1 py-3 font-medium text-gray-500 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent" data-tab="ad-performance" role="tab" aria-controls="ad-performance-panel" aria-selected="false">
                         <i class="fas fa-chart-bar mr-2"></i> Hiệu suất quảng cáo
                     </button>
                 </nav>
@@ -280,8 +261,7 @@
                         </button>
                     </div>
                     <h4 class="text-lg font-semibold mb-4 text-gray-700">Chiến dịch hiện tại</h4>
-                    <div id="current-campaigns-container"
-                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div id="current-campaigns-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                         <div class="placeholder-message col-span-full loading-overlay">
                             <div class="spinner"></div>
                         </div>
@@ -292,23 +272,17 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Tên chiến dịch</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Loại</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Thời gian</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Tham gia</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Trạng thái</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Hành động</th>
                                     </tr>
                                 </thead>
@@ -330,12 +304,10 @@
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                         <h3 class="text-xl font-bold text-gray-800">Lịch sử thanh toán</h3>
                         <div class="flex space-x-2">
-                            <button
-                                class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500">
+                            <button class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500">
                                 <i class="fas fa-filter mr-2"></i> Lọc
                             </button>
-                            <button
-                                class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500">
+                            <button class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500">
                                 <i class="fas fa-download mr-2"></i> Xuất Excel
                             </button>
                         </div>
@@ -345,26 +317,19 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Mã GD</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Khách hàng</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Ngày</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Số tiền</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Điểm tích</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Trạng thái</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Hành động</th>
                                     </tr>
                                 </thead>
@@ -379,19 +344,14 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div
-                            class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
                             <span class="text-sm text-gray-600" id="payments-pagination-info">Hiển thị 0 của 0 giao
                                 dịch</span>
                             <div class="flex space-x-1" id="payments-pagination-controls">
-                                <button
-                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
-                                    disabled>
+                                <button class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50" disabled>
                                     <i class="fas fa-chevron-left text-xs"></i>
                                 </button>
-                                <button
-                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
-                                    disabled>
+                                <button class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50" disabled>
                                     <i class="fas fa-chevron-right text-xs"></i>
                                 </button>
                             </div>
@@ -404,13 +364,10 @@
                         <h3 class="text-xl font-bold text-gray-800">Danh sách khách hàng</h3>
                         <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
                             <div class="relative flex-grow">
-                                <input type="search" placeholder="Tìm kiếm khách hàng (tên, SĐT)..."
-                                    class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <i
-                                    class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="search" placeholder="Tìm kiếm khách hàng (tên, SĐT)..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             </div>
-                            <button
-                                class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex-shrink-0">
+                            <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex-shrink-0">
                                 <i class="fas fa-user-plus mr-2"></i> Thêm KH
                             </button>
                         </div>
@@ -437,23 +394,17 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Khách hàng</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             SĐT</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Tổng điểm</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Lần cuối GD</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Hạng</th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Hành động</th>
                                     </tr>
                                 </thead>
@@ -468,19 +419,14 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div
-                            class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
                             <span class="text-sm text-gray-600" id="customers-pagination-info">Hiển thị 0 của 0 khách
                                 hàng</span>
                             <div class="flex space-x-1" id="customers-pagination-controls">
-                                <button
-                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
-                                    disabled>
+                                <button class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50" disabled>
                                     <i class="fas fa-chevron-left text-xs"></i>
                                 </button>
-                                <button
-                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
-                                    disabled>
+                                <button class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50" disabled>
                                     <i class="fas fa-chevron-right text-xs"></i>
                                 </button>
                             </div>
@@ -516,8 +462,7 @@
                         </table>
                     </div>
                 </div>
-                <div id="ad-performance-panel" class="tab-content hidden" role="tabpanel"
-                    aria-labelledby="ad-performance-tab">
+                <div id="ad-performance-panel" class="tab-content hidden" role="tabpanel" aria-labelledby="ad-performance-tab">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                         <h3 class="text-xl font-bold text-gray-800">Hiệu suất quảng cáo</h3>
                     </div>
@@ -526,28 +471,22 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Tên quảng cáo
                                         </th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Mô tả
                                         </th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Thời gian
                                         </th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Số lần mở
                                         </th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Số lần tắt
                                         </th>
-                                        <th scope="col"
-                                            class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Hành động
                                         </th>
                                     </tr>
@@ -567,11 +506,9 @@
                 </div>
 
                 <!-- Reward Detail Modal -->
-                <div id="rewardDetailModal"
-                    class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div id="rewardDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div class="bg-white rounded-xl shadow-lg w-[600px] max-h-[90vh] overflow-y-auto p-6 relative">
-                        <button onclick="closeRewardDetail()"
-                            class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                        <button onclick="closeRewardDetail()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
                             <i class="fas fa-times"></i>
                         </button>
                         <h3 class="text-xl font-bold text-gray-800 mb-4">Chi tiết phần thưởng</h3>
@@ -588,8 +525,7 @@
     </main>
 
     <!-- Customer Detail Modal -->
-    <div id="customerDetailModal"
-        class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div id="customerDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
         <div class="bg-white rounded-xl shadow-lg w-96 p-6 relative">
             <button onclick="closeCustomerDetail()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
                 <i class="fas fa-times"></i>
@@ -614,7 +550,12 @@
 
     <script>
         // Configuration
-        window.CURRENT_USER = { id: "{{ user.user_id }}", username: "{{ user.user_name }}", role: "{{ user.role }}", brand_id: "{{user.brand_id or 'null' }}" };
+        window.CURRENT_USER = {
+            id: "{{ user.user_id }}",
+            username: "{{ user.user_name }}",
+            role: "{{ user.role }}",
+            brand_id: "{{user.brand_id or 'null' }}"
+        };
 
         const USER_ID = window.CURRENT_USER.id;
         const BRAND_ID = window.CURRENT_USER.brand_id;
@@ -773,6 +714,7 @@
 
             container.innerHTML = content;
         }
+
         function setChartState(chartContainer, isLoading, errorMessage = null) {
             if (!chartContainer) return;
             const canvas = chartContainer.querySelector('canvas');
@@ -789,11 +731,59 @@
 
         // Fetch and render Quick Stats
         async function loadQuickStats() {
-            const statsConfig = [
-                { id: 'total-points', endpoint: `/point/get_total_points/${BRAND_ID}`, title: 'Tổng điểm đã tích', icon: 'fa-coins', color: 'blue', parseFn: (data) => formatNumber(data?.total_points), trendText: '+12% vs tháng trước', mock: { data: { total_points: 123456 } } },
-                { id: 'active-campaigns', endpoint: `/campaign/get_active_campaigns/${BRAND_ID}`, title: 'Chiến dịch đang chạy', icon: 'fa-rocket', color: 'green', parseFn: (data) => formatNumber(data?.active_campaigns), trendText: data => data?.active_campaigns > 0 ? '2 sắp hết hạn' : '', mock: { data: { active_campaigns: 5 } } },
-                { id: 'total-customers', endpoint: `/user/get_total_customers/${BRAND_ID}`, title: 'Khách hàng tham gia', icon: 'fa-users', color: 'purple', parseFn: (data) => formatNumber(data?.total_customers), trendText: '+8% vs tháng trước', mock: { data: { total_customers: 1580 } } },
-                { id: 'rewards-redeemed', endpoint: `/voucher/get_rewards_redeemed`, title: 'Đổi quà thành công', icon: 'fa-gift', color: 'yellow', parseFn: (data) => formatNumber(data?.rewards_redeemed), trendText: data => data?.rewards_redeemed > 0 ? '5 đơn chờ xử lý' : '', mock: { data: { rewards_redeemed: 42 } } }
+            const statsConfig = [{
+                    id: 'total-points',
+                    endpoint: `/point/get_total_points/${BRAND_ID}`,
+                    title: 'Tổng điểm đã tích',
+                    icon: 'fa-coins',
+                    color: 'blue',
+                    parseFn: (data) => formatNumber(data ? .total_points),
+                    trendText: '+12% vs tháng trước',
+                    mock: {
+                        data: {
+                            total_points: 123456
+                        }
+                    }
+                }, {
+                    id: 'active-campaigns',
+                    endpoint: `/campaign/get_active_campaigns/${BRAND_ID}`,
+                    title: 'Chiến dịch đang chạy',
+                    icon: 'fa-rocket',
+                    color: 'green',
+                    parseFn: (data) => formatNumber(data ? .active_campaigns),
+                    trendText: data => data ? .active_campaigns > 0 ? '2 sắp hết hạn' : '',
+                    mock: {
+                        data: {
+                            active_campaigns: 5
+                        }
+                    }
+                }, {
+                    id: 'total-customers',
+                    endpoint: `/user/get_total_customers/${BRAND_ID}`,
+                    title: 'Khách hàng tham gia',
+                    icon: 'fa-users',
+                    color: 'purple',
+                    parseFn: (data) => formatNumber(data ? .total_customers),
+                    trendText: '+8% vs tháng trước',
+                    mock: {
+                        data: {
+                            total_customers: 1580
+                        }
+                    }
+                }, {
+                    id: 'rewards-redeemed',
+                    endpoint: `/voucher/get_rewards_redeemed`,
+                    title: 'Đổi quà thành công',
+                    icon: 'fa-gift',
+                    color: 'yellow',
+                    parseFn: (data) => formatNumber(data ? .rewards_redeemed),
+                    trendText: data => data ? .rewards_redeemed > 0 ? '5 đơn chờ xử lý' : '',
+                    mock: {
+                        data: {
+                            rewards_redeemed: 42
+                        }
+                    }
+                }
 
             ];
 
@@ -832,18 +822,18 @@
                     if (!data && config.id === 'total-points') { // Example: Check specifically for the first item if needed
                         console.warn(`Received null or undefined data for ${config.title}`);
                         // Handle null/undefined data appropriately, maybe show '0' or 'N/A'
-                        if (valueElement) valueElement.textContent = config.parseFn(null) ?? 'N/A'; // Use nullish coalescing
+                        if (valueElement) valueElement.textContent = config.parseFn(null) ? ? 'N/A'; // Use nullish coalescing
                         if (trendElement) trendElement.textContent = 'Không có dữ liệu';
                         continue; // Move to the next stat
                     }
 
 
                     // Update card content on success
-                    if (valueElement) valueElement.textContent = config.parseFn(data) ?? 'N/A'; // Use nullish coalescing for safety
+                    if (valueElement) valueElement.textContent = config.parseFn(data) ? ? 'N/A'; // Use nullish coalescing for safety
 
                     if (trendElement) {
                         const trend = typeof config.trendText === 'function' ? config.trendText(data) : config.trendText;
-                        const trendIcon = trend?.startsWith('+') ? 'fa-arrow-up text-green-500' : trend ? 'fa-info-circle text-gray-500' : '';
+                        const trendIcon = trend ? .startsWith('+') ? 'fa-arrow-up text-green-500' : trend ? 'fa-info-circle text-gray-500' : '';
                         trendElement.innerHTML = trend ? `<i class="fas ${trendIcon} mr-1"></i> ${trend}` : '&nbsp;';
                     }
                 } catch (error) {
@@ -862,15 +852,60 @@
         async function loadCampaigns() {
             const mockCampaignData = {
                 data: {
-                    current: [
-                        { id: 1, name: "Tích điểm hè sôi động", type: "Tích điểm", description: "Tích điểm gấp đôi cho mọi hóa đơn trên 500k.", start_date: "01/06/25", end_date: "31/08/25", participants: 1250, target_participants: 2000, progress: 62, status: "Đang hoạt động", image_url: "https://placehold.co/300x160/ecfccb/4d7c0f?text=Hè+Sôi+Động" },
-                        { id: 2, name: "Đổi quà sinh nhật", type: "Đổi quà", description: "Ưu đãi đặc biệt cho khách hàng có sinh nhật trong tháng.", start_date: "01/07/25", end_date: "31/07/25", participants: 300, target_participants: 500, progress: 60, status: "Đang hoạt động", image_url: "https://placehold.co/300x160/fce7f3/831843?text=Sinh+Nhật" },
-                        { id: 3, name: "Giới thiệu bạn bè", type: "Tích điểm", description: "Nhận ngay 50 điểm khi giới thiệu bạn bè thành công.", start_date: "15/07/25", end_date: "15/09/25", participants: 80, target_participants: 300, progress: 27, status: "Sắp bắt đầu", image_url: "https://placehold.co/300x160/ffedd5/c2410c?text=Giới+Thiệu" }
-                    ],
-                    past: [
-                        { id: 4, name: "Chào hè rực rỡ", type: "Tích điểm", start_date: "01/04/25", end_date: "31/05/25", participants: 980, status: "Đã kết thúc" },
-                        { id: 5, name: "Voucher giảm giá 20%", type: "Đổi quà", start_date: "15/03/25", end_date: "15/04/25", participants: 550, status: "Đã kết thúc" }
-                    ]
+                    current: [{
+                        id: 1,
+                        name: "Tích điểm hè sôi động",
+                        type: "Tích điểm",
+                        description: "Tích điểm gấp đôi cho mọi hóa đơn trên 500k.",
+                        start_date: "01/06/25",
+                        end_date: "31/08/25",
+                        participants: 1250,
+                        target_participants: 2000,
+                        progress: 62,
+                        status: "Đang hoạt động",
+                        image_url: "https://placehold.co/300x160/ecfccb/4d7c0f?text=Hè+Sôi+Động"
+                    }, {
+                        id: 2,
+                        name: "Đổi quà sinh nhật",
+                        type: "Đổi quà",
+                        description: "Ưu đãi đặc biệt cho khách hàng có sinh nhật trong tháng.",
+                        start_date: "01/07/25",
+                        end_date: "31/07/25",
+                        participants: 300,
+                        target_participants: 500,
+                        progress: 60,
+                        status: "Đang hoạt động",
+                        image_url: "https://placehold.co/300x160/fce7f3/831843?text=Sinh+Nhật"
+                    }, {
+                        id: 3,
+                        name: "Giới thiệu bạn bè",
+                        type: "Tích điểm",
+                        description: "Nhận ngay 50 điểm khi giới thiệu bạn bè thành công.",
+                        start_date: "15/07/25",
+                        end_date: "15/09/25",
+                        participants: 80,
+                        target_participants: 300,
+                        progress: 27,
+                        status: "Sắp bắt đầu",
+                        image_url: "https://placehold.co/300x160/ffedd5/c2410c?text=Giới+Thiệu"
+                    }],
+                    past: [{
+                        id: 4,
+                        name: "Chào hè rực rỡ",
+                        type: "Tích điểm",
+                        start_date: "01/04/25",
+                        end_date: "31/05/25",
+                        participants: 980,
+                        status: "Đã kết thúc"
+                    }, {
+                        id: 5,
+                        name: "Voucher giảm giá 20%",
+                        type: "Đổi quà",
+                        start_date: "15/03/25",
+                        end_date: "15/04/25",
+                        participants: 550,
+                        status: "Đã kết thúc"
+                    }]
                 }
             };
             try {
@@ -1779,7 +1814,7 @@
             let currentTab = "marketing";
 
             // Khi mở dropdown -> load marketing mặc định
-            btn.addEventListener("click", async (e) => {
+            btn.addEventListener("click", async(e) => {
                 e.stopPropagation();
                 if (dropdown.classList.contains("hidden")) {
                     dropdown.classList.remove("hidden");
@@ -1799,7 +1834,7 @@
 
             // Tab switching
             // Khi click Marketing
-            tabMarketing.addEventListener("click", async () => {
+            tabMarketing.addEventListener("click", async() => {
                 currentTab = "marketing";
 
                 // Active style cho Marketing
@@ -1815,7 +1850,7 @@
             });
 
             // Khi click System
-            tabSystem.addEventListener("click", async () => {
+            tabSystem.addEventListener("click", async() => {
                 currentTab = "system";
 
                 // Active style cho System
@@ -1835,9 +1870,9 @@
             // Hàm load thông báo theo tab
             async function loadNotifications(type) {
                 try {
-                    const url = type === "system"
-                        ? `/notification/list/brand/system/${BRAND_ID}`
-                        : `/notification/list/brand/marketing/${BRAND_ID}`;
+                    const url = type === "system" ?
+                        `/notification/list/brand/system/${BRAND_ID}` :
+                        `/notification/list/brand/marketing/${BRAND_ID}`;
 
                     const res = await fetch(url);
                     const data = await res.json();
@@ -1880,7 +1915,7 @@
                     const systemData = await systemRes.json();
 
                     if ((marketingRes.ok && marketingData.success) || (systemRes.ok && systemData.success)) {
-                        const total = (marketingData.notifications?.length || 0) + (systemData.notifications?.length || 0);
+                        const total = (marketingData.notifications ? .length || 0) + (systemData.notifications ? .length || 0);
                         if (total > 0) {
                             badge.textContent = total;
                             badge.classList.remove("hidden");

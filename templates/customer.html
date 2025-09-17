@@ -11,35 +11,35 @@
         .gradient-bg {
             background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
         }
-
+        
         .card-hover:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-
+        
         .transition-all {
             transition: all 0.3s ease;
         }
-
+        
         .tab-active {
             border-bottom: 3px solid #1e40af;
             color: #1e40af;
             font-weight: 600;
         }
-
+        
         [data-content] {
             display: none;
         }
-
+        
         [data-content].active {
             display: block;
         }
-
+        
         .reward-card:hover {
             transform: scale(1.03);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
-
+        
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
             width: 36px;
@@ -48,32 +48,31 @@
             border-left-color: #1e40af;
             animation: spin 1s ease infinite;
         }
-
+        
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
             }
-
             100% {
                 transform: rotate(360deg);
             }
         }
-
+        
         .loading-overlay {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 80px;
         }
-
+        
         .error-message {
             color: #ef4444;
             font-style: italic;
             text-align: center;
             padding: 1rem;
         }
-
         /* Modal styles */
+        
         .modal {
             display: none;
             position: fixed;
@@ -86,7 +85,7 @@
             align-items: center;
             justify-content: center;
         }
-
+        
         .modal-content {
             background-color: white;
             border-radius: 12px;
@@ -96,7 +95,7 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             position: relative;
         }
-
+        
         .modal-close {
             position: absolute;
             top: 1rem;
@@ -106,12 +105,12 @@
             color: #666;
             transition: color 0.2s ease;
         }
-
+        
         .modal-close:hover {
             color: #333;
         }
-
         /* Styling for the redemption code section */
+        
         .code-container {
             background-color: #f0f4ff;
             border: 1px solid #d1e0ff;
@@ -123,14 +122,14 @@
             justify-content: space-between;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-
+        
         .code-text {
             font-size: 1.1rem;
             font-weight: 600;
             color: #1e40af;
             letter-spacing: 1px;
         }
-
+        
         .copy-button {
             background: none;
             border: none;
@@ -140,42 +139,42 @@
             padding: 0.25rem;
             transition: color 0.2s ease, transform 0.1s ease;
         }
-
+        
         .copy-button:hover {
             color: #1e3a8a;
             transform: scale(1.1);
         }
-
+        
         .copy-message {
             font-size: 0.875rem;
             color: #10b981;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-
+        
         .copy-message.show {
             opacity: 1;
         }
-
         /* Styling for other sections */
+        
         .modal-content h4 {
             font-size: 1.125rem;
             font-weight: 600;
             color: #1e40af;
             margin-bottom: 0.5rem;
         }
-
+        
         .modal-content p {
             margin-bottom: 0.25rem;
             color: #4b5563;
         }
-
+        
         .modal-content p strong {
             font-weight: 500;
             color: #1f2937;
         }
-
         /* Styling for the "Sử dụng" button */
+        
         .use-voucher-button {
             background-color: #10b981;
             color: white;
@@ -184,7 +183,7 @@
             border-radius: 6px;
             transition: background-color 0.2s ease, transform 0.1s ease;
         }
-
+        
         .use-voucher-button:hover {
             background-color: #059669;
             transform: scale(1.05);
@@ -203,25 +202,24 @@
             <div class="flex items-center space-x-6">
                 <!-- Nút chuông thông báo -->
                 <div class="relative">
-                    <!-- Nút chuông -->
                     <button id="notificationBtn" class="relative p-2 text-gray-600 hover:text-blue-600">
                         <i class="fas fa-bell text-white"></i>
                         <span id="notificationBadge"
-                            class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                            0
-                        </span>
+                            class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">0</span>
                     </button>
 
-                    <!-- Dropdown thông báo -->
-                    <div id="notificationDropdown"
-                        class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <!-- Dropdown -->
+                    <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                         <div class="flex justify-between items-center p-3 border-b">
                             <h4 class="font-bold text-gray-700">Thông báo</h4>
+                            <button id="markAllReadBtn" class="text-sm text-blue-600 hover:underline">
+                                Đánh dấu tất cả đã đọc
+                            </button>
                         </div>
                         <div id="notificationList" class="max-h-80 overflow-y-auto divide-y divide-gray-100">
                             <div class="p-4 text-center text-gray-500 text-sm">Không có thông báo</div>
                         </div>
-                        <div class="p-2 text-center bg-gray-50">
+                        <div id="viewAllBtn" class="p-2 text-center bg-gray-50">
                             <a href="#" class="text-sm text-blue-600 font-medium">Xem tất cả</a>
                         </div>
                     </div>
@@ -229,12 +227,12 @@
 
 
 
+
                 <div class="relative group">
                     <button id="profileBtn" class="flex items-center space-x-2">
                         <span class="font-medium" id="customer-name-header">{{user.user_name }}</span>
                     </button>
-                    <div id="profileDropdown"
-                        class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+                    <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
                         <div class="p-4 border-b">
                             <h3 class="font-bold text-gray-800" id="customer-name-dropdown"></h3>
                             <p class="text-xs text-gray-500" id="customer-tier-dropdown">{{user.membership}}</p>
@@ -274,16 +272,14 @@
 
         <!-- Navigation Tabs -->
         <div class="flex border-b mb-8">
-            <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all tab-active"
-                data-target="promotions">Chiến dịch</button>
+            <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all tab-active" data-target="promotions">Chiến dịch</button>
             <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all" data-target="points">Quản lý
                 điểm</button>
             <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all" data-target="vouchers">Voucher
                 của tôi</button>
             <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all" data-target="history">Lịch sử
                 giao dịch</button>
-            <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all"
-                data-target="voucher-history">Lịch sử sử dụng voucher</button>
+            <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all" data-target="voucher-history">Lịch sử sử dụng voucher</button>
             <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all" data-target="ad">Quảng
                 cáo</button>
             <button class="tab-btn px-4 py-2 font-medium text-gray-600 transition-all" data-target="profile">Hồ
@@ -300,8 +296,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <!-- Avatar -->
                     <div class="flex flex-col items-center space-y-4">
-                        <div id="avatar"
-                            class="w-32 h-32 rounded-full border-4 border-blue-100 shadow-md flex items-center justify-center text-4xl font-bold text-white bg-blue-600 select-none">
+                        <div id="avatar" class="w-32 h-32 rounded-full border-4 border-blue-100 shadow-md flex items-center justify-center text-4xl font-bold text-white bg-blue-600 select-none">
                             U</div>
 
                     </div>
@@ -312,31 +307,23 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-600">Họ và tên</label>
-                                <input id="fullname" type="text" readonly
-                                    class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                                    placeholder="Nguyễn Văn A">
+                                <input id="fullname" type="text" readonly class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Nguyễn Văn A">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-600">Email</label>
-                                <input id="email" type="email" readonly
-                                    class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                                    placeholder="abc@example.com">
+                                <input id="email" type="email" readonly class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="abc@example.com">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-600">Số điện thoại</label>
-                                <input id="phone" type="text"
-                                    class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                                    placeholder="090xxxxxxx">
+                                <input id="phone" type="text" class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="090xxxxxxx">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-600">Ngày sinh (tùy chọn)</label>
-                                <input id="date_of_birth" type="date"
-                                    class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                <input id="date_of_birth" type="date" class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-600">Giới tính (tùy chọn)</label>
-                                <select id="gender"
-                                    class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                <select id="gender" class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
                                     <option value="0">Nữ</option>
                                     <option value="1">Nam</option>
                                     <option value="2">Khác</option>
@@ -344,27 +331,21 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-600">Địa chỉ (tùy chọn)</label>
-                                <input id="address" type="text"
-                                    class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                                    placeholder="TP. Hồ Chí Minh">
+                                <input id="address" type="text" class="mt-1 w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="TP. Hồ Chí Minh">
                             </div>
                         </div>
 
                         <!-- Thông tin điểm & referral -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div
-                                class="bg-gradient-to-r from-blue-50 to-blue-100 p-5 rounded-xl shadow hover:shadow-md transition">
+                            <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-5 rounded-xl shadow hover:shadow-md transition">
                                 <p class="text-sm text-gray-600">Điểm hiện có</p>
                                 <p id="profile-points" class="text-3xl font-extrabold text-blue-700 mt-1">0</p>
                             </div>
-                            <div
-                                class="bg-gradient-to-r from-green-50 to-green-100 p-5 rounded-xl shadow hover:shadow-md transition">
+                            <div class="bg-gradient-to-r from-green-50 to-green-100 p-5 rounded-xl shadow hover:shadow-md transition">
                                 <p class="text-sm text-gray-600">Mã giới thiệu của bạn</p>
                                 <div class="flex items-center mt-1">
-                                    <span id="referral-code"
-                                        class="text-lg font-mono font-bold text-green-700">ABC123</span>
-                                    <button onclick="copyReferralCode()"
-                                        class="ml-3 px-3 py-1 bg-green-600 text-white rounded-full shadow hover:bg-green-700 text-sm">
+                                    <span id="referral-code" class="text-lg font-mono font-bold text-green-700">ABC123</span>
+                                    <button onclick="copyReferralCode()" class="ml-3 px-3 py-1 bg-green-600 text-white rounded-full shadow hover:bg-green-700 text-sm">
                                         Sao chép
                                     </button>
                                 </div>
@@ -380,8 +361,7 @@
                         </p>
 
                         <!-- Nút cập nhật -->
-                        <button id="btnUpdate"
-                            class="mt-4 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition">
+                        <button id="btnUpdate" class="mt-4 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition">
                             <i class="fas fa-save mr-2"></i> Cập nhật hồ sơ
                         </button>
                     </div>
@@ -420,10 +400,9 @@
                         </div>
                     </div>
                     <div class="border-t pt-4">
-                        <p class="text-sm text-gray-600"><span class="font-medium">Tỷ lệ quy đổi:</span> 100,000đ = 1
-                            điểm</p>
-                        <p class="text-sm text-gray-600"><span class="font-medium">Cấp độ:</span> <span
-                                id="tier-summary">Đang tải...</span></p>
+                        <p class="text-sm text-gray-600"><span class="font-medium">Tỷ lệ quy đổi:</span> 100,000đ = 1 điểm
+                        </p>
+                        <p class="text-sm text-gray-600"><span class="font-medium">Cấp độ:</span> <span id="tier-summary">Đang tải...</span></p>
                     </div>
                 </div>
 
@@ -434,8 +413,7 @@
                     <div class="flex flex-col items-center">
                         <img src="/static/transaction_qr.png" alt="QR Code" class="w-32 h-32 mb-4">
                         <p class="text-xs text-gray-500 mb-2">Mã khách hàng: CUS123456</p>
-                        <button
-                            class="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
+                        <button class="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
                             <i class="fas fa-download mr-2"></i> Tải mã QR
                         </button>
                     </div>
@@ -458,8 +436,7 @@
                     <div class="spinner"></div>
                 </div>
             </div>
-            <button
-                class="w-full md:w-auto bg-white text-blue-600 border border-blue-600 font-medium py-2 px-6 rounded-lg hover:bg-blue-50 transition-all">
+            <button class="w-full md:w-auto bg-white text-blue-600 border border-blue-600 font-medium py-2 px-6 rounded-lg hover:bg-blue-50 transition-all">
                 <i class="fas fa-redo mr-2"></i> Xem thêm quà tặng
             </button>
         </div>
@@ -507,23 +484,17 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Ngày</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Mã giao dịch</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Cửa hàng</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Nội dung</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Điểm</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Trạng thái</th>
                             </tr>
                         </thead>
@@ -570,23 +541,17 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Ngày sử dụng</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Mã voucher</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Nội dung</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Nguồn</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Điểm đã dùng</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Trạng thái</th>
                             </tr>
                         </thead>
@@ -670,8 +635,7 @@
                 <div id="adDetailContent" class="text-center">
                     <h3 class="text-xl font-bold mb-2" id="adDetailTitle"></h3>
                     <p class="text-gray-600 mb-4" id="adDetailDescription"></p>
-                    <p class="text-sm text-gray-500 mb-2"><strong>Thời gian áp dụng:</strong> <span
-                            id="adDetailStartAt"></span></p>
+                    <p class="text-sm text-gray-500 mb-2"><strong>Thời gian áp dụng:</strong> <span id="adDetailStartAt"></span></p>
                     <p class="text-sm text-gray-500 mb-4"><strong>Hạn sử dụng:</strong> <span id="adDetailEndAt"></span>
                     </p>
                 </div>
@@ -735,8 +699,12 @@
 
 
     <script>
-
-        window.CURRENT_USER = { id: "{{ user.user_id }}", username: "{{ user.user_name }}", role: "{{ user.role }}", brand_id: "{{user.brand_id or 'null' }}" };
+        window.CURRENT_USER = {
+            id: "{{ user.user_id }}",
+            username: "{{ user.user_name }}",
+            role: "{{ user.role }}",
+            brand_id: "{{user.brand_id or 'null' }}"
+        };
         const USER_ID = window.CURRENT_USER.id;
         const BRAND_ID = window.CURRENT_USER.brand_id;
 
@@ -907,7 +875,9 @@
                     data.forEach(v => {
                         const key = v.redemption_code || v.campaign_id;
                         if (!grouped[key]) {
-                            grouped[key] = { ...v, quantity: 1 };
+                            grouped[key] = {...v,
+                                quantity: 1
+                            };
                         } else {
                             grouped[key].quantity += 1;
                         }
@@ -1924,37 +1894,33 @@
         });
         document.addEventListener('DOMContentLoaded', loadProfile);
     </script>
+
+
+    <!-- Notification Script -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const btn = document.getElementById("notificationBtn");
-            const dropdown = document.getElementById("notificationDropdown");
+            const notificationDropdown = document.getElementById("notificationDropdown");
             const list = document.getElementById("notificationList");
             const badge = document.getElementById("notificationBadge");
+            const markAllBtn = document.getElementById("markAllReadBtn");
+            const viewAllBtn = document.querySelector("#viewAllBtn a");
 
-            if (!btn || !dropdown || !list || !badge) return;
+            if (!notificationDropdown || !list || !badge) return;
 
-            // 1) Badge khi vào trang
-            updateBadge();
-
-            // 2) Click chuông: mở dropdown -> hiển thị "Đang tải..." -> fetch rồi render
-            btn.addEventListener("click", async (e) => {
-                e.stopPropagation();
-                if (dropdown.classList.contains("hidden")) {
-                    dropdown.classList.remove("hidden");
-                    list.innerHTML = `<div class="p-4 text-center text-gray-500">Đang tải...</div>`;
-                    await loadNotifications();
-                } else {
-                    dropdown.classList.add("hidden");
-                }
+            // Khi dropdown hiển thị, load dữ liệu
+            const observer = new MutationObserver(mutations => {
+                mutations.forEach(m => {
+                    if (m.attributeName === "class" && !notificationDropdown.classList.contains("hidden")) {
+                        list.innerHTML = `<div class="p-4 text-center text-gray-500">Đang tải...</div>`;
+                        loadNotifications();
+                    }
+                });
+            });
+            observer.observe(notificationDropdown, {
+                attributes: true
             });
 
-            // 3) Click ra ngoài mới ẩn (outside click)
-            document.addEventListener("click", (e) => {
-                if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.classList.add("hidden");
-                }
-            });
-
+            // API lấy thông báo
             async function loadNotifications() {
                 try {
                     const res = await fetch(`/notification/list/customer/${USER_ID}`);
@@ -1968,14 +1934,34 @@
                         badge.classList.add("hidden");
                     } else {
                         list.innerHTML = items.map(n => `
-          <div class="px-4 py-3 hover:bg-gray-50 border-b">
-            <p class="text-sm font-medium text-gray-800">${n.title}</p>
-            <p class="text-xs text-gray-600">${n.message || ""}</p>
-            <p class="text-xs text-gray-400">${new Date(n.created_at).toLocaleString('vi-VN')}</p>
-          </div>
-        `).join("");
+                    <div class="px-4 py-3 hover:bg-gray-50 border-b flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">${n.title}</p>
+                            <p class="text-xs text-gray-600">${n.message || ""}</p>
+                            <p class="text-xs text-gray-400">${new Date(n.created_at).toLocaleString('vi-VN')}</p>
+                        </div>
+                        <button data-id="${n.notification_id}" class="mark-read-btn text-xs text-blue-600 hover:underline ml-2">
+                            Đã đọc
+                        </button>
+                    </div>
+                `).join("");
                         badge.textContent = items.length;
                         badge.classList.remove("hidden");
+
+                        // Gắn event cho nút "Đã đọc"
+                        list.querySelectorAll(".mark-read-btn").forEach(btn => {
+                            btn.addEventListener("click", async() => {
+                                const id = btn.dataset.id;
+                                await fetch(`/notification/mark_read/${id}`, {
+                                    method: "POST"
+                                });
+                                btn.closest("div").remove();
+                                updateBadge();
+                                if (!list.querySelector(".mark-read-btn")) {
+                                    list.innerHTML = `<div class="p-4 text-center text-gray-500">Không có thông báo</div>`;
+                                }
+                            });
+                        });
                     }
                 } catch (err) {
                     console.error("Lỗi load thông báo:", err);
@@ -1984,6 +1970,7 @@
                 }
             }
 
+            // Cập nhật badge (số lượng thông báo)
             async function updateBadge() {
                 try {
                     const res = await fetch(`/notification/list/customer/${USER_ID}`);
@@ -1999,17 +1986,35 @@
                     console.error("Badge error:", err);
                 }
             }
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dropdown.classList.toggle('hidden');
-                if (!dropdown.classList.contains('hidden')) {
-                    loadNotifications();
-                }
-            })
+
+            // "Đánh dấu tất cả đã đọc"
+            if (markAllBtn) {
+                markAllBtn.addEventListener("click", async() => {
+                    await fetch("/notification/mark_all_read", {
+                        method: "POST"
+                    });
+                    list.innerHTML = `<div class="p-4 text-center text-gray-500">Không có thông báo</div>`;
+                    badge.classList.add("hidden");
+                });
+                (async() => {
+                    await loadNotifications();
+                    await updateBadge();
+                })();
+
+            }
+
+            // "Xem tất cả" -> chuyển trang
+            if (viewAllBtn) {
+                viewAllBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    window.location.href = "/notification/notification";
+                });
+            }
+
+            // Load badge ban đầu
+            updateBadge();
         });
-
     </script>
-
 
 
 
