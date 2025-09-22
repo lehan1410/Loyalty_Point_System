@@ -10,20 +10,6 @@ CREATE TABLE Users (
   created_at DATETIME NOT NULL,
   status BOOLEAN NOT NULL
 );
-
--- Bảng User_Profile
-CREATE TABLE User_Profile (
-  user_profile_id INT NOT NULL PRIMARY KEY,
-  fullname VARCHAR(50) NOT NULL,
-  date_of_birth DATE NOT NULL,
-  address VARCHAR(100) NOT NULL,
-  email VARCHAR(50) NOT NULL,
-  gender BOOLEAN NOT NULL,
-  phone VARCHAR(10) NOT NULL,
-  user_id INT NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES Users(user_id)
-);
-
 -- Thêm cột referral_code và referred_by vào bảng Users
 ALTER TABLE Users 
 ADD COLUMN referral_code VARCHAR(20) UNIQUE,
@@ -85,6 +71,19 @@ CREATE TABLE IF NOT EXISTS PasswordReset (
     INDEX (token_hash)
 );
 
+
+-- Bảng User_Profile
+CREATE TABLE User_Profile (
+  user_profile_id INT NOT NULL PRIMARY KEY,
+  fullname VARCHAR(50) NOT NULL,
+  date_of_birth DATE NOT NULL,
+  address VARCHAR(100) NOT NULL,
+  email VARCHAR(50) NOT NULL,
+  gender BOOLEAN NOT NULL,
+  phone VARCHAR(10) NOT NULL,
+  user_id INT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
 
 -- Bảng Customer
 -- CREATE TABLE Customer (

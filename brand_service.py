@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, send_file, request
 import mysql.connector
 from flask_cors import CORS
-from datetime import datetime, timedelta
+from datetime import datetime
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, HRFlowable
 import os
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -10,6 +10,7 @@ from reportlab.lib import colors
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from flask import send_file, jsonify
+from datetime import datetime
 import io, requests
 
 brand_bp = Blueprint("brand", __name__)
@@ -459,30 +460,3 @@ def mark_contract_notified():
         return jsonify({"success": True, "message": "Đã đánh dấu hợp đồng"}), 200
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
-
-# API được dùng để gửi thông báo nhắc nhở gia hạn hợp đồng
-# API: Lấy danh sách hợp đồng sắp hết hạn trong vòng 30 ngày
-@brand_bp.route('/contracts/expiring', methods=['GET'])
-def get_expiring_contracts():
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-
-        today = datetime.now()
-        limit_date = today + timedelta(days=30)  # 30 ngày tới
-
-        cursor.execute("""
-            SELECT c.contract_id, c.brand_id, c.end_at, b.brandname, b.email
-            FROM Contract c
-            JOIN Brand b ON c.brand_id = b.brand_id
-            WHERE c.status = 1 AND c.end_at BETWEEN %s AND %s
-        """, (today, limit_date))
-
-        contracts = cursor.fetchall()
-        return jsonify({"contracts": contracts}), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    finally:
-        cursor.close()
-        conn.close()

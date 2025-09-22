@@ -17,69 +17,69 @@
             margin-right: 1rem;
             z-index: 1000;
         }
-        
+
         #profileDropdown a {
             display: block;
             padding: 0.5rem 1rem;
             text-align: left;
             width: 100%;
         }
-        
+
         .gradient-bg {
             background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
         }
-        
+
         .sidebar-gradient {
             background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
         }
-        
+
         .card-hover:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        
+
         .transition-all {
             transition: all 0.3s ease;
         }
-        
+
         .tab-active {
             border-bottom: 3px solid #1e40af;
             color: #1e40af;
             font-weight: 600;
         }
-        
+
         .chart-container {
             position: relative;
             height: 100%;
             width: 100%;
         }
-        
+
         .sidebar-item:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
-        
+
         .sidebar-item.active {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         [data-content] {
             display: none;
         }
-        
+
         [data-content].active {
             display: block;
         }
-        
+
         .mobile-sidebar {
             transform: translateX(-100%);
             transition: transform 0.3s ease;
         }
-        
+
         .mobile-sidebar.open {
             transform: translateX(0);
         }
+
         /* Loading spinner */
-        
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
             width: 36px;
@@ -88,38 +88,39 @@
             border-left-color: #1e40af;
             animation: spin 1s ease infinite;
         }
-        
+
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
             }
+
             100% {
                 transform: rotate(360deg);
             }
         }
-        
+
         .loading-overlay {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 80px;
         }
-        
+
         .error-message {
             color: #ef4444;
             font-style: italic;
             text-align: center;
             padding: 1rem;
         }
-        
+
         .success-message {
             color: #10b981;
             font-style: italic;
             text-align: center;
             padding: 1rem;
         }
+
         /* Modal styles */
-        
         .modal {
             display: none;
             position: fixed;
@@ -132,7 +133,7 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .modal-content {
             background: white;
             border-radius: 0.75rem;
@@ -141,7 +142,7 @@
             padding: 1.5rem;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
-        
+
         #brandTypeChart {
             max-width: 250px;
             max-height: 250px;
@@ -167,43 +168,53 @@
             </div>
             <nav class="p-4">
                 <div class="space-y-1">
-                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="dashboard">
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="dashboard">
                         <i class="fas fa-tachometer-alt w-6"></i>
                         <span>Dashboard</span>
                     </a>
-                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="accounts">
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="accounts">
                         <i class="fas fa-user-cog w-6"></i>
                         <span>Quản lý tài khoản</span>
                     </a>
-                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="brands">
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="brands">
                         <i class="fas fa-store-alt w-6"></i>
                         <span>Quản lý Brand</span>
                     </a>
-                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="contracts">
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="contracts">
                         <i class="fas fa-file-contract w-6"></i>
                         <span>Hợp đồng Brand</span>
                     </a>
-                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="points">
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="points">
                         <i class="fas fa-coins w-6"></i>
                         <span>Chính sách điểm</span>
                     </a>
-                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all active" data-target="campaigns">
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all active"
+                        data-target="campaigns">
                         <i class="fas fa-bullhorn w-6"></i>
                         <span>Chiến dịch</span>
                     </a>
-                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="advertisements">
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="advertisements">
                         <i class="fas fa-ad w-6"></i>
                         <span>Quảng cáo</span>
                     </a>
-                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="notifications">
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="notifications">
                         <i class="fas fa-bell w-6"></i>
                         <span>Thông báo</span>
                     </a>
-                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="promotions">
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="promotions">
                         <i class="fas fa-percentage w-6"></i>
                         <span>Ưu đãi</span>
                     </a>
-                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="reports">
+                    <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                        data-target="reports">
                         <i class="fas fa-chart-bar w-6"></i>
                         <span>Báo cáo</span>
                     </a>
@@ -221,43 +232,53 @@
         </div>
         <nav class="p-4">
             <div class="space-y-1">
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="dashboard">
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="dashboard">
                     <i class="fas fa-tachometer-alt w-6"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="accounts">
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="accounts">
                     <i class="fas fa-user-cog w-6"></i>
                     <span>Quản lý tài khoản</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="brands">
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="brands">
                     <i class="fas fa-store-alt w-6"></i>
                     <span>Quản lý Brand</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="contracts">
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="contracts">
                     <i class="fas fa-file-contract w-6"></i>
                     <span>Hợp đồng Brand</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="points">
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="points">
                     <i class="fas fa-coins w-6"></i>
                     <span>Chính sách điểm</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all active" data-target="campaigns">
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all active"
+                    data-target="campaigns">
                     <i class="fas fa-bullhorn w-6"></i>
                     <span>Chiến dịch</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="advertisements">
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="advertisements">
                     <i class="fas fa-ad w-6"></i>
                     <span>Quảng cáo</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="notifications">
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="notifications">
                     <i class="fas fa-bell w-6"></i>
                     <span>Thông báo</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="promotions">
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="promotions">
                     <i class="fas fa-percentage w-6"></i>
                     <span>Ưu đãi</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all" data-target="reports">
+                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all"
+                    data-target="reports">
                     <i class="fas fa-chart-bar w-6"></i>
                     <span>Báo cáo</span>
                 </a>
@@ -288,7 +309,8 @@
                         </button>
 
                         <!-- Dropdown thông báo -->
-                        <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                        <div id="notificationDropdown"
+                            class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                             <div class="flex justify-between items-center p-3 border-b">
                                 <h4 class="font-bold text-gray-700">Thông báo hệ thống</h4>
                                 <button id="markAllReadBtn" class="text-sm text-blue-600 hover:underline">Đánh dấu tất
@@ -306,7 +328,8 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <!-- Dropdown tài khoản -->
-                        <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-50">
+                        <div id="profileDropdown"
+                            class="hidden absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-50">
                             <div class="p-4 border-b">
                                 <h3 class="font-bold text-gray-800">{{ user.user_name | default('Admin') }}</h3>
                                 <p class="text-xs text-gray-500">admin@mallmanagement.com</p>
@@ -316,7 +339,8 @@
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cài đặt</a>
                             </div>
                             <div class="py-1 border-t">
-                                <a href="/user/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Đăng xuất</a>
+                                <a href="/user/logout"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Đăng xuất</a>
                             </div>
                         </div>
                     </div>
@@ -334,7 +358,8 @@
                         <div>
                             <h2 class="text-2xl font-bold mb-2">Xin chào, {{ user.user_name | default('Admin') }}!</h2>
                             <p class="mb-4">Hệ thống quản lý toàn diện cho trung tâm thương mại của bạn.</p>
-                            <button onclick="window.location.href='/voucher/voucher';" class="bg-white text-blue-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-100 transition-all">
+                            <button onclick="window.location.href='/voucher/voucher';"
+                                class="bg-white text-blue-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-100 transition-all">
                                 <i class="fas fa-plus mr-2"></i> Tạo ưu đãi mới
                             </button>
                         </div>
@@ -353,8 +378,8 @@
                                 <i class="fas fa-store-alt text-xl"></i>
                             </div>
                         </div>
-                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 5% so với tháng trước
-                        </p>
+                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 5% so với tháng
+                            trước</p>
                     </div>
 
                     <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
@@ -380,8 +405,8 @@
                                 <i class="fas fa-users text-xl"></i>
                             </div>
                         </div>
-                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 18% so với tháng trước
-                        </p>
+                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 18% so với tháng
+                            trước</p>
                     </div>
 
                     <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
@@ -394,8 +419,8 @@
                                 <i class="fas fa-money-bill-wave text-xl"></i>
                             </div>
                         </div>
-                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 22% so với tháng trước
-                        </p>
+                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 22% so với tháng
+                            trước</p>
                     </div>
                 </div>
 
@@ -408,7 +433,8 @@
                             <div class="flex space-x-2">
                                 <button class="time-filter-btn text-xs bg-gray-100 px-2 py-1 rounded" data-period="6">6
                                     tháng</button>
-                                <button class="time-filter-btn text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded" data-period="12">12 tháng</button>
+                                <button class="time-filter-btn text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded"
+                                    data-period="12">12 tháng</button>
                             </div>
                         </div>
                         <div class="chart-container">
@@ -464,7 +490,8 @@
 
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold">Quản lý tài khoản</h3>
-                    <button onclick="openAccountModal()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
+                    <button onclick="openAccountModal()"
+                        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
                         <i class="fas fa-plus mr-2"></i> Thêm tài khoản
                     </button>
                 </div>
@@ -473,9 +500,15 @@
                 <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
                     <div class="border-b border-gray-200">
                         <nav class="-mb-px flex" aria-label="Tabs">
-                            <button id="tab-khachhang" class="tab-button flex-1 py-3 text-center font-medium text-sm text-gray-500" data-tab="khachhang">Khách hàng</button>
-                            <button id="tab-brand" class="tab-button flex-1 py-3 text-center font-medium text-sm text-gray-500" data-tab="brand">Brand</button>
-                            <button id="tab-mall" class="tab-button flex-1 py-3 text-center font-medium text-sm text-gray-500" data-tab="mall">Mall</button>
+                            <button id="tab-khachhang"
+                                class="tab-button flex-1 py-3 text-center font-medium text-sm text-gray-500"
+                                data-tab="khachhang">Khách hàng</button>
+                            <button id="tab-brand"
+                                class="tab-button flex-1 py-3 text-center font-medium text-sm text-gray-500"
+                                data-tab="brand">Brand</button>
+                            <button id="tab-mall"
+                                class="tab-button flex-1 py-3 text-center font-medium text-sm text-gray-500"
+                                data-tab="mall">Mall</button>
                         </nav>
                     </div>
 
@@ -495,7 +528,8 @@
 
 
             <!-- Modal Form Quản lý tài khoản -->
-            <div id="account-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div id="account-modal"
+                class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                 <div class="modal-content bg-white rounded-lg p-6 w-full max-w-lg">
                     <div class="flex justify-between items-center mb-4">
                         <h3 id="modal-title" class="text-xl font-bold">Thêm tài khoản</h3>
@@ -538,7 +572,8 @@
                         </div>
 
                         <div class="flex justify-end space-x-4">
-                            <button type="button" onclick="closeAccountModal()" class="bg-gray-200 px-4 py-2 rounded-lg">Hủy</button>
+                            <button type="button" onclick="closeAccountModal()"
+                                class="bg-gray-200 px-4 py-2 rounded-lg">Hủy</button>
                             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Lưu</button>
                         </div>
                     </form>
@@ -549,7 +584,8 @@
             <div data-content id="brands">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold">Danh sách Brand</h3>
-                    <button class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
+                    <button
+                        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
                         <i class="fas fa-plus mr-2"></i> Thêm Brand
                     </button>
                 </div>
@@ -559,17 +595,23 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Brand</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Loại</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Tầng</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Ngày hợp đồng</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Trạng thái</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Hành động</th>
                                 </tr>
                             </thead>
@@ -630,7 +672,8 @@
             <div data-content id="contracts">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold">Hợp đồng với Brand</h3>
-                    <button class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
+                    <button
+                        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
                         <i class="fas fa-plus mr-2"></i> Thêm hợp đồng
                     </button>
                 </div>
@@ -682,25 +725,32 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Mã hợp đồng
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Brand
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Ngày bắt đầu
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Ngày kết thúc
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Giá trị hợp đồng
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Trạng thái
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Hành động
                                     </th>
                                 </tr>
@@ -755,7 +805,8 @@
                 </div>
             </div>
             <!-- Modal Chi tiết & Gia hạn hợp đồng -->
-            <div id="contract-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div id="contract-modal"
+                class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                 <div class="bg-white p-6 rounded-lg w-full max-w-2xl">
                     <div class="flex justify-between mb-4">
                         <h3 class="text-xl font-bold">Chi tiết hợp đồng</h3>
@@ -777,7 +828,8 @@
                                 <input type="date" id="renew-date" class="w-full border rounded p-2" required>
                             </div>
                             <div class="flex justify-end space-x-4">
-                                <button type="button" onclick="toggleRenew(false)" class="px-4 py-2 bg-gray-200 rounded">Hủy</button>
+                                <button type="button" onclick="toggleRenew(false)"
+                                    class="px-4 py-2 bg-gray-200 rounded">Hủy</button>
                                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Xác nhận gia
                                     hạn</button>
                             </div>
@@ -798,7 +850,8 @@
             <div data-content id="points">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold">Chính sách điểm</h3>
-                    <button class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
+                    <button
+                        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
                         <i class="fas fa-plus mr-2"></i> Thêm chính sách
                     </button>
                 </div>
@@ -827,8 +880,8 @@
                                 <i class="fas fa-coins text-xl"></i>
                             </div>
                         </div>
-                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 15% so với tháng trước
-                        </p>
+                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 15% so với tháng
+                            trước</p>
                     </div>
 
                     <div class="bg-white rounded-xl p-6 shadow-md transition-all card-hover">
@@ -841,8 +894,8 @@
                                 <i class="fas fa-gift text-xl"></i>
                             </div>
                         </div>
-                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 8% so với tháng trước
-                        </p>
+                        <p class="text-green-500 text-sm mt-4"><i class="fas fa-arrow-up mr-1"></i> 8% so với tháng
+                            trước</p>
                     </div>
                 </div>
 
@@ -851,19 +904,24 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Tên chính sách
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Tỷ lệ quy đổi
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Ngày hiệu lực
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Trạng thái
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Hành động
                                     </th>
                                 </tr>
@@ -883,7 +941,8 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
                         <div class="border rounded-lg overflow-hidden transition-all hover:shadow-md">
-                            <img src="https://placehold.co/600x400/e0e7ff/3730a3?text=Voucher+100k" alt="Reward" class="w-full h-40 object-cover">
+                            <img src="https://placehold.co/600x400/e0e7ff/3730a3?text=Voucher+100k" alt="Reward"
+                                class="w-full h-40 object-cover">
                             <div class="p-4">
                                 <h4 class="font-medium">Voucher 100k</h4>
                                 <p class="text-sm text-gray-500 mb-2">Giảm 100k cho hóa đơn từ 500k</p>
@@ -896,7 +955,8 @@
                             </div>
                         </div>
                         <div class="border rounded-lg overflow-hidden transition-all hover:shadow-md">
-                            <img src="https://placehold.co/600x400/e0e7ff/3730a3?text=Ly+Starbucks" alt="Reward" class="w-full h-40 object-cover">
+                            <img src="https://placehold.co/600x400/e0e7ff/3730a3?text=Ly+Starbucks" alt="Reward"
+                                class="w-full h-40 object-cover">
                             <div class="p-4">
                                 <h4 class="font-medium">Ly Starbucks</h4>
                                 <p class="text-sm text-gray-500 mb-2">Ly cao cấp từ Starbucks</p>
@@ -909,7 +969,8 @@
                             </div>
                         </div>
                         <div class="border rounded-lg overflow-hidden transition-all hover:shadow-md">
-                            <img src="https://placehold.co/600x400/e0e7ff/3730a3?text=Túi+Vải" alt="Reward" class="w-full h-40 object-cover">
+                            <img src="https://placehold.co/600x400/e0e7ff/3730a3?text=Túi+Vải" alt="Reward"
+                                class="w-full h-40 object-cover">
                             <div class="p-4">
                                 <h4 class="font-medium">Túi vải thời trang</h4>
                                 <p class="text-sm text-gray-500 mb-2">Túi vải cao cấp in logo mall</p>
@@ -926,7 +987,8 @@
             </div>
 
             <!-- Modal Chi tiết ConversionRule -->
-            <div id="rule-detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div id="rule-detail-modal"
+                class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                 <div class="bg-white p-6 rounded-lg w-full max-w-lg">
                     <div class="flex justify-between mb-4">
                         <h3 class="text-xl font-bold">Chi tiết chính sách</h3>
@@ -955,7 +1017,8 @@
 
                         <div>
                             <label class="block text-sm font-medium">Tên chính sách</label>
-                            <input type="text" id="rule-name" class="mt-1 block w-full border rounded-lg p-2" required />
+                            <input type="text" id="rule-name" class="mt-1 block w-full border rounded-lg p-2"
+                                required />
                         </div>
 
                         <div>
@@ -965,7 +1028,8 @@
 
                         <div>
                             <label class="block text-sm font-medium">Ngày hiệu lực từ</label>
-                            <input type="date" id="effective-from" class="mt-1 block w-full border rounded-lg p-2" required />
+                            <input type="date" id="effective-from" class="mt-1 block w-full border rounded-lg p-2"
+                                required />
                         </div>
 
                         <div>
@@ -982,7 +1046,8 @@
                         </div>
 
                         <div class="flex justify-end space-x-2 mt-4">
-                            <button type="button" onclick="closeRuleModal()" class="bg-gray-200 px-4 py-2 rounded-lg">Hủy</button>
+                            <button type="button" onclick="closeRuleModal()"
+                                class="bg-gray-200 px-4 py-2 rounded-lg">Hủy</button>
                             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Lưu</button>
                         </div>
                     </form>
@@ -1044,34 +1109,44 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Tên chiến dịch
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Brand tham gia
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Ngày bắt đầu
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Ngày kết thúc
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Tổng tiền chiến dịch
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Tỷ lệ Brand
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Tỷ lệ Mall
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Trạng thái
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Hiệu quả
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Hành động
                                     </th>
                                 </tr>
@@ -1098,7 +1173,8 @@
             <div data-content id="advertisements">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold">Quảng cáo</h3>
-                    <button class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
+                    <button
+                        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
                         <i class="fas fa-plus mr-2"></i> Tạo quảng cáo mới
                     </button>
                 </div>
@@ -1149,28 +1225,36 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Mã quảng cáo
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Tiêu đề
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Brand
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Ngày bắt đầu
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Ngày kết thúc
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Chi phí
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Trạng thái
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Hành động
                                     </th>
                                 </tr>
@@ -1195,112 +1279,101 @@
 
             <!-- Notifications Content -->
             <div data-content id="notifications">
-                <div class="bg-white rounded-xl p-6 shadow-md">
-                    <h3 class="text-xl font-bold mb-4">Thông báooooooooo</h3>
+                <!-- Nút mở form tạo thông báo -->
+                <div class="flex justify-end mb-4">
+                    <button id="btnOpenCreateNotification"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-plus mr-2"></i> Tạo Thông Báo
+                    </button>
+                </div>
 
-                    <!-- Thống kê nhanh -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div class="bg-white p-6 rounded-lg shadow text-center">
-                            <h4 class="text-gray-500 text-sm">Tổng thông báo</h4>
-                            <p id="total-notifications" class="text-3xl font-bold text-blue-600">0</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-lg shadow text-center">
-                            <h4 class="text-gray-500 text-sm">Thông báo đang bật</h4>
-                            <p id="active-notifications" class="text-3xl font-bold text-green-600">0</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-lg shadow text-center">
-                            <h4 class="text-gray-500 text-sm">Thông báo đã tắt</h4>
-                            <p id="inactive-notifications" class="text-3xl font-bold text-red-600">0</p>
-                        </div>
+                <!-- Modal Tạo Thông Báo -->
+                <div id="createNotificationModal"
+                    class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">Tạo thông báo mới</h2>
+
+                        <form id="createNotificationForm" class="space-y-4">
+                            <!-- Tiêu đề -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tiêu đề</label>
+                                <input type="text" id="notificationTitle"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required>
+                            </div>
+
+                            <!-- Nội dung -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nội dung</label>
+                                <textarea id="notificationMessage"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    rows="3" required></textarea>
+                            </div>
+
+                            <!-- Ngày hết hạn -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Ngày hết hạn</label>
+                                <input type="date" id="notificationEndAt"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required>
+                            </div>
+
+                            <!-- Loại thông báo -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Loại thông báo</label>
+                                <select id="notificationType"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="marketing">Marketing</option>
+                                    <!-- Không cho phép chọn system trong modal -->
+                                </select>
+                            </div>
+
+
+                            <!-- Đối tượng nhận -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Gửi đến</label>
+                                <select id="notificationTarget"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="all">Tất cả</option>
+                                    <option value="customer">Khách hàng</option>
+                                    <option value="brand">Thương hiệu</option>
+                                </select>
+                            </div>
+
+                            <!-- Nếu chọn brand thì hiện input brand_id -->
+                            <div id="brandTargetInput" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Brand ID</label>
+                                <input type="number" id="notificationTargetId"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Nhập ID thương hiệu cụ thể">
+                            </div>
+
+                            <!-- Nút submit -->
+                            <div class="flex justify-end space-x-3 pt-4">
+                                <button type="button"
+                                    onclick="document.getElementById('createNotificationModal').classList.add('hidden')"
+                                    class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition">Hủy</button>
+                                <button type="submit"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Tạo</button>
+                            </div>
+                        </form>
                     </div>
+                </div>
 
-                    <!-- Tiêu đề + nút -->
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-bold">Quản lý Thông báo</h3>
-                        <button onclick="openNotificationModal()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">
-                            <i class="fas fa-plus mr-2"></i> Thêm thông báo
+
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">Thông báo</h3>
+                        <button id="markAllReadBtn" class="text-sm text-blue-600 hover:underline">
+                            Đánh dấu tất cả đã đọc
                         </button>
                     </div>
 
-                    <!-- Bảng danh sách thông báo -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-                        <div class="overflow-x-auto">
-                            <div id="notification-loading" class="hidden p-4">Đang tải...</div>
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr id="notification-table-headers"></tr>
-                                </thead>
-                                <tbody id="notification-table-body" class="bg-white divide-y divide-gray-200"></tbody>
-                            </table>
-                            <div id="notification-error-message" class="hidden text-red-500 p-4"></div>
-                        </div>
-                    </div>
+                    <!-- Danh sách thông báo động -->
+                    <div id="notificationList" class="space-y-4"></div>
 
-                    <!-- Modal Form Quản lý Thông báo -->
-                    <div id="notification-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                        <div class="modal-content bg-white rounded-lg p-6 w-full max-w-lg">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 id="notification-modal-title" class="text-xl font-bold">Thêm thông báo</h3>
-                                <!-- Nút đóng modal -->
-                                <button onclick="closeNotificationModal()" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times"></i>
-            </button>
-                            </div>
-                            <form id="notification-form" class="space-y-4">
-                                <input type="hidden" id="notification-id">
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Tiêu đề</label>
-                                    <input type="text" id="title" class="w-full border rounded p-2" required>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Mô tả</label>
-                                    <textarea id="message" class="w-full border rounded p-2" required></textarea>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Ngày bắt đầu</label>
-                                    <input type="datetime-local" id="started_at" class="w-full border rounded p-2" required>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Ngày kết thúc</label>
-                                    <input type="datetime-local" id="end_at" class="w-full border rounded p-2">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Trạng thái</label>
-                                    <select id="status" class="w-full border rounded p-2">
-                    <option value="1">Đang bật</option>
-                    <option value="0">Đang tắt</option>
-                </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Loại thông báo</label>
-                                    <select id="type" class="w-full border rounded p-2">
-                    <option value="marketing">Marketing</option>
-                    <option value="system">System</option>
-                </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Đối tượng</label>
-                                    <select id="target_type" class="w-full border rounded p-2" onchange="toggleTargetIdInput()">
-                    <option value="all">Tất cả</option>
-                    <option value="customer">Khách hàng</option>
-                    <option value="brand">Thương hiệu</option>
-                </select>
-                                </div>
-
-
-                                <div class="flex justify-end space-x-4">
-                                    <button type="button" onclick="closeNotificationModal()" class="bg-gray-200 px-4 py-2 rounded-lg">Hủy</button>
-                                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Lưu</button>
-                                </div>
-                            </form>
-                        </div>
+                    <div class="mt-4 text-center">
+                        <a href="#" class="text-blue-600 font-medium">Xem tất cả thông báo</a>
                     </div>
                 </div>
             </div>
@@ -1311,7 +1384,8 @@
                 <div class="bg-white rounded-xl p-6 shadow-md">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-xl font-bold">Ưu đãi</h3>
-                        <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all" onclick="window.location.href='/voucher/voucher';">
+                        <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all"
+                            onclick="window.location.href='/voucher/voucher';">
                             Thêm ưu đãi mới
                         </button>
                     </div>
@@ -1390,13 +1464,15 @@
                 <p><strong>Phần thưởng:</strong> <span id="modal-campaign-reward"></span></p>
                 <p><strong>Thời gian:</strong> <span id="modal-campaign-time"></span></p>
                 <p><strong>Tổng tiền chiến dịch:</strong> <span id="modal-campaign-cost"></span></p>
-                <p><strong>Tỷ lệ chi phí:</strong> Brand <span id="modal-brand-ratio"></span>% - Mall <span id="modal-mall-ratio"></span>%</p>
+                <p><strong>Tỷ lệ chi phí:</strong> Brand <span id="modal-brand-ratio"></span>% - Mall <span
+                        id="modal-mall-ratio"></span>%</p>
             </div>
             <form id="review-form" class="space-y-4">
                 <div>
                     <label for="decision" class="block text-sm font-medium text-gray-700">Quyết định <span
                             class="text-red-500">*</span></label>
-                    <select id="decision" name="decision" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <select id="decision" name="decision" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                         <option value="">Chọn quyết định</option>
                         <option value="APPROVED">Chấp thuận</option>
                         <option value="REJECTED">Từ chối</option>
@@ -1405,10 +1481,12 @@
 
                 <div id="modal-message" class="hidden"></div>
                 <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="closeModal()" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    <button type="button" onclick="closeModal()"
+                        class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                         Hủy
                     </button>
-                    <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center">
+                    <button type="submit"
+                        class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center">
                         <i class="fas fa-check mr-2"></i> Gửi quyết định
                     </button>
                 </div>
@@ -1436,7 +1514,8 @@
                 <div>
                     <label for="ad-decision" class="block text-sm font-medium text-gray-700">Quyết định <span
                             class="text-red-500">*</span></label>
-                    <select id="ad-decision" name="decision" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <select id="ad-decision" name="decision" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                         <option value="">Chọn quyết định</option>
                         <option value="APPROVED">Chấp thuận</option>
                         <option value="REJECTED">Từ chối</option>
@@ -1445,31 +1524,26 @@
 
                 <div id="ad-modal-message" class="hidden"></div>
                 <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="closeAdModal()" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    <button type="button" onclick="closeAdModal()"
+                        class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                         Hủy
                     </button>
-                    <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center">
+                    <button type="submit"
+                        class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center">
                         <i class="fas fa-check mr-2"></i> Gửi quyết định
                     </button>
                 </div>
             </form>
         </div>
     </div>
-</body>
 
 </html>
 
 <script>
-    window.CURRENT_USER = {
-        id: "{{ user.user_id }}",
-        username: "{{ user.user_name }}",
-        role: "{{ user.role }}",
-        brand_id: "{{user.brand_id or 'null' }}"
-    };
+    window.CURRENT_USER = { id: "{{ user.user_id }}", username: "{{ user.user_name }}", role: "{{ user.role }}", brand_id: "{{user.brand_id or 'null' }}" };
 
     const USER_ID = window.CURRENT_USER.id;
     const BRAND_ID = window.CURRENT_USER.brand_id;
-
     function formatCurrency(amount) {
         if (amount === null || amount === undefined) return "N/A";
 
@@ -1486,7 +1560,7 @@
             maximumFractionDigits: 0
         }).format(num);
     }
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Lấy các phần tử
         const sidebarItems = document.querySelectorAll('.sidebar-item');
         const contentSections = document.querySelectorAll('[data-content]');
@@ -1496,7 +1570,7 @@
 
         // Xử lý nhấp chuột vào sidebar items
         sidebarItems.forEach(item => {
-            item.addEventListener('click', function(event) {
+            item.addEventListener('click', function (event) {
                 event.preventDefault();
                 const targetId = this.getAttribute('data-target');
 
@@ -1529,7 +1603,7 @@
 
         // Xử lý nút menu mobile
         if (mobileMenuButton) {
-            mobileMenuButton.addEventListener('click', function() {
+            mobileMenuButton.addEventListener('click', function () {
                 if (sidebar.classList.contains('hidden')) {
                     sidebar.classList.remove('hidden');
                     sidebar.classList.add('open');
@@ -1550,7 +1624,7 @@
 
         // Đóng sidebar khi nhấp vào overlay
         if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', function() {
+            sidebarOverlay.addEventListener('click', function () {
                 sidebar.classList.remove('open');
                 sidebar.classList.add('hidden');
                 this.classList.add('hidden');
@@ -1567,12 +1641,12 @@
     const profileBtn = document.getElementById('profileBtn');
     const profileDropdown = document.getElementById('profileDropdown');
 
-    profileBtn.addEventListener('click', function(e) {
+    profileBtn.addEventListener('click', function (e) {
         e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
         profileDropdown.classList.toggle('hidden');
     });
 
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (!profileDropdown.classList.contains('hidden')) {
             profileDropdown.classList.add('hidden');
         }
@@ -1748,9 +1822,7 @@
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: {
-                            display: false
-                        }
+                        legend: { display: false }
                     },
                     scales: {
                         y: {
@@ -1789,9 +1861,7 @@
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: {
-                            position: 'top'
-                        }
+                        legend: { position: 'top' }
                     }
                 }
             });
@@ -1818,9 +1888,7 @@
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: {
-                            display: false
-                        }
+                        legend: { display: false }
                     },
                     scales: {
                         y: {
@@ -1855,9 +1923,7 @@
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: {
-                            display: false
-                        }
+                        legend: { display: false }
                     },
                     scales: {
                         y: {
@@ -1933,12 +1999,11 @@
         document.getElementById('review-modal').style.display = 'flex';
         document.getElementById('review-form').setAttribute('data-campaign-id', campaignId);
     }
-
     function closeModal() {
         document.getElementById('review-modal').style.display = 'none';
     }
 
-    document.getElementById('review-form').addEventListener('submit', async function(e) {
+    document.getElementById('review-form').addEventListener('submit', async function (e) {
         e.preventDefault();
         const campaignId = this.getAttribute('data-campaign-id');
         const decision = document.getElementById('decision').value;
@@ -1956,12 +2021,8 @@
         try {
             const response = await fetch(`/campaign/campaigns/${campaignId}/review`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    decision
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ decision })
             });
             const data = await response.json();
             if (response.ok) {
@@ -1983,7 +2044,6 @@
             messageDiv.classList.add('error-message');
         }
     });
-
     function formatDate(dateString) {
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
@@ -2107,35 +2167,17 @@
     function getAdStatusInfo(status) {
         switch (status) {
             case 'DRAFT':
-                return {
-                    text: 'Bản nháp',
-                    color: 'bg-gray-100 text-gray-800'
-                };
+                return { text: 'Bản nháp', color: 'bg-gray-100 text-gray-800' };
             case 'PENDING':
-                return {
-                    text: 'Chờ duyệt',
-                    color: 'bg-yellow-100 text-yellow-800'
-                };
+                return { text: 'Chờ duyệt', color: 'bg-yellow-100 text-yellow-800' };
             case 'APPROVED':
-                return {
-                    text: 'Đã duyệt',
-                    color: 'bg-blue-100 text-blue-800'
-                };
+                return { text: 'Đã duyệt', color: 'bg-blue-100 text-blue-800' };
             case 'REJECTED':
-                return {
-                    text: 'Bị từ chối',
-                    color: 'bg-red-100 text-red-800'
-                };
+                return { text: 'Bị từ chối', color: 'bg-red-100 text-red-800' };
             case 'ENDED':
-                return {
-                    text: 'Đã kết thúc',
-                    color: 'bg-gray-100 text-gray-800'
-                };
+                return { text: 'Đã kết thúc', color: 'bg-gray-100 text-gray-800' };
             default:
-                return {
-                    text: status,
-                    color: 'bg-gray-100 text-gray-800'
-                };
+                return { text: status, color: 'bg-gray-100 text-gray-800' };
         }
     }
 
@@ -2177,47 +2219,38 @@
             const now = new Date();
 
             ads.forEach(ad => {
-                        const statusInfo = getAdStatusInfo(ad.status);
-                        let effectiveStatus = statusInfo; // Default status
+                const statusInfo = getAdStatusInfo(ad.status);
+                let effectiveStatus = statusInfo; // Default status
 
-                        // Refine status based on dates if APPROVED
-                        if (ad.status === 'APPROVED') {
-                            const start = ad.start_at ? new Date(ad.start_at) : null;
-                            const end = ad.end_at ? new Date(ad.end_at) : null;
+                // Refine status based on dates if APPROVED
+                if (ad.status === 'APPROVED') {
+                    const start = ad.start_at ? new Date(ad.start_at) : null;
+                    const end = ad.end_at ? new Date(ad.end_at) : null;
 
-                            if (start && end) {
-                                if (now >= start && now <= end) {
-                                    effectiveStatus = {
-                                        text: 'Đang chạy',
-                                        color: 'bg-green-100 text-green-800'
-                                    };
-                                    activeCount++;
-                                } else if (now < start) {
-                                    effectiveStatus = {
-                                        text: 'Sắp chạy',
-                                        color: 'bg-blue-100 text-blue-800'
-                                    };
-                                    // Decide if upcoming counts as 'active' stat or separate
-                                } else if (now > end) {
-                                    effectiveStatus = {
-                                        text: 'Đã kết thúc',
-                                        color: 'bg-gray-100 text-gray-800'
-                                    };
-                                    endedCount++;
-                                }
-                            } else {
-                                // If dates are missing but approved, count as active? Or needs check?
-                                // For now, keep 'Đã duyệt'
-                                activeCount++; // Count as active if approved and dates ok or missing
-                            }
-                        } else if (ad.status === 'PENDING') {
-                            pendingCount++;
-                        } else if (ad.status === 'ENDED' || ad.status === 'REJECTED') { // Count REJECTED as 'ended' for stats? Adjust as needed
+                    if (start && end) {
+                        if (now >= start && now <= end) {
+                            effectiveStatus = { text: 'Đang chạy', color: 'bg-green-100 text-green-800' };
+                            activeCount++;
+                        } else if (now < start) {
+                            effectiveStatus = { text: 'Sắp chạy', color: 'bg-blue-100 text-blue-800' };
+                            // Decide if upcoming counts as 'active' stat or separate
+                        } else if (now > end) {
+                            effectiveStatus = { text: 'Đã kết thúc', color: 'bg-gray-100 text-gray-800' };
                             endedCount++;
                         }
+                    } else {
+                        // If dates are missing but approved, count as active? Or needs check?
+                        // For now, keep 'Đã duyệt'
+                        activeCount++; // Count as active if approved and dates ok or missing
+                    }
+                } else if (ad.status === 'PENDING') {
+                    pendingCount++;
+                } else if (ad.status === 'ENDED' || ad.status === 'REJECTED') { // Count REJECTED as 'ended' for stats? Adjust as needed
+                    endedCount++;
+                }
 
 
-                        const row = `
+                const row = `
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AD-${ad.ad_id}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -2667,6 +2700,7 @@
             alert("Có lỗi khi gia hạn hợp đồng");
         }
     });
+
 </script>
 <script>
     async function loadAccount(type) {
@@ -2703,14 +2737,10 @@
 
             tbody.innerHTML = "";
             data.user.forEach(u => {
-                const roleMap = {
-                    customer: "Khách hàng",
-                    brand: "Thương hiệu",
-                    mall: "Quản trị Mall"
-                };
-                const statusBadge = u.status == 1 ?
-                    `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Hoạt động</span>` :
-                    `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Khóa</span>`;
+                const roleMap = { customer: "Khách hàng", brand: "Thương hiệu", mall: "Quản trị Mall" };
+                const statusBadge = u.status == 1
+                    ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Hoạt động</span>`
+                    : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Khóa</span>`;
 
                 let row = `
                         <tr>
@@ -2778,7 +2808,7 @@
         document.getElementById("account-modal").classList.add("hidden");
     }
 
-    document.getElementById("account-form").addEventListener("submit", async function(e) {
+    document.getElementById("account-form").addEventListener("submit", async function (e) {
         e.preventDefault();
         const id = document.getElementById("account-id").value;
         const data = {
@@ -2802,9 +2832,7 @@
 
             const res = await fetch(url, {
                 method,
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
             const result = await res.json();
@@ -2820,9 +2848,7 @@
     async function deleteAccount(id) {
         if (!confirm("Bạn có chắc muốn xóa tài khoản này?")) return;
         try {
-            const res = await fetch(`/user/delete_account/${id}`, {
-                method: "DELETE"
-            });
+            const res = await fetch(`/user/delete_account/${id}`, { method: "DELETE" });
             const result = await res.json();
             alert(result.message || "Đã xóa!");
             loadAccount("khachhang");
@@ -2858,9 +2884,9 @@
             data.rules.forEach(rule => {
                 const tr = document.createElement("tr");
 
-                const statusBadge = rule.status == 1 ?
-                    `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đang áp dụng</span>` :
-                    `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Đã kết thúc</span>`;
+                const statusBadge = rule.status == 1
+                    ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đang áp dụng</span>`
+                    : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Đã kết thúc</span>`;
 
                 tr.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -2890,9 +2916,9 @@
     function openRuleDetailModal(rule) {
         const content = document.getElementById("rule-detail-content");
 
-        const statusText = rule.status == 1 ?
-            `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đang áp dụng</span>` :
-            `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Đã kết thúc</span>`;
+        const statusText = rule.status == 1
+            ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đang áp dụng</span>`
+            : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Đã kết thúc</span>`;
 
         content.innerHTML = `
             <p><strong>Tên chính sách:</strong> ${rule.rule_name}</p>
@@ -2981,16 +3007,16 @@
     }
 
     // ------------------ SUBMIT FORM ------------------
-    document.getElementById("rule-form").addEventListener("submit", async(e) => {
+    document.getElementById("rule-form").addEventListener("submit", async (e) => {
         e.preventDefault();
         const id = document.getElementById("rule-id").value;
 
         const payload = {
             rule_name: document.getElementById("rule-name").value.trim(),
-            rate: parseFloat(document.getElementById("rate").value), // ép về số
+            rate: parseFloat(document.getElementById("rate").value),            // ép về số
             effective_from: document.getElementById("effective-from").value,
             effective_to: document.getElementById("effective-to").value || null,
-            status: parseInt(document.getElementById("status").value, 10) // ép về int
+            status: parseInt(document.getElementById("status").value, 10)       // ép về int
         };
 
         let url = "/point/conversion_rule";
@@ -3003,9 +3029,7 @@
         try {
             const res = await fetch(url, {
                 method,
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
             const data = await res.json();
@@ -3054,10 +3078,11 @@
 
     // ------------------ AUTO LOAD ------------------
     document.addEventListener("DOMContentLoaded", loadConversionRules);
+
 </script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         const sidebarItems = document.querySelectorAll('.sidebar-item');
         const contentSections = document.querySelectorAll('[data-content]');
 
@@ -3078,7 +3103,7 @@
 
         // Gán sự kiện click cho từng sidebar item
         sidebarItems.forEach(item => {
-            item.addEventListener("click", function(event) {
+            item.addEventListener("click", function (event) {
                 event.preventDefault();
                 const targetId = this.getAttribute("data-target");
 
@@ -3098,10 +3123,9 @@
 </script>
 
 <script>
+
     async function checkContracts() {
-        await fetch("/brand/check_expiring", {
-            method: "POST"
-        });
+        await fetch("/brand/check_expiring", { method: "POST" });
         loadSystemNotifications(); // reload chuông thông báo
     }
 
@@ -3122,9 +3146,9 @@
                 wrapper.className = "flex items-start space-x-3 border-b pb-4";
 
                 // icon tùy theo loại status (chưa đọc / đã đọc)
-                const iconClass = n.status === 1 ?
-                    "bg-blue-100 text-blue-600" :
-                    "bg-gray-100 text-gray-400";
+                const iconClass = n.status === 1
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-gray-100 text-gray-400";
 
                 wrapper.innerHTML = `
         <div class="${iconClass} p-2 rounded-full">
@@ -3145,11 +3169,9 @@
 
             // Gắn sự kiện cho nút "Đánh dấu đã đọc"
             document.querySelectorAll(".mark-read-btn").forEach(btn => {
-                btn.addEventListener("click", async() => {
+                btn.addEventListener("click", async () => {
                     const id = btn.dataset.id;
-                    await fetch(`/notification/mark_read/${id}`, {
-                        method: "POST"
-                    });
+                    await fetch(`/notification/mark_read/${id}`, { method: "POST" });
                     loadNotifications(); // reload lại
                 });
             });
@@ -3159,11 +3181,10 @@
         }
     }
 
+
     // Đánh dấu tất cả đã đọc
-    document.getElementById("markAllReadBtn").addEventListener("click", async() => {
-        await fetch("/notification/mark_all_read", {
-            method: "POST"
-        });
+    document.getElementById("markAllReadBtn").addEventListener("click", async () => {
+        await fetch("/notification/mark_all_read", { method: "POST" });
         loadNotifications();
     });
 
@@ -3175,288 +3196,142 @@
     });
     document.getElementById('notificationBtn').addEventListener('click', loadNotifications);
 </script>
-
-
-
-<!-- Notification Content -->
 <script>
-    function toggleTargetIdInput() {
-        const targetType = document.getElementById("target_type").value;
-        const wrap = document.getElementById("targetIdInputWrap");
-        if (targetType === "brand" || targetType === "customer") {
-            wrap.classList.remove("hidden");
-        } else {
-            wrap.classList.add("hidden");
-            document.getElementById("target_id").value = "";
+    document.addEventListener("DOMContentLoaded", () => {
+        const btnOpen = document.getElementById("btnOpenCreateNotification");
+        const btnCancel = document.getElementById("btnCancelCreateNotification");
+        const modal = document.getElementById("createNotificationModal");
+        const form = document.getElementById("createNotificationForm");
+        const targetSelect = document.getElementById("notificationTarget");
+        const brandInputWrap = document.getElementById("brandTargetInput");
+
+        // Mở modal
+        if (btnOpen && modal) {
+            btnOpen.addEventListener("click", () => {
+                modal.classList.remove("hidden");
+            });
         }
-    }
 
-    async function fetchCountTotalNotification() {
-        try {
-            const response = await fetch('/notification/count_total');
-            const data = await response.json();
-
-            // Thêm dòng debug ở đây 👇
-            console.log("Count API data:", data);
-
-            const el = document.getElementById('total-notifications');
-            if (el) el.textContent = data.total_notifications || 0;
-        } catch (error) {
-            console.error('Lỗi khi gọi API:', error);
+        // Đóng modal
+        if (btnCancel && modal) {
+            btnCancel.addEventListener("click", () => {
+                modal.classList.add("hidden");
+            });
         }
-    }
 
-    // Đếm thông báo đang bật
-    async function fetchCountActiveNotifications() {
-        try {
-            const response = await fetch('/notification/count_active');
-            const data = await response.json();
-            console.log("Active Count API data:", data);
-            const el = document.getElementById('active-notifications');
-            if (el) el.textContent = data.active_notifications || 0;
-        } catch (error) {
-            console.error('Lỗi khi gọi API count_active:', error);
+        // Submit form
+        if (form) {
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const title = document.getElementById("notificationTitle")?.value || "";
+                const message = document.getElementById("notificationMessage")?.value || "";
+                const end_at = document.getElementById("notificationEndAt")?.value || "";
+                const noti_type = document.getElementById("notificationType")?.value || "marketing";
+                const target_type = targetSelect ? targetSelect.value : "all";
+                const target_id = (target_type === "brand")
+                    ? (document.getElementById("notificationTargetId")?.value || null)
+                    : null;
+
+                try {
+                    const res = await fetch("/notification/create", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            title, message, end_at,
+                            status: 1,
+                            noti_type,
+                            target_type, target_id
+                        })
+                    });
+
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        alert("✅ Tạo thông báo thành công!");
+                        modal.classList.add("hidden");
+                        form.reset();
+                        if (brandInputWrap) brandInputWrap.classList.add("hidden");
+                    } else {
+                        alert("❌ Lỗi: " + (data.message || "Không thể tạo thông báo"));
+                    }
+                } catch (err) {
+                    console.error("Lỗi tạo thông báo:", err);
+                    alert("❌ Có lỗi xảy ra khi gửi thông báo");
+                }
+            });
         }
-    }
 
-    // Đếm thông báo đã tắt
-    async function fetchCountInactiveNotifications() {
-        try {
-            const response = await fetch('/notification/count_inactive');
-            const data = await response.json();
-            console.log("Inactive Count API data:", data);
-            const el = document.getElementById('inactive-notifications');
-            if (el) el.textContent = data.inactive_notifications || 0;
-        } catch (error) {
-            console.error('Lỗi khi gọi API count_inactive:', error);
+        // Toggle input Brand ID
+        if (targetSelect && brandInputWrap) {
+            targetSelect.addEventListener("change", (e) => {
+                if (e.target.value === "brand") {
+                    brandInputWrap.classList.remove("hidden");
+                } else {
+                    brandInputWrap.classList.add("hidden");
+                }
+            });
         }
-    }
+    });
+</script>
 
-    // Hàm chuẩn hóa trạng thái
-    function normalizeStatus(status) {
-        if (status === 1 || status === "1" || status === true) return "1"; // đang bật
-        if (status === 0 || status === "0" || status === false) return "0"; // đang tắt
-        return "0"; // mặc định tắt nếu không rõ
-    }
-
-    // Load danh sách thông báo
-    async function loadNotification() {
-        const loading = document.getElementById('notification-loading');
-        const errorMsg = document.getElementById('notification-error-message');
-        const headersRow = document.getElementById('notification-table-headers');
-        const tbody = document.getElementById('notification-table-body');
-
-        // Reset UI
-        loading.classList.remove('hidden');
-        errorMsg.classList.add('hidden');
-        headersRow.innerHTML = '';
-        tbody.innerHTML = '';
-
+<script>
+    async function loadSystemNotifications() {
         try {
-            const res = await fetch('/notification/get_notification');
-            console.log("Response status:", res.status);
+            const res = await fetch("/notification/list/system");
+            const data = await res.json();
 
-            const text = await res.text();
-            console.log("Raw response:", text);
+            const list = document.getElementById("notificationList");
+            const badge = document.getElementById("notificationBadge");
 
-            let data;
-            try {
-                data = JSON.parse(text);
-                console.log("Parsed data:", data);
-            } catch (e) {
-                console.error("JSON parse error:", e);
-                throw e;
-            }
+            list.innerHTML = "";
 
-            loading.classList.add('hidden');
-
-            if (!data.notifications || data.notifications.length === 0) {
-                errorMsg.textContent = "Không có thông báo nào";
-                errorMsg.classList.remove('hidden');
+            if (!data.success || !data.notifications || data.notifications.length === 0) {
+                list.innerHTML = "<p class='p-3 text-gray-500'>Không có thông báo</p>";
+                badge.classList.add("hidden");
                 return;
             }
 
-            // Tạo header bảng với width cụ thể cho từng cột
-            const headers = [{
-                text: "Tiêu đề",
-                width: "20%"
-            }, {
-                text: "Nội dung",
-                width: "20%"
-            }, {
-                text: "Bắt đầu",
-                width: "10%"
-            }, {
-                text: "Kết thúc",
-                width: "10%"
-            }, {
-                text: "Trạng thái",
-                width: "10%"
-            }, {
-                text: "Hành động",
-                width: "15%"
-            }];
-
-            // Render header ra bảng
-            headersRow.innerHTML = headers.map(h =>
-                `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase" style="width:${h.width}">${h.text}</th>`
-            ).join("");
-
-
-
-            // Đổ dữ liệu vào bảng
-            tbody.innerHTML = "";
+            // render danh sách
+            let unreadCount = 0;
             data.notifications.forEach(n => {
-                const isActive = normalizeStatus(n.status) === "1";
-                const statusBadge = isActive ?
-                    `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đang bật</span>` :
-                    `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Đang tắt</span>`;
-
-                let row = `
-                <tr>
-                    <td class="px-6 py-4 text-sm font-medium text-gray-900">${n.title || ""}</td>
-                    <td class="px-6 py-4 text-sm">${n.message || ""}</td>
-                    <td class="px-6 py-4 text-sm">${n.started_at || "Không có"}</td>
-                    <td class="px-6 py-4 text-sm">${n.end_at || "Không có"}</td>
-                    <td class="px-6 py-4 text-sm">${statusBadge}</td>
-                    <td class="px-6 py-4 text-sm">
-                        <a href="javascript:void(0)" onclick="editNotification(${n.notification_id})" class="text-blue-600 hover:underline mr-3">Chỉnh sửa</a>
-                        <a href="javascript:void(0)" onclick="deleteNotification(${n.notification_id})" class="text-red-600 hover:underline">Xóa</a>
-                    </td>
-                </tr>`;
-                tbody.innerHTML += row;
+                if (n.status === 1) unreadCount++;
+                const item = document.createElement("div");
+                item.className = "p-3 border-b hover:bg-gray-50";
+                item.innerHTML = `
+        <p class="font-medium text-gray-800">${n.title}</p>
+        <p class="text-sm text-gray-600">${n.message}</p>
+        <p class="text-xs text-gray-400">${new Date(n.created_at).toLocaleString("vi-VN")}</p>
+      `;
+                list.appendChild(item);
             });
 
-        } catch (err) {
-            console.error("Error loadNotification:", err);
-            loading.classList.add('hidden');
-            errorMsg.textContent = "Lỗi tải dữ liệu thông báo";
-            errorMsg.classList.remove('hidden');
-        }
-
-    }
-
-    // Mở modal Thêm / Sửa thông báo
-    function openNotificationModal(notification = null) {
-        const modal = document.getElementById("notification-modal");
-        const form = document.getElementById("notification-form");
-        const title = document.getElementById("notification-modal-title");
-        modal.classList.remove("hidden");
-
-        if (notification) {
-            title.textContent = "Chỉnh sửa thông báo";
-            document.getElementById("notification-id").value = notification.notification_id;
-            document.getElementById("title").value = notification.title || "";
-            document.getElementById("message").value = notification.message || "";
-            document.getElementById("started_at").value = notification.started_at ? notification.started_at.replace(" ", "T") : "";
-            document.getElementById("end_at").value = notification.end_at ? notification.end_at.replace(" ", "T") : "";
-            document.getElementById("status").value = (notification.status == 1 || notification.status === "1") ? "1" : "0"; // ✅ sửa ở đây
-        } else {
-            title.textContent = "Thêm thông báo";
-            form.reset();
-            document.getElementById("notification-id").value = "";
-            document.getElementById("status").value = "1"; // mặc định bật
-        }
-    }
-
-    // Đóng modal thông báo
-    function closeNotificationModal() {
-        document.getElementById("notification-modal").classList.add("hidden");
-    }
-
-    // Hàm chỉnh sửa thông báo
-    async function editNotification(id) {
-        try {
-            const res = await fetch(`/notification/get_notification/${id}`);
-            if (!res.ok) {
-                alert("Không tìm thấy API hoặc server lỗi");
-                return;
-            }
-            const result = await res.json();
-            console.log("API get_notification/<id> trả về:", result);
-
-            if (result.success === false) { // ✅ chỉ check false
-                alert(result.message || "Không tìm thấy thông báo");
-                return;
-            }
-
-            if (!result.notification) {
-                alert("Không có dữ liệu thông báo");
-                return;
-            }
-
-            openNotificationModal(result.notification);
-
-        } catch (err) {
-            console.error("Lỗi khi fetch:", err);
-            alert("Có lỗi khi tải thông báo!");
-        }
-    }
-
-    // Xóa thông báo
-    async function deleteNotification(id) {
-        if (!confirm("Bạn có chắc muốn xóa thông báo này?")) return;
-        try {
-            const res = await fetch(`/notification/delete_notification/${id}`, {
-                method: "DELETE"
-            });
-            const result = await res.json();
-            alert(result.message || "Đã xóa!");
-            loadNotification();
-        } catch (err) {
-            console.error(err);
-            alert("Có lỗi xảy ra khi xóa!");
-        }
-    }
-
-    // Submit form (tạo mới hoặc cập nhật)
-    document.getElementById("notification-form").addEventListener("submit", async function(e) {
-        e.preventDefault();
-
-        const id = document.getElementById("notification-id").value;
-        const data = {
-            title: document.getElementById("title").value,
-            message: document.getElementById("message").value,
-            started_at: document.getElementById("started_at").value,
-            end_at: document.getElementById("end_at").value,
-            status: parseInt(document.getElementById("status").value, 10)
-        };
-
-        try {
-            let url, method;
-            if (id) {
-                url = `/notification/update_notification/${id}`;
-                method = "PUT";
+            // badge số chưa đọc
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.classList.remove("hidden");
             } else {
-                url = "/notification/create_notification";
-                method = "POST";
+                badge.classList.add("hidden");
             }
-
-            const res = await fetch(url, {
-                method,
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            });
-
-            const result = await res.json();
-            alert(result.message || "Lưu thông báo thành công!");
-            closeNotificationModal();
-            loadNotification();
         } catch (err) {
-            console.error(err);
-            alert("Có lỗi xảy ra!");
+            console.error("loadSystemNotifications()", err);
+        }
+    }
+
+    // Toggle dropdown khi click chuông
+    document.getElementById("notificationBtn").addEventListener("click", () => {
+        const dropdown = document.getElementById("notificationDropdown");
+        dropdown.classList.toggle("hidden");
+        if (!dropdown.classList.contains("hidden")) {
+            loadSystemNotifications();
         }
     });
 
-
-
-    // Khi trang được tải
-    document.addEventListener('DOMContentLoaded', function() {
-        fetchCountTotalNotification();
-        fetchCountActiveNotifications();
-        fetchCountInactiveNotifications();
-        loadNotification();
+    // Đánh dấu tất cả đã đọc
+    document.getElementById("markAllReadBtn").addEventListener("click", async () => {
+        await fetch("/notification/mark_all_read", { method: "POST" });
+        loadSystemNotifications();
     });
+
+    // Gọi khi load trang để cập nhật badge
+    document.addEventListener("DOMContentLoaded", loadSystemNotifications);
 </script>
