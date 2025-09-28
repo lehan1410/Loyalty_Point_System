@@ -12,7 +12,7 @@ transaction_data = {
 }
 
 # Đường dẫn API gốc
-html_page_url = "https://han312.pythonanywhere.com/user/transaction_qr"
+html_page_url = "https://loyalty-point-system.onrender.com/user/transaction_qr"
 
 # Encode dữ liệu vào URL
 query_string = urlencode(transaction_data)

@@ -27,13 +27,6 @@ def get_db_connection():
         database="wxuszrya_user_service"
     )
 
-# def get_db_connection():
-#     return mysql.connector.connect(
-#         host="han312.mysql.pythonanywhere-services.com",
-#         user="han312",
-#         password="SOA2025@",
-#         database= "han312$user_service"
-#     )
 
 @user_bp.route('/login', methods=['GET'])
 def login_page():
