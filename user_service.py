@@ -10,13 +10,21 @@ from werkzeug.security import generate_password_hash, check_password_hash
 user_bp = Blueprint("user", __name__)
 CORS(user_bp)
 
+# def get_db_connection():
+#     return mysql.connector.connect(
+#         host="localhost",
+#         port=3307,
+#         user="root",
+#         password="",
+#         database="user_service"
+#     )
+
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",
-        port=3307,
-        user="root",
-        password="",
-        database="user_service"
+        host="free02.123host.vn",
+        user="wxuszrya_user_service",
+        password="12345678",
+        database="wxuszrya_user_service"
     )
 
 # def get_db_connection():
@@ -883,7 +891,7 @@ def register():
         row = cursor.fetchone()
         referral_code = row["referral_code"] if row else None
 
-        requests.post("http://localhost:5000/notification/create/system", json={
+        requests.post("https://loyalty-point-system.onrender.com/notification/create/system", json={
             "title": "Khách hàng mới đăng ký",
             "message": f"Khách hàng {fullname} vừa tạo tài khoản.",
             "status": 1,

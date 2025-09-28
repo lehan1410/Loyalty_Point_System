@@ -1,5 +1,5 @@
-create database Point_Service;
-use Point_Service;
+-- create database Point_Service;
+-- use Point_Service;
 CREATE TABLE PointWallet (
   point_wallet_id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL, 
@@ -24,12 +24,6 @@ CREATE TABLE Point_Log (
 CREATE TABLE ConversionRule (
     conversion_rule_id INT AUTO_INCREMENT PRIMARY KEY,
     rule_name VARCHAR(100) NOT NULL,             -- Tên chính sách (VD: Ưu đãi F&B)
-    apply_scope ENUM('ALL', 'CATEGORY', 'BRAND') NOT NULL,
-        -- ALL = áp dụng cho tất cả brand
-        -- CATEGORY = áp dụng theo ngành hàng
-        -- BRAND = áp dụng cho 1 brand cụ thể
-    brand_id INT NULL,                           -- Nếu apply_scope = BRAND (lưu ID, không ràng buộc FK)
-    category_id INT NULL,                        -- Nếu apply_scope = CATEGORY (lưu ID, không ràng buộc FK)
     rate DECIMAL(10,2) NOT NULL,                 -- Tỷ lệ quy đổi (VD: 1000 = 1 điểm)
     effective_from DATE NOT NULL,                -- Ngày bắt đầu hiệu lực
     effective_to DATE NULL,                      -- Ngày kết thúc hiệu lực (NULL = vô thời hạn)
@@ -53,7 +47,7 @@ CREATE TABLE Transactions (
   amount DECIMAL(10,2) NOT NULL,
   created_at DATETIME NOT NULL,
   user_snapshot_id INT,
-  FOREIGN KEY (user_snapshot_id) REFERENCES user_snapshot(user_snapshot_id)
+  FOREIGN KEY (user_snapshot_id) REFERENCES User_Snapshot(user_snapshot_id)
 );
 
 
@@ -199,29 +193,10 @@ INSERT INTO Transactions (transaction_id, user_id, brand_id, invoice_code, amoun
 (50, 5, 5, 'INV-050', 200000, NOW(), 5);
 
 -- Chính sách chung áp dụng cho tất cả brand
-INSERT INTO ConversionRule (rule_name, apply_scope, rate, effective_from, effective_to, status)
+INSERT INTO ConversionRule (rule_name, rate, effective_from, effective_to, status, created_at, updated_at)
 VALUES 
-('Chính sách chung toàn mall', 'ALL', 1000, '2025-01-01', NULL, 1);
+('Chính sách chung toàn mall', 1000, '2025-01-01', '2025-12-31', 1, NOW(), NOW()),
 
--- Chính sách áp dụng cho ngành hàng (ví dụ F&B có category_id = 1)
-INSERT INTO ConversionRule (rule_name, apply_scope, category_id, rate, effective_from, effective_to, status)
-VALUES 
-('Ưu đãi ngành F&B', 'CATEGORY', 1, 800, '2025-01-01', '2025-12-31', 1);
-
--- Chính sách áp dụng cho ngành hàng (ví dụ Thời trang có category_id = 2)
-INSERT INTO ConversionRule (rule_name, apply_scope, category_id, rate, effective_from, effective_to, status)
-VALUES 
-('Ưu đãi ngành Thời trang', 'CATEGORY', 2, 1200, '2025-01-01', NULL, 1);
-
--- Chính sách áp dụng cho brand cụ thể (ví dụ brand_id = 5)
-INSERT INTO ConversionRule (rule_name, apply_scope, brand_id, rate, effective_from, effective_to, status)
-VALUES 
-('Chính sách riêng cho Brand 5', 'BRAND', 5, 900, '2025-02-01', '2025-06-30', 1);
-
--- Chính sách áp dụng cho brand cụ thể (ví dụ brand_id = 7)
-INSERT INTO ConversionRule (rule_name, apply_scope, brand_id, rate, effective_from, effective_to, status)
-VALUES 
-('Chính sách VIP cho Brand 7', 'BRAND', 7, 700, '2025-03-01', NULL, 1);
 
 
 -- Cập nhật điểm 

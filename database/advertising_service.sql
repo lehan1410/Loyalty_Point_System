@@ -1,5 +1,6 @@
-create database Advertising_Service;
-use Advertising_Service;
+-- create database Advertising_Service;
+-- use Advertising_Service;
+
 CREATE TABLE Ad
 (
   ad_id INT NOT NULL AUTO_INCREMENT,
@@ -9,8 +10,12 @@ CREATE TABLE Ad
   start_at datetime NOT NULL,
   end_at datetime NOT NULL,
   created_at datetime NOT NULL,
+  status ENUM('DRAFT', 'PENDING', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT',
+  approval_comment TEXT,
+  ad_cost DECIMAL(10,2) NOT NULL,
   PRIMARY KEY (ad_id)
 );
+
 CREATE TABLE AdInteraction (
     interaction_id INT AUTO_INCREMENT PRIMARY KEY,
     ad_id INT NOT NULL,
@@ -20,12 +25,7 @@ CREATE TABLE AdInteraction (
     FOREIGN KEY (ad_id) REFERENCES Ad(ad_id)
 );
 
-ALTER TABLE Ad
-ADD COLUMN status ENUM('DRAFT', 'PENDING', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT',
-ADD COLUMN approval_comment TEXT,
-ADD COLUMN ad_cost DECIMAL(10,2) NOT NULL;
 
-DELETE FROM Ad;
 
 INSERT INTO Ad (brand_id, title, description, start_at, end_at, created_at, status, approval_comment, ad_cost) 
 VALUES

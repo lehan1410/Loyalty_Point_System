@@ -1,5 +1,5 @@
-create database Notification_Service;
-use Notification_Service;
+-- create database Notification_Service;
+-- use Notification_Service;
 
 CREATE TABLE Notification
 (
@@ -9,11 +9,11 @@ CREATE TABLE Notification
   created_at datetime NOT NULL,
   end_at datetime,
   status bit NOT NULL,
+  target_type ENUM('brand','customer','all') DEFAULT 'customer',
+  target_id INT NULL,
+  type ENUM('marketing', 'system'),
   PRIMARY KEY (notification_id)
 );
 
-ALTER TABLE Notification
-ADD COLUMN target_type ENUM('brand','customer','all') DEFAULT 'customer',
-ADD COLUMN target_id INT NULL;
 
 

@@ -8,11 +8,10 @@ CORS(notification_bp)
 
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",
-        port=3307,
-        user="root",
-        password="",
-        database="notification_service"
+        host="free02.123host.vn",
+        user="wxuszrya_notification_service",
+        password="12345678",
+        database="wxuszrya_notification_service"
     )
 
 # def get_db_connection():
@@ -25,6 +24,38 @@ def get_db_connection():
 
 # 1. Lấy danh sách thông báo
 
+@notification_bp.route('/create', methods=['POST'])
+def create_notification():
+    try:
+        data = request.get_json()
+        title = data.get("title")
+        message = data.get("message")
+        end_at = data.get("end_at")
+        status = data.get("status", 1)
+        noti_type = "marketing"
+        target_type = data.get("target_type")  # brand | customer
+        target_id = data.get("target_id")      # brand_id nếu là hợp đồng, NULL nếu là customer broadcast
+
+        # Validate
+        if not title or not message:
+            return jsonify({"success": False, "message": "Thiếu tiêu đề hoặc nội dung"}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO Notification (title, message, created_at, end_at, status, type, target_type, target_id)
+            VALUES (%s, %s, NOW(), %s, %s, %s, %s, %s)
+        """, (title, message, end_at, status, noti_type, target_type, target_id))
+
+        conn.commit()
+        cursor.close(); conn.close()
+        return jsonify({"success": True, "message": "Tạo system notification thành công"}), 201
+
+    except Exception as e:
+        print("❌ Lỗi create_system_notification:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
+    
 @notification_bp.route('/create/system', methods=['POST'])
 def create_system_notification():
     """Tạo thông báo hệ thống (system) cho brand/customer"""
@@ -360,4 +391,30 @@ def brand_system_notifications(brand_id):
 
     except Exception as e:
         print("❌ Lỗi brand_system_notifications:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@notification_bp.route('/list/mall', methods=['GET'])
+def mall_notifications():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT 
+                notification_id, title, message, created_at, end_at, status, `type`, target_type
+            FROM Notification
+            WHERE status = 1
+              AND (end_at IS NULL OR end_at >= NOW())
+              AND (type = 'marketing')
+            ORDER BY created_at DESC
+        """
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+        return jsonify({"success": True, "notifications": rows}), 200
+
+    except Exception as e:
+        print("❌ Lỗi mall_notifications:", e)
         return jsonify({"success": False, "message": str(e)}), 500

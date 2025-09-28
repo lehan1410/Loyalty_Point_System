@@ -15,12 +15,13 @@ CORS(ad_bp)
 
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",
-        port=3307,
-        user="root",
-        password="",
-        database= "advertising_service"
+        host="free02.123host.vn",
+        user="wxuszrya_advertising_service",
+        password="12345678",
+        database= "wxuszrya_advertising_service"
     )
+
+
 
 # def get_db_connection():
 #     return mysql.connector.connect(

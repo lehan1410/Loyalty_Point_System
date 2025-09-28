@@ -1,5 +1,5 @@
-create database Campaign_Service;
-use Campaign_Service;
+-- create database Campaign_Service;
+-- use Campaign_Service;
 
 CREATE TABLE Campaign
 (

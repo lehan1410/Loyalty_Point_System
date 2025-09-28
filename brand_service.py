@@ -18,11 +18,10 @@ CORS(brand_bp)
 
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        port=3307,
-        password="",
-        database= "brand_service"
+        host="free02.123host.vn",
+        user="wxuszrya_brand_service",
+        password="12345678",
+        database= "wxuszrya_brand_service"
     )
 
 # def get_db_connection():
@@ -419,7 +418,7 @@ def check_expiring_contracts():
             message = f"Hợp đồng với {c['brandname']} sẽ hết hạn vào {c['end_at']}"
             
             # Gửi sang Notification Service
-            requests.post("http://localhost:5000/notification/create/system", json={
+            requests.post("https://loyalty-point-system.onrender.com/notification/create/system", json={
                 "title": "Hợp đồng sắp hết hạn",
                 "message": message,
                 "end_at": c["end_at"].strftime("%Y-%m-%d %H:%M:%S"),

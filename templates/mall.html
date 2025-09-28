@@ -1370,7 +1370,7 @@
                     </div>
 
                     <!-- Danh sách thông báo động -->
-                    <div id="notificationList" class="space-y-4"></div>
+                    <div id="notification-list" class="space-y-4"></div>
 
                     <div class="mt-4 text-center">
                         <a href="#" class="text-blue-600 font-medium">Xem tất cả thông báo</a>
@@ -3334,4 +3334,77 @@
 
     // Gọi khi load trang để cập nhật badge
     document.addEventListener("DOMContentLoaded", loadSystemNotifications);
+</script>
+<script>
+    async function loadMallNotifications() {
+        try {
+            const res = await fetch("/notification/list/mall");
+            const data = await res.json();
+            const list = document.getElementById("notification-list");
+            list.innerHTML = "";
+
+            if (!data.success || !data.notifications || data.notifications.length === 0) {
+                list.innerHTML = `<p class="text-gray-500 text-center p-4">Không có thông báo</p>`;
+                return;
+            }
+
+            data.notifications.forEach(n => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "flex items-start gap-3 p-4 hover:bg-gray-50 transition";
+
+                // icon màu theo trạng thái (chưa đọc = xanh, đã đọc = xám)
+                const iconClass = n.status === 1
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-gray-100 text-gray-400";
+
+                wrapper.innerHTML = `
+                <div class="flex-shrink-0">
+                  <div class="${iconClass} p-2 rounded-full">
+                    <i class="fas fa-bell"></i>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-gray-800">${n.title}</h4>
+                  <p class="text-gray-600 text-sm mb-1">${n.message}</p>
+                  <span class="text-xs text-gray-400">${new Date(n.created_at).toLocaleString()}</span>
+                </div>
+                <button onclick="markRead(${n.notification_id})"
+                        class="text-xs text-blue-600 hover:underline ml-2">
+                  Đã đọc
+                </button>
+            `;
+                list.appendChild(wrapper);
+            });
+        } catch (err) {
+            console.error("❌ Lỗi loadMallNotifications:", err);
+            document.getElementById("notification-list").innerHTML =
+                `<p class="text-red-500 text-center p-4">Không tải được thông báo</p>`;
+        }
+    }
+
+    async function markRead(notiId) {
+        try {
+            await fetch(`/notification/mark_read/${notiId}`, { method: "POST" });
+            loadMallNotifications();
+        } catch (err) {
+            console.error("❌ Lỗi markRead:", err);
+        }
+    }
+
+    async function markAllRead() {
+        try {
+            await fetch("/notification/mark_all_read", { method: "POST" });
+            loadMallNotifications();
+        } catch (err) {
+            console.error("❌ Lỗi markAllRead:", err);
+        }
+    }
+
+    // Gắn event khi DOM ready
+    document.addEventListener("DOMContentLoaded", () => {
+        if (document.getElementById("notification-list")) {
+            loadMallNotifications();
+            document.getElementById("markAllReadBtn").addEventListener("click", markAllRead);
+        }
+    });
 </script>
