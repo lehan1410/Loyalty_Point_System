@@ -39,7 +39,8 @@ def transaction_qr_page():
     user_name = request.args.get('username', 'Khách hàng')
     # Kiểm tra đăng nhập và vai trò
     if not user_id:
-        return redirect(url_for('user.login_page', return_url=request.url))
+        login_url = url_for('user.login_page') + "?return_url=" + request.url
+        return redirect(login_url)
 
     # Lấy dữ liệu từ query string và truyền vào template
     transaction_data = {

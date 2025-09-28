@@ -470,7 +470,7 @@
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
       const remember = document.getElementById('remember').checked;
-      const returnUrl = ''; // optional: populate if you pass return_url from server templating
+      const returnUrl = new URLSearchParams(window.location.search).get('return_url') || '';
 
       if (!username || !password) { showError('Vui lòng nhập tên đăng nhập và mật khẩu.'); return; }
 
