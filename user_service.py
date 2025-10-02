@@ -98,11 +98,11 @@ def login():
         from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 
         parsed = urlparse(return_url)
-        query = dict(parse_qsl(parsed.query))  # parse_qsl trả key -> value string
-        query['user_id'] = str(user_id)
-        query['username'] = username
-        new_query = urlencode(query, doseq=True)
-        redirect_url = urlunparse(parsed._replace(query=new_query))
+        query = dict(parse_qsl(parsed.query))
+        query["user_id"] = str(user_id)
+        query["username"] = username
+        redirect_url = urlunparse(parsed._replace(query=urlencode(query)))
+
     else:
         if role == "customer":
             redirect_url = f"/user/customer?user_id={user_id}&username={username}"

@@ -1,6 +1,5 @@
 import qrcode
-import json
-from urllib.parse import urlencode
+import urllib.parse 
 
 # Thông tin giao dịch mẫu
 transaction_data = {
@@ -12,11 +11,12 @@ transaction_data = {
 }
 
 # Đường dẫn API gốc
-html_page_url = "https://loyalty-point-system.onrender.com/user/transaction_qr"
+transaction_url = "https://loyalty-point-system.onrender.com/user/transaction_qr"
+query = urllib.parse.urlencode(transaction_data)
+full_url = f"{transaction_url}?{query}"
 
-# Encode dữ liệu vào URL
-query_string = urlencode(transaction_data)
-full_url = f"{html_page_url}?{query_string}"
+encoded = urllib.parse.quote(full_url, safe='')
+login_link = f"https://loyalty-point-system.onrender.com/user/login?return_url={encoded}"
 
 # Tạo QR Code
 qr = qrcode.make(full_url)
