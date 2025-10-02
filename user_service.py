@@ -39,8 +39,7 @@ def transaction_qr_page():
     user_name = request.args.get('username', 'Khách hàng')
     # Kiểm tra đăng nhập và vai trò
     if not user_id:
-        login_url = url_for('user.login_page') + "?return_url=" + request.url
-        return redirect(login_url)
+        return redirect(url_for('user.login_page', return_url=request.url))
 
     # Lấy dữ liệu từ query string và truyền vào template
     transaction_data = {
@@ -96,12 +95,12 @@ def login():
         return jsonify({"success": False, "message": "Người dùng không thuộc bất kỳ vai trò nào!"}), 403
 
     if return_url:
-        from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+        from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 
         parsed = urlparse(return_url)
-        query = parse_qs(parsed.query)
-        query['user_id'] = [str(user_id)]
-        query['username'] = [username]
+        query = dict(parse_qsl(parsed.query))  # parse_qsl trả key -> value string
+        query['user_id'] = str(user_id)
+        query['username'] = username
         new_query = urlencode(query, doseq=True)
         redirect_url = urlunparse(parsed._replace(query=new_query))
     else:

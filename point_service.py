@@ -743,7 +743,7 @@ def get_conversion_rules():
         cursor.close()
         conn.close()
 
-        # ⚡ ép kiểu status về int (0/1)
+        # ép kiểu status về int (0/1)
         for r in rules:
             r['status'] = int.from_bytes(r['status'], "little") if isinstance(r['status'], (bytes, bytearray)) else int(r['status'])
 
