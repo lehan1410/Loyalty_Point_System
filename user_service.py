@@ -472,34 +472,6 @@ def get_customer_detail(user_id):
 
 
 
-@user_bp.route('/get_total_customers/<int:brand_id>', methods=['GET'])
-def get_total_customers(brand_id):
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-
-        # Truy vấn lấy danh sách user_id đã tham gia giao dịch với brand này
-        cursor.execute("""
-            SELECT COUNT(DISTINCT user_id) AS total_customers
-            FROM point_service.Transactions
-            WHERE brand_id = %s
-        """, (brand_id,))
-        result = cursor.fetchone()
-
-        cursor.close()
-        conn.close()
-
-        return jsonify({"total_customers": result['total_customers']}), 200
-
-    except mysql.connector.Error as err:
-        print(f"Database error: {err}")
-        return jsonify({"error": str(err)}), 500
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        return jsonify({"error": str(e)}), 500
-
-
-
 @user_bp.route('/top_user_chart', methods=['GET'])
 def top_user_chart():
     try:
