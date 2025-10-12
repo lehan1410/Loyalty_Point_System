@@ -4,8 +4,8 @@ import urllib.parse
 # Thông tin giao dịch mẫu
 transaction_data = {
     "brand_id": 1,
-    "invoice_code": "INV0500",
-    "amount": 2750000,
+    "invoice_code": "INV-051",
+    "amount": 2000000,
     "created_at": "2025-04-27 10:30:00",
     "user_snapshot_id": 1,
 }
