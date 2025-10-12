@@ -676,10 +676,7 @@
 
         async function fetchData(endpoint, options = {}, mockData = null) {
             if (MOCK_API && mockData !== null) {
-                console.log(`[MOCK] Returning mock data for ${endpoint}`);
-                // Simulate network delay
                 await new Promise(resolve => setTimeout(resolve, 500));
-                // Simulate potential mock error
                 if (mockData.error) {
                     throw new Error(`Mock API Error: ${mockData.error}`);
                 }
@@ -695,12 +692,7 @@
             const url = `${API_BASE_URL}${endpoint}`;
             let response; // Declare response outside try block
             try {
-                console.log(`Fetching data from: ${url}`); // Log the URL being fetched
                 response = await fetch(url, options);
-
-                // Log basic response info
-                console.log(`Response status for ${url}: ${response.status} ${response.statusText}`);
-
                 if (!response.ok) {
                     let errorData = null;
                     let errorText = `HTTP error ${response.status}: ${response.statusText}`;
@@ -732,7 +724,6 @@
 
                 // Attempt to parse JSON
                 const jsonData = await response.json();
-                console.log(`Successfully fetched and parsed JSON for ${url}`);
                 return jsonData;
 
             } catch (error) {
@@ -825,7 +816,6 @@
                 const cardElement = document.getElementById(`stat-card-${config.id}`); // Get the card element
 
                 try {
-                    console.log(`Fetching data for stat: ${config.title}`);
                     const data = await fetchData(config.endpoint, {}, config.mock); // Pass mock data definition
 
                     if (!data && config.id === 'total-points') { // Example: Check specifically for the first item if needed
@@ -1534,17 +1524,12 @@
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
-            console.log("DOM fully loaded and parsed");
             // Set current year in footer
             if (currentYearSpan) {
                 currentYearSpan.textContent = new Date().getFullYear();
             }
 
             setupTabs();
-
-            // Load initial data
-            console.log("Starting initial data load...");
-            // Use Promise.allSettled to load data even if some requests fail
             Promise.allSettled([
                 loadQuickStats(),      // Item 0
                 initCampaignChart(),   // Item 1
@@ -1555,23 +1540,15 @@
                 loadRewards(),          // Item 6
                 loadAdPerformance()     // Item 7
             ]).then(results => {
-                console.log("Initial data load finished. Results:", results);
                 results.forEach((result, index) => {
                     if (result.status === 'rejected') {
-                        // Log detailed error from Promise.allSettled
                         console.error(`Initial load failed for item ${index}:`, result.reason);
-                        // You could potentially update the UI here to show a general error message
-                        // For example: find the corresponding container and show an error message
-                        // This requires mapping the index back to the function/UI element
                         const failedItemMap = [
                             'Quick Stats', 'Campaign Chart', 'Reward Chart', 'Campaigns',
                             'Payments', 'Customers', 'Rewards'
                         ];
                         console.error(`--> Failed task: ${failedItemMap[index] || 'Unknown Task'}`);
-                        // Example: Show error in quick stats if item 0 failed
-                        // if (index === 0) {
-                        //    showMessage(quickStatsContainer, 'error', 'Không thể tải một số thống kê.');
-                        // }
+                       
                     } else {
                         console.log(`Initial load succeeded for item ${index}`);
                     }
