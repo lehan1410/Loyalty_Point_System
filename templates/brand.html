@@ -782,7 +782,7 @@
             const statsConfig = [
                 { id: 'total-points', endpoint: `/point/get_total_points/${BRAND_ID}`, title: 'Tổng điểm đã tích', icon: 'fa-coins', color: 'blue', parseFn: (data) => formatNumber(data?.total_points), trendText: '+12% vs tháng trước', mock: { data: { total_points: 123456 } } },
                 { id: 'active-campaigns', endpoint: `/campaign/get_active_campaigns/${BRAND_ID}`, title: 'Chiến dịch đang chạy', icon: 'fa-rocket', color: 'green', parseFn: (data) => formatNumber(data?.active_campaigns), trendText: data => data?.active_campaigns > 0 ? '2 sắp hết hạn' : '', mock: { data: { active_campaigns: 5 } } },
-                { id: 'total-customers', endpoint: `/user/get_total_customers/${BRAND_ID}`, title: 'Khách hàng tham gia', icon: 'fa-users', color: 'purple', parseFn: (data) => formatNumber(data?.total_customers), trendText: '+8% vs tháng trước', mock: { data: { total_customers: 1580 } } },
+                { id: 'total-customers', endpoint: `/point/get_total_customers/${BRAND_ID}`, title: 'Khách hàng tham gia', icon: 'fa-users', color: 'purple', parseFn: (data) => formatNumber(data?.total_customers), trendText: '+8% vs tháng trước', mock: { data: { total_customers: 1580 } } },
                 { id: 'rewards-redeemed', endpoint: `/voucher/get_rewards_redeemed`, title: 'Đổi quà thành công', icon: 'fa-gift', color: 'yellow', parseFn: (data) => formatNumber(data?.rewards_redeemed), trendText: data => data?.rewards_redeemed > 0 ? '5 đơn chờ xử lý' : '', mock: { data: { rewards_redeemed: 42 } } }
 
             ];
@@ -1549,9 +1549,7 @@
                         ];
                         console.error(`--> Failed task: ${failedItemMap[index] || 'Unknown Task'}`);
                        
-                    } else {
-                        console.log(`Initial load succeeded for item ${index}`);
-                    }
+                    } 
                 });
             }).catch(error => {
                 // This catch is unlikely to be hit with Promise.allSettled,
