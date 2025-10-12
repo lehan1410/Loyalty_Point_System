@@ -241,6 +241,31 @@ def review_ad(ad_id):
             cursor.close()
             conn.close()
         return jsonify({"error": f"Lỗi máy chủ khi duyệt quảng cáo: {str(e)}"}), 500
+@ad_bp.route('/get_ads', methods=['GET'])
+def get_ad():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT ad_id, brand_id, title, description, start_at, end_at, created_at
+            FROM Ad
+            WHERE start_at <= NOW()
+              AND (end_at IS NULL OR end_at >= NOW())
+              AND status = 'APPROVED'
+        """
+        cursor.execute(query)
+        ads = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+        return jsonify({"success": True, "ads": ads}), 200
+
+    except Exception as e:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 # API để lấy danh sách quảng cáo đang hoạt động
 @ad_bp.route('/active', methods=['GET'])

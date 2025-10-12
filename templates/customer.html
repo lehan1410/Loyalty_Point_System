@@ -1384,7 +1384,7 @@
             await cleanUpDismissedAds();
             const adContainer = document.getElementById('ad-list');
             try {
-                const response = await fetch(`/ad/active`);
+                const response = await fetch(`/ad/get_ads`);
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Lỗi tải quảng cáo');
 
