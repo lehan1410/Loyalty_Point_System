@@ -618,8 +618,7 @@
 
         const USER_ID = window.CURRENT_USER.id;
         const BRAND_ID = window.CURRENT_USER.brand_id;
-        console.log(BRAND_ID);
-        const API_BASE_URL = 'https://loyalty-point-system.onrender.com/';
+        const API_BASE_URL = 'https://loyalty-point-system.onrender.com';
         const MOCK_API = false;
 
         // --- DOM Element References ---
@@ -1454,28 +1453,41 @@
                 const adTableContainer = document.getElementById('ad-performance-table-container');
                 showMessage(adTableContainer, 'loading');
 
-                // Bước 1: Lấy danh sách quảng cáo đang hoạt động
-                const activeAds = await fetchData(`/ad/active?brand_id=${BRAND_ID}`, {
+                // --- Bước 1: Gọi API lấy danh sách quảng cáo đang hoạt động ---
+                const res = await fetch(`/ad/active?brand_id=${BRAND_ID}`, {
                     method: "GET",
-                    headers: {
-                        "Accept": "application/json"
-                    }
+                    headers: { "Accept": "application/json" }
                 });
 
-                if (!activeAds || activeAds.length === 0) {
+                if (!res.ok) {
+                    throw new Error(`Lỗi khi gọi API quảng cáo: ${res.status}`);
+                }
+
+                const data = await res.json();
+
+                // API có thể trả về { success: true, ads: [...] } hoặc 1 array trực tiếp
+                const activeAds = Array.isArray(data)
+                    ? data
+                    : Array.isArray(data.ads)
+                        ? data.ads
+                        : [];
+
+                if (activeAds.length === 0) {
                     showMessage(adTableContainer, 'placeholder', 'Không có quảng cáo đang hoạt động.');
                     return;
                 }
 
-                // Bước 2: Gọi API thống kê cho từng quảng cáo
+                // --- Bước 2: Gọi API thống kê cho từng quảng cáo ---
                 const adStatsPromises = activeAds.map(async (ad) => {
                     try {
-                        const stats = await fetchData(`/ad/${ad.ad_id}/stats`, {
+                        const statsRes = await fetch(`/ad/${ad.ad_id}/stats`, {
                             method: "GET",
-                            headers: {
-                                "Accept": "application/json"
-                            }
+                            headers: { "Accept": "application/json" }
                         });
+
+                        if (!statsRes.ok) throw new Error(`HTTP ${statsRes.status}`);
+
+                        const stats = await statsRes.json();
                         return {
                             ...ad,
                             views: stats.views || 0,
@@ -1483,22 +1495,21 @@
                         };
                     } catch (error) {
                         console.warn(`Lỗi khi lấy thống kê cho quảng cáo ${ad.ad_id}:`, error);
-                        return {
-                            ...ad,
-                            views: 0,
-                            dismissals: 0
-                        };
+                        return { ...ad, views: 0, dismissals: 0 };
                     }
                 });
 
                 const adsWithStats = await Promise.all(adStatsPromises);
 
-                // Bước 3: Hiển thị dữ liệu vào bảng
+                // --- Bước 3: Hiển thị dữ liệu ra bảng ---
                 adTableContainer.innerHTML = adsWithStats.map(ad => `
                     <tr class="hover:bg-gray-50">
                         <td class="py-3 px-4 text-sm font-medium text-gray-900">${ad.title || 'Không có tiêu đề'}</td>
                         <td class="py-3 px-4 text-sm text-gray-500">${ad.description || 'Không có mô tả'}</td>
-                        <td class="py-3 px-4 text-sm text-gray-500">${ad.start_at ? new Date(ad.start_at).toLocaleDateString('vi-VN') : 'N/A'} - ${ad.end_at ? new Date(ad.end_at).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                        <td class="py-3 px-4 text-sm text-gray-500">
+                            ${ad.start_at ? new Date(ad.start_at).toLocaleDateString('vi-VN') : 'N/A'}
+                            - ${ad.end_at ? new Date(ad.end_at).toLocaleDateString('vi-VN') : 'N/A'}
+                        </td>
                         <td class="py-3 px-4 text-sm text-green-600 font-medium">${formatNumber(ad.views)}</td>
                         <td class="py-3 px-4 text-sm text-red-600 font-medium">${formatNumber(ad.dismissals)}</td>
                         <td class="py-3 px-4 text-right">
@@ -1510,10 +1521,15 @@
                 `).join('');
 
             } catch (error) {
-                console.error('Lỗi khi tải hiệu suất quảng cáo:', error);
-                showMessage(document.getElementById('ad-performance-table-container'), 'error', `Lỗi tải dữ liệu: ${error.message}`);
+                console.error('❌ Lỗi khi tải hiệu suất quảng cáo:', error);
+                showMessage(
+                    document.getElementById('ad-performance-table-container'),
+                    'error',
+                    `Lỗi tải dữ liệu: ${error.message}`
+                );
             }
         }
+
 
 
         // --- Initialization ---
