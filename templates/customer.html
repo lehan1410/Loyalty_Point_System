@@ -1388,8 +1388,8 @@
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Lỗi tải quảng cáo');
 
-                ads = data;
-                if (data.length > 0) {
+                ads = Array.isArray(data) ? data : data.ads || [];
+                if (ads.length > 0) {
                     // Lọc các quảng cáo chưa bị tắt
                     const visibleAds = ads.filter(ad => !dismissedAds.includes(ad.ad_id));
                     if (visibleAds.length > 0) {
