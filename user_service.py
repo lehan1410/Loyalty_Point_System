@@ -856,13 +856,21 @@ def register():
         row = cursor.fetchone()
         referral_code = row["referral_code"] if row else None
 
-        requests.post("https://loyalty-point-system.onrender.com/notification/create/system", json={
-            "title": "Khách hàng mới đăng ký",
-            "message": f"Khách hàng {fullname} vừa tạo tài khoản.",
-            "status": 1,
-            "type": "system",
-            "target_type": "customer",
-        })
+        try:
+            requests.post(
+                "https://loyalty-point-system.onrender.com/notification/create/system",
+                json={
+                    "title": "Khách hàng mới đăng ký",
+                    "message": f"Khách hàng {fullname} vừa tạo tài khoản.",
+                    "status": 1,
+                    "type": "system",
+                    "target_type": "customer",
+                },
+                timeout=3  # tránh treo worker
+            )
+        except Exception as notify_err:
+            print("⚠️ Notification service unavailable:", notify_err)
+
 
 
         conn.commit()
