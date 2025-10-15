@@ -1,0 +1,82 @@
+.gradient-bg {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+}
+
+/* Hover effect for cards */
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth transitions */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+/* Style for active tab */
+.tab-active {
+    border-bottom: 3px solid #1e40af;
+    color: #1e40af;
+    font-weight: 600;
+}
+
+/* Container for charts to ensure responsiveness */
+.chart-container {
+    position: relative;
+    height: 300px;
+    /* Adjust height as needed */
+    width: 100%;
+}
+
+/* Placeholder for loading/error states */
+.placeholder-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+    /* Adjust as needed */
+    color: #6b7280;
+    /* gray-500 */
+    font-style: italic;
+    text-align: center;
+}
+
+.error-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+    /* Adjust as needed */
+    color: #ef4444;
+    /* red-500 */
+    font-style: italic;
+    text-align: center;
+}
+
+/* Loading spinner */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #1e40af;
+    /* blue-800 */
+    animation: spin 1s ease infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+}

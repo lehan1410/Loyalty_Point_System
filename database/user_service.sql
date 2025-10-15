@@ -49,7 +49,7 @@ WHERE referral_code IS NULL;
 --  BẢNG USER_PROFILE
 -- ============================
 CREATE TABLE User_Profile (
-    user_profile_id INT         NOT NULL PRIMARY KEY,
+    user_profile_id INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
     fullname        VARCHAR(50) NOT NULL,
     date_of_birth   DATE        NOT NULL,
     address         VARCHAR(100) NOT NULL,
@@ -97,7 +97,7 @@ INSERT INTO MemberTypeCoefficient (membertype, member_coefficient) VALUES
 
 CREATE TABLE Customer (
     membertype INT NOT NULL,
-    user_id    INT NOT NULL PRIMARY KEY,
+    user_id    INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
@@ -107,13 +107,13 @@ CREATE TABLE Customer (
 -- ============================
 CREATE TABLE Mall (
     mall_id INT NOT NULL,
-    user_id INT NOT NULL PRIMARY KEY,
+    user_id INT NOT NULL ,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
 CREATE TABLE Brand (
     brand_id INT NOT NULL,
-    user_id  INT NOT NULL PRIMARY KEY,
+    user_id  INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 

@@ -1,0 +1,1274 @@
+
+// Configuration
+window.CURRENT_USER = { id: "{{ user.user_id }}", username: "{{ user.user_name }}", role: "{{ user.role }}", brand_id: "{{user.brand_id or 'null' }}" };
+
+const USER_ID = window.CURRENT_USER.id;
+const BRAND_ID = window.CURRENT_USER.brand_id;
+const API_BASE_URL = 'https://loyalty-point-system.onrender.com';
+const MOCK_API = false;
+
+// --- DOM Element References ---
+const quickStatsContainer = document.getElementById('quick-stats-container');
+const campaignChartContainer = document.getElementById('campaignChartContainer');
+const campaignChartCanvas = document.getElementById('campaignChart');
+const rewardChartContainer = document.getElementById('rewardChartContainer');
+const rewardChartCanvas = document.getElementById('rewardChart');
+const currentCampaignsContainer = document.getElementById('current-campaigns-container');
+const pastCampaignsContainer = document.getElementById('past-campaigns-container');
+const paymentsTableContainer = document.getElementById('payments-table-container');
+const paymentsPaginationInfo = document.getElementById('payments-pagination-info');
+const paymentsPaginationControls = document.getElementById('payments-pagination-controls');
+const customerStatsContainer = document.getElementById('customer-stats-container');
+const customersTableContainer = document.getElementById('customers-table-container');
+const customersPaginationInfo = document.getElementById('customers-pagination-info');
+const customersPaginationControls = document.getElementById('customers-pagination-controls');
+const currentYearSpan = document.getElementById('current-year');
+
+function formatCurrency(amount) {
+    if (amount === null || amount === undefined) return "N/A";
+
+    // ép kiểu sang số
+    const num = Number(amount);
+    if (isNaN(num)) return "N/A";
+
+    if (num === 0) return "0";
+
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(num);
+}
+
+
+function formatNumber(number) {
+    if (typeof number !== 'number' || isNaN(number)) return '0';
+    return number.toLocaleString('vi-VN');
+}
+
+function formatDateTime(dateString) {
+    if (!dateString) return "-";
+    const d = new Date(dateString);
+    if (isNaN(d)) return dateString; // fallback nếu không parse được
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
+
+async function fetchData(endpoint, options = {}, mockData = null) {
+    if (MOCK_API && mockData !== null) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (mockData.error) {
+            throw new Error(`Mock API Error: ${mockData.error}`);
+        }
+        return mockData.data;
+    }
+    if (MOCK_API && mockData === null) {
+        console.warn(`[MOCK] No mock data provided for ${endpoint}, returning empty object.`);
+        await new Promise(resolve => setTimeout(resolve, 300));
+        return {};
+    }
+
+
+    const url = `${API_BASE_URL}${endpoint}`;
+    let response; // Declare response outside try block
+    try {
+        response = await fetch(url, options);
+        if (!response.ok) {
+            let errorData = null;
+            let errorText = `HTTP error ${response.status}: ${response.statusText}`;
+            try {
+                // Try to read response body as text first for non-JSON errors
+                const text = await response.text();
+                console.error(`Error response body for ${url}:`, text);
+                // Try to parse as JSON if possible
+                errorData = JSON.parse(text);
+                if (errorData && errorData.detail) {
+                    errorText = `API Error (${response.status}): ${errorData.detail}`;
+                }
+            } catch (e) {
+                // Ignore if response body is not readable or not JSON
+                console.warn(`Could not parse error response body for ${url} as JSON.`);
+            }
+            // Throw a detailed error
+            const error = new Error(errorText);
+            error.status = response.status; // Attach status code to error object
+            error.data = errorData; // Attach parsed error data if available
+            throw error;
+        }
+
+        // Handle 204 No Content
+        if (response.status === 204) {
+            console.log(`Received 204 No Content for ${url}`);
+            return null;
+        }
+
+        // Attempt to parse JSON
+        const jsonData = await response.json();
+        return jsonData;
+
+    } catch (error) {
+        // Log different types of errors
+        if (error instanceof SyntaxError) {
+            console.error(`JSON Parsing Error for ${url}:`, error.message);
+            throw new Error(`Invalid JSON received from server for ${endpoint}.`);
+        } else if (error instanceof TypeError) {
+            console.error(`Network Error or CORS issue for ${url}:`, error.message);
+            throw new Error(`Network error or CORS issue when fetching ${endpoint}. Check browser console Network tab.`);
+        } else {
+            console.error(`Fetch Error for ${url}:`, error);
+            throw error;
+        }
+    }
+}
+
+function showMessage(container, type, message) {
+    if (!container) return;
+    let content = '';
+    let cssClass = '';
+
+    switch (type) {
+        case 'loading':
+            content = `<div class="loading-overlay"><div class="spinner"></div></div>`;
+            break;
+        case 'error':
+            content = `<div class="error-message">${message}</div>`;
+            cssClass = 'error-message'; // Keep class for potential styling
+            break;
+        case 'placeholder':
+        default:
+            content = `<div class="placeholder-message">${message}</div>`;
+            cssClass = 'placeholder-message'; // Keep class
+            break;
+    }
+
+    container.innerHTML = content;
+}
+function setChartState(chartContainer, isLoading, errorMessage = null) {
+    if (!chartContainer) return;
+    const canvas = chartContainer.querySelector('canvas');
+    const loadingMessage = chartContainer.querySelector('.loading-overlay'); // Updated selector
+    const errorMessageElement = chartContainer.querySelector('.error-message');
+
+    if (canvas) canvas.style.display = (isLoading || errorMessage) ? 'none' : 'block';
+    if (loadingMessage) loadingMessage.classList.toggle('hidden', !isLoading || !!errorMessage); // Use !!errorMessage to convert to boolean
+    if (errorMessageElement) {
+        errorMessageElement.classList.toggle('hidden', !errorMessage);
+        if (errorMessage) errorMessageElement.textContent = errorMessage;
+    }
+}
+
+// Fetch and render Quick Stats
+async function loadQuickStats() {
+    const statsConfig = [
+        { id: 'total-points', endpoint: `/point/get_total_points/${BRAND_ID}`, title: 'Tổng điểm đã tích', icon: 'fa-coins', color: 'blue', parseFn: (data) => formatNumber(data?.total_points), trendText: '+12% vs tháng trước', mock: { data: { total_points: 123456 } } },
+        { id: 'active-campaigns', endpoint: `/campaign/get_active_campaigns/${BRAND_ID}`, title: 'Chiến dịch đang chạy', icon: 'fa-rocket', color: 'green', parseFn: (data) => formatNumber(data?.active_campaigns), trendText: data => data?.active_campaigns > 0 ? '2 sắp hết hạn' : '', mock: { data: { active_campaigns: 5 } } },
+        { id: 'total-customers', endpoint: `/point/get_total_customers/${BRAND_ID}`, title: 'Khách hàng tham gia', icon: 'fa-users', color: 'purple', parseFn: (data) => formatNumber(data?.total_customers), trendText: '+8% vs tháng trước', mock: { data: { total_customers: 1580 } } },
+        { id: 'rewards-redeemed', endpoint: `/voucher/get_rewards_redeemed`, title: 'Đổi quà thành công', icon: 'fa-gift', color: 'yellow', parseFn: (data) => formatNumber(data?.rewards_redeemed), trendText: data => data?.rewards_redeemed > 0 ? '5 đơn chờ xử lý' : '', mock: { data: { rewards_redeemed: 42 } } }
+
+    ];
+
+    quickStatsContainer.innerHTML = ''; // Clear previous placeholders
+
+    // Create card elements first with loading state
+    statsConfig.forEach(config => {
+        const card = document.createElement('div');
+        card.id = `stat-card-${config.id}`; // Add ID for easy targeting
+        card.className = 'bg-white rounded-xl p-6 shadow-md transition-all card-hover flex flex-col justify-between min-h-[120px]';
+        card.innerHTML = `
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500">${config.title}</p>
+                    <h3 class="text-2xl font-bold mt-2 text-gray-800" id="stat-${config.id}-value">
+                        <div class="loading-overlay h-8 w-16"><div class="spinner !w-6 !h-6"></div></div> </h3>
+                </div>
+                <div class="bg-${config.color}-100 text-${config.color}-600 p-3 rounded-lg">
+                    <i class="fas ${config.icon} text-xl"></i>
+                </div>
+            </div>
+            <p class="text-gray-500 text-xs mt-3" id="stat-${config.id}-trend">&nbsp;</p> `;
+        quickStatsContainer.appendChild(card);
+    });
+
+    // Fetch data for each card individually
+    for (const config of statsConfig) {
+        const valueElement = document.getElementById(`stat-${config.id}-value`);
+        const trendElement = document.getElementById(`stat-${config.id}-trend`);
+        const cardElement = document.getElementById(`stat-card-${config.id}`); // Get the card element
+
+        try {
+            const data = await fetchData(config.endpoint, {}, config.mock); // Pass mock data definition
+
+            if (!data && config.id === 'total-points') { // Example: Check specifically for the first item if needed
+                console.warn(`Received null or undefined data for ${config.title}`);
+                // Handle null/undefined data appropriately, maybe show '0' or 'N/A'
+                if (valueElement) valueElement.textContent = config.parseFn(null) ?? 'N/A'; // Use nullish coalescing
+                if (trendElement) trendElement.textContent = 'Không có dữ liệu';
+                continue; // Move to the next stat
+            }
+
+
+            // Update card content on success
+            if (valueElement) valueElement.textContent = config.parseFn(data) ?? 'N/A'; // Use nullish coalescing for safety
+
+            if (trendElement) {
+                const trend = typeof config.trendText === 'function' ? config.trendText(data) : config.trendText;
+                const trendIcon = trend?.startsWith('+') ? 'fa-arrow-up text-green-500' : trend ? 'fa-info-circle text-gray-500' : '';
+                trendElement.innerHTML = trend ? `<i class="fas ${trendIcon} mr-1"></i> ${trend}` : '&nbsp;';
+            }
+        } catch (error) {
+            console.error(`Error loading stat '${config.title}' from ${config.endpoint}:`, error);
+            // Update card content on error
+            if (valueElement) valueElement.innerHTML = `<span class="text-red-500 text-sm">Lỗi tải</span>`;
+            if (trendElement) trendElement.textContent = error.message.substring(0, 30) + '...'; // Show short error message
+            // Optionally add a red border or background to the card
+            if (cardElement) cardElement.classList.add('border', 'border-red-300');
+        }
+    }
+}
+
+
+// Fetch and render Campaigns
+async function loadCampaigns() {
+    const mockCampaignData = {
+        data: {
+            current: [
+                { id: 1, name: "Tích điểm hè sôi động", type: "Tích điểm", description: "Tích điểm gấp đôi cho mọi hóa đơn trên 500k.", start_date: "01/06/25", end_date: "31/08/25", participants: 1250, target_participants: 2000, progress: 62, status: "Đang hoạt động", image_url: "https://placehold.co/300x160/ecfccb/4d7c0f?text=Hè+Sôi+Động" },
+                { id: 2, name: "Đổi quà sinh nhật", type: "Đổi quà", description: "Ưu đãi đặc biệt cho khách hàng có sinh nhật trong tháng.", start_date: "01/07/25", end_date: "31/07/25", participants: 300, target_participants: 500, progress: 60, status: "Đang hoạt động", image_url: "https://placehold.co/300x160/fce7f3/831843?text=Sinh+Nhật" },
+                { id: 3, name: "Giới thiệu bạn bè", type: "Tích điểm", description: "Nhận ngay 50 điểm khi giới thiệu bạn bè thành công.", start_date: "15/07/25", end_date: "15/09/25", participants: 80, target_participants: 300, progress: 27, status: "Sắp bắt đầu", image_url: "https://placehold.co/300x160/ffedd5/c2410c?text=Giới+Thiệu" }
+            ],
+            past: [
+                { id: 4, name: "Chào hè rực rỡ", type: "Tích điểm", start_date: "01/04/25", end_date: "31/05/25", participants: 980, status: "Đã kết thúc" },
+                { id: 5, name: "Voucher giảm giá 20%", type: "Đổi quà", start_date: "15/03/25", end_date: "15/04/25", participants: 550, status: "Đã kết thúc" }
+            ]
+        }
+    };
+    try {
+        showMessage(currentCampaignsContainer, 'loading');
+        showMessage(pastCampaignsContainer, 'loading'); // Show loading in table body
+
+        const data = await fetchData(`/campaign/get_campaigns/${BRAND_ID}`, {}, mockCampaignData);
+
+        // Render Current Campaigns
+        if (data && data.current && data.current.length > 0) {
+            currentCampaignsContainer.innerHTML = data.current.map(c => `
+                <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all card-hover flex flex-col">
+                    <div class="relative">
+                        <img src="${c.image_url || 'https://placehold.co/300x160/e0e7ff/3730a3?text=Campaign'}" alt="Hình ảnh chiến dịch ${c.name}" class="w-full h-40 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/300x160/e0e7ff/3730a3?text=Image+Error';">
+                        <span class="absolute top-2 right-2 text-white text-xs px-2 py-1 rounded-full ${c.status === 'Đang hoạt động' ? 'bg-green-500' : c.status === 'Sắp bắt đầu' ? 'bg-yellow-500' : 'bg-gray-500'}">
+                            ${c.status}
+                        </span>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-md text-gray-800 flex-1 mr-2">${c.name}</h4>
+                            <span class="text-xs px-2 py-1 rounded whitespace-nowrap ${c.type === 'Tích điểm' ? 'bg-blue-100 text-blue-800' : c.type === 'Đổi quà' ? 'bg-purple-100 text-purple-800' : 'bg-pink-100 text-pink-800'}">${c.type}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3 flex-grow">${c.description || 'Không có mô tả.'}</p>
+                        <div class="text-xs text-gray-500 mb-3 space-y-1">
+                            <div class="flex justify-between"><span><i class="far fa-calendar-alt mr-1"></i> ${c.start_date || 'N/A'} - ${c.end_date || 'N/A'}</span></div>
+                            <div class="flex justify-between"><span><i class="fas fa-users mr-1"></i> ${formatNumber(c.participants)} KH</span> <span>Mục tiêu: ${formatNumber(c.target_participants)} KH</span></div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
+                            <div class="h-2 rounded-full ${c.status === 'Sắp bắt đầu' ? 'bg-gray-400' : 'bg-green-500'}" style="width: ${c.progress || 0}%"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 text-right">${c.status === 'Sắp bắt đầu' ? 'Chưa bắt đầu' : `Đã đạt ${c.progress || 0}%`}</div>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            showMessage(currentCampaignsContainer, 'placeholder', 'Không có chiến dịch hiện tại.');
+        }
+
+        // Render Past Campaigns
+        if (data && data.past && data.past.length > 0) {
+            pastCampaignsContainer.innerHTML = data.past.map(c => `
+                <tr class="hover:bg-gray-50">
+                    <td class="py-3 px-4 text-sm font-medium text-gray-900">${c.name}</td>
+                    <td class="py-3 px-4 text-sm text-gray-500"><span class="text-xs px-2 py-1 rounded ${c.type === 'Tích điểm' ? 'bg-blue-100 text-blue-800' : c.type === 'Đổi quà' ? 'bg-purple-100 text-purple-800' : 'bg-pink-100 text-pink-800'}">${c.type}</span></td>
+                    <td class="py-3 px-4 text-sm text-gray-500">${c.start_date || 'N/A'} - ${c.end_date || 'N/A'}</td>
+                    <td class="py-3 px-4 text-sm text-gray-500">${formatNumber(c.participants)}</td>
+                    <td class="py-3 px-4 text-sm"><span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">${c.status}</span></td>
+                    <td class="py-3 px-4 text-right">
+                        <button class="text-blue-600 hover:text-blue-800 focus:outline-none" title="Xem chi tiết">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            pastCampaignsContainer.innerHTML = `<tr><td colspan="6" class="py-4 px-4 text-center"><div class="placeholder-message">Không có chiến dịch đã kết thúc.</div></td></tr>`;
+        }
+
+    } catch (error) {
+        console.error('Error loading campaigns:', error);
+        showMessage(currentCampaignsContainer, 'error', `Lỗi tải chiến dịch: ${error.message}`);
+        pastCampaignsContainer.innerHTML = `<tr><td colspan="6" class="py-4 px-4 text-center"><div class="error-message">Lỗi tải chiến dịch.</div></td></tr>`;
+    }
+}
+
+// Fetch and render Payments
+async function loadPayments(page = 1, itemsPerPage = 10, filters = {}) {
+    try {
+        if (!BRAND_ID || isNaN(BRAND_ID)) {
+            throw new Error('BRAND_ID không hợp lệ hoặc không được định nghĩa!');
+        }
+        if (!paymentsTableContainer || !paymentsPaginationInfo || !paymentsPaginationControls) {
+            throw new Error('Không tìm thấy container hiển thị giao dịch trong DOM!');
+        }
+
+        showMessage(paymentsTableContainer, 'loading');
+        paymentsPaginationInfo.textContent = 'Đang tải...';
+        updatePaginationControls(paymentsPaginationControls, 0, 0, 0);
+
+        // Tạo query string
+        const params = new URLSearchParams({
+            brand_id: BRAND_ID,
+            page: page,
+            items_per_page: itemsPerPage,
+            ...(filters.start_date && { start_date: filters.start_date }),
+            ...(filters.end_date && { end_date: filters.end_date }),
+            ...(filters.status && { status: filters.status })
+        });
+
+        const data = await fetchData(`/point/get_payments?${params.toString()}`, {
+            method: "GET",
+            headers: {
+                // Không cần Content-Type cho GET
+                "Accept": "application/json"
+            }
+        });
+
+        if (data && data.payments && data.payments.length > 0) {
+            paymentsTableContainer.innerHTML = data.payments.map(p => {
+                if (!p.transaction_id || !p.customer_name) {
+                    console.warn('Dữ liệu giao dịch không hợp lệ:', p);
+                    return '';
+                }
+                return `
+            <tr class="hover:bg-gray-50">
+                <td class="py-3 px-4 text-sm font-medium text-gray-500">${p.transaction_id}</td>
+                <td class="py-3 px-4 text-sm text-gray-900 flex items-center">
+                    <img src="https://placehold.co/32x32/e2e8f0/334155?text=${p.customer_name[0] || 'KH'}" alt="Avatar ${p.customer_name}" class="w-8 h-8 rounded-full mr-2 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/32x32/e0e7ff/3730a3?text=KH';">
+                    ${p.customer_name}
+                </td>
+                <td class="py-3 px-4 text-sm text-gray-500">${p.payment_date || 'N/A'}</td>
+                <td class="py-3 px-4 text-sm font-medium text-gray-900">${formatCurrency(p.amount) || '0'}</td>
+                <td class="py-3 px-4 text-sm text-green-600 font-medium">+${formatNumber(p.points_earned) || '0'}</td>
+                <td class="py-3 px-4 text-sm">
+                <span class="text-xs px-2 py-1 rounded bg-green-100 text-green-800">
+                    Thành công
+                </span>
+                </td>
+
+                <td class="py-3 px-4 text-right">
+                    <button class="text-blue-600 hover:text-blue-800 focus:outline-none" title="Xem chi tiết">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+            }).join('');
+
+            const totalPayments = data.total_payments || 0;
+            const startIndex = (page - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(startIndex + data.payments.length - 1, totalPayments);
+            paymentsPaginationInfo.textContent = `Hiển thị ${startIndex}-${endIndex} của ${formatNumber(totalPayments)} giao dịch`;
+            updatePaginationControls(paymentsPaginationControls, page, Math.ceil(totalPayments / itemsPerPage), (newPage) => loadPayments(newPage, itemsPerPage, filters));
+        } else {
+            showMessage(paymentsTableContainer, 'placeholder', data?.message || 'Không có giao dịch nào.');
+            paymentsPaginationInfo.textContent = 'Hiển thị 0 của 0 giao dịch';
+            updatePaginationControls(paymentsPaginationControls, 0, 0, 0);
+        }
+    } catch (error) {
+        console.error('Error loading payments:', error);
+        showMessage(paymentsTableContainer, 'error', `Lỗi tải thanh toán: ${error.message} (${error.status || 'Unknown'})`);
+        paymentsPaginationInfo.textContent = 'Lỗi tải dữ liệu';
+        updatePaginationControls(paymentsPaginationControls, 0, 0, 0);
+    }
+}
+
+// Fetch and render Rewards
+
+const rewardsTableContainer = document.getElementById("rewards-table-container");
+
+async function loadRewards() {
+    try {
+        showMessage(rewardsTableContainer, 'loading');
+
+        const data = await fetchData(`/voucher/get_rewards`);
+
+        if (data && data.rewards && data.rewards.length > 0) {
+            rewardsTableContainer.innerHTML = data.rewards.map(r => `
+        <tr class="hover:bg-gray-50">
+            <td class="py-3 px-4 text-sm font-medium text-gray-900">${r.name}</td>
+            <td class="py-3 px-4 text-sm text-gray-500">${r.description || '-'}</td>
+            <td class="py-3 px-4 text-sm text-gray-500">${formatNumber(r.points)}</td>
+            <td class="py-3 px-4 text-sm text-gray-500">${formatCurrency(r.discount)}</td>
+            <td class="py-3 px-4 text-sm text-gray-500">
+                ${formatDateTime(r.start_time)} - ${formatDateTime(r.end_time)}
+            </td>                    
+            <td class="py-3 px-4 text-sm ${r.status === 'Đang hoạt động' ? 'text-green-600' : 'text-red-600'}">
+                ${r.status}
+            </td>
+            <td class="py-3 px-4 text-sm text-gray-500">${r.stock}/${r.initial_stock}</td>
+            <td class="py-3 px-4 text-right text-sm">
+                <button onclick="openRewardDetail(${r.reward_id})" 
+                    class="text-blue-600 hover:underline text-sm">Chi tiết</button>
+            </td>
+        </tr>
+    `).join('');
+        } else {
+            showMessage(rewardsTableContainer, 'placeholder', 'Không có phần thưởng.');
+        }
+    } catch (error) {
+        console.error("Error loadRewards:", error);
+        showMessage(rewardsTableContainer, 'error', 'Không tải được danh sách phần thưởng.');
+    }
+}
+
+function closeRewardDetail() {
+    document.getElementById("rewardDetailModal").classList.add("hidden");
+}
+
+async function openRewardDetail(voucherId) {
+    const modal = document.getElementById("rewardDetailModal");
+    const content = document.getElementById("reward-detail-content");
+    modal.classList.remove("hidden");
+    content.innerHTML = `<div class="loading-overlay"><div class="spinner"></div></div>`;
+
+    try {
+        // 1. Lấy chi tiết voucher
+        const rewardRes = await fetchData(`/voucher/get_reward_detail/${voucherId}`);
+        if (!rewardRes || !rewardRes.reward) {
+            content.innerHTML = `<div class="error-message">Không tìm thấy thông tin phần thưởng.</div>`;
+            return;
+        }
+        const r = rewardRes.reward;
+
+        // 2. Lấy danh sách user đã đổi voucher
+        const redemptionRes = await fetchData(`/voucher/${voucherId}/redeemed_customers`);
+        const redemptions = redemptionRes?.redemptions || [];
+
+        // 3. Gọi user_service để lấy thông tin chi tiết khách hàng
+        let customers = [];
+        if (redemptions.length > 0) {
+            customers = await Promise.all(redemptions.map(async (red) => {
+                try {
+                    const userRes = await fetchData(`/user/get_customer_detail/${red.user_id}`);
+                    return {
+                        ...userRes.customer,
+                        redeemed_at: red.redeemed_at,
+                        points_spent: red.points_spent,
+                        redemption_code: red.redemption_code
+                    };
+                } catch (e) {
+                    console.error("Error get customer:", e);
+                    return {
+                        fullname: "Unknown",
+                        phone: "-",
+                        email: "-",
+                        redeemed_at: red.redeemed_at,
+                        points_spent: red.points_spent,
+                        redemption_code: red.redemption_code
+                    };
+                }
+            }));
+        }
+
+        // 4. Render modal content
+        let html = `
+    <p><strong>Tên:</strong> ${r.name}</p>
+    <p><strong>Mô tả:</strong> ${r.description || '-'}</p>
+    <p><strong>Điểm cần:</strong> ${formatNumber(r.points)}</p>
+    <p><strong>Giảm giá:</strong> ${formatCurrency(r.discount)}</p>
+    <p><strong>Thời gian:</strong> ${formatDateTime(r.start_at)} - ${formatDateTime(r.end_at)}</p>
+    <p><strong>Trạng thái:</strong> <span class="${r.status === 'Đang hoạt động' ? 'text-green-600' : 'text-red-600'}">${r.status}</span></p>
+    <p><strong>Kho:</strong> ${r.stock}/${r.initial_stock}</p>
+`;
+
+        if (customers.length > 0) {
+            html += `
+        <h4 class="mt-4 mb-2 font-bold text-gray-800">Khách hàng đã đổi</h4>
+        <div class="max-h-64 overflow-y-auto border rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50 sticky top-0">
+                <tr>
+                <th class="px-3 py-2 text-left">Tên</th>
+                <th class="px-3 py-2 text-left">SĐT</th>
+                <th class="px-3 py-2 text-left">Email</th>
+                <th class="px-3 py-2 text-left">Ngày đổi</th>
+                <th class="px-3 py-2 text-left">Điểm đã dùng</th>
+                <th class="px-3 py-2 text-left">Mã đổi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+    `;
+            html += customers.map(c => `
+        <tr>
+            <td class="px-3 py-2">${c.fullname}</td>
+            <td class="px-3 py-2">${c.phone || '-'}</td>
+            <td class="px-3 py-2">${c.email || '-'}</td>
+            <td class="px-3 py-2">${formatDateTime(c.redeemed_at)}</td>
+            <td class="px-3 py-2">${formatNumber(c.points_spent)}</td>
+            <td class="px-3 py-2">${c.redemption_code || '-'}</td>
+        </tr>
+    `).join('');
+            html += `</tbody></table></div>`;
+        } else {
+            html += `<p class="mt-4 text-gray-500 italic">Chưa có khách hàng nào đổi voucher này.</p>`;
+        }
+
+        content.innerHTML = html;
+
+    } catch (err) {
+        console.error("Error openRewardDetail:", err);
+        content.innerHTML = `<div class="error-message">Lỗi khi tải dữ liệu.</div>`;
+    }
+}
+
+
+// --- Chart Initialization ---
+let campaignChartInstance = null;
+let rewardChartInstance = null;
+
+async function initCampaignChart() {
+    const mockChartData = {
+        data: {
+            campaign_chart: {
+                labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6"],
+                data: [650, 590, 800, 810, 960, 1050]
+            }
+        }
+    };
+    if (campaignChartInstance) {
+        campaignChartInstance.destroy(); // Destroy previous instance if exists
+    }
+    setChartState(campaignChartContainer, true); // Show loading
+
+    try {
+        const data = await fetchData(`/campaign/get_campaign_chart/${BRAND_ID}`, {}, mockChartData);
+
+        if (!data || !data.campaign_chart || !data.campaign_chart.labels || !data.campaign_chart.data) {
+            throw new Error("Dữ liệu biểu đồ chiến dịch không hợp lệ hoặc bị thiếu.");
+        }
+
+        setChartState(campaignChartContainer, false); // Hide loading
+
+        const campaignCtx = campaignChartCanvas.getContext('2d');
+        campaignChartInstance = new Chart(campaignCtx, {
+            type: 'bar',
+            data: {
+                labels: data.campaign_chart.labels,
+                datasets: [{
+                    label: 'Số KH tham gia',
+                    data: data.campaign_chart.data,
+                    backgroundColor: 'rgba(30, 64, 175, 0.7)', // blue-800 with opacity
+                    borderColor: 'rgba(30, 64, 175, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    hoverBackgroundColor: 'rgba(30, 64, 175, 0.9)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // Allow chart to fill container height
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return ` ${context.dataset.label}: ${formatNumber(context.parsed.y)} KH`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { drawBorder: false, color: '#e5e7eb' }, // gray-200
+                        ticks: { color: '#6b7280', callback: value => formatNumber(value) } // gray-500
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#6b7280' } // gray-500
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error initializing campaign chart:', error);
+        setChartState(campaignChartContainer, false, `Lỗi tải biểu đồ: ${error.message}`);
+    }
+}
+
+async function initRewardChart() {
+    const mockRewardChartData = {
+        data: {
+            reward_chart: {
+                labels: ["Voucher 50k", "Free Ship", "Giảm 10%", "Ly giữ nhiệt", "Voucher 20k"],
+                data: [120, 95, 80, 45, 30]
+            }
+        }
+    };
+    if (rewardChartInstance) {
+        rewardChartInstance.destroy();
+    }
+    setChartState(rewardChartContainer, true);
+
+    try {
+        const data = await fetchData(`/voucher/get_reward_chart`, {}, mockRewardChartData);
+
+        if (!data || !data.reward_chart || !data.reward_chart.labels || !data.reward_chart.data) {
+            throw new Error("Dữ liệu biểu đồ phần thưởng không hợp lệ hoặc bị thiếu.");
+        }
+
+        setChartState(rewardChartContainer, false);
+
+        const rewardCtx = rewardChartCanvas.getContext('2d');
+        rewardChartInstance = new Chart(rewardCtx, {
+            type: 'bar', // Changed to horizontal bar for better label readability
+            data: {
+                labels: data.reward_chart.labels,
+                datasets: [{
+                    label: 'Số lần đổi',
+                    data: data.reward_chart.data,
+                    backgroundColor: [ // Use a color palette
+                        'rgba(59, 130, 246, 0.7)', // blue-500
+                        'rgba(99, 102, 241, 0.7)', // indigo-500
+                        'rgba(167, 139, 250, 0.7)', // violet-400
+                        'rgba(244, 114, 182, 0.7)', // pink-400
+                        'rgba(251, 146, 60, 0.7)'  // orange-400
+                    ],
+                    borderColor: [
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(99, 102, 241, 1)',
+                        'rgba(167, 139, 250, 1)',
+                        'rgba(244, 114, 182, 1)',
+                        'rgba(251, 146, 60, 1)'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Make it a horizontal bar chart
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return ` ${context.dataset.label}: ${formatNumber(context.parsed.x)} lần`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: { drawBorder: false, color: '#e5e7eb' },
+                        ticks: { color: '#6b7280', callback: value => formatNumber(value) }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: '#6b7280' }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error initializing reward chart:', error);
+        setChartState(rewardChartContainer, false, `Lỗi tải biểu đồ: ${error.message}`);
+    }
+}
+
+// --- Pagination ---
+/**
+ * Updates pagination controls.
+ * @param {HTMLElement} controlsContainer - The container for pagination buttons.
+ * @param {number} currentPage - The current active page (1-based).
+ * @param {number} totalPages - The total number of pages.
+ * @param {function} onPageClick - Callback function when a page button is clicked, receives the new page number.
+ */
+function updatePaginationControls(controlsContainer, currentPage, totalPages, onPageClick) {
+    if (!controlsContainer) return;
+    controlsContainer.innerHTML = ''; // Clear existing controls
+
+    if (totalPages <= 1) {
+        // No need for pagination if only one page or no pages
+        controlsContainer.innerHTML = `
+            <button class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-400 cursor-not-allowed" disabled> <i class="fas fa-chevron-left text-xs"></i> </button>
+            ${totalPages === 1 ? '<button class="w-8 h-8 flex items-center justify-center rounded-md bg-blue-600 text-white text-sm font-medium">1</button>' : ''}
+            <button class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-400 cursor-not-allowed" disabled> <i class="fas fa-chevron-right text-xs"></i> </button>
+            `;
+        return;
+    }
+
+    // Previous Button
+    const prevButton = document.createElement('button');
+    prevButton.className = `w-8 h-8 flex items-center justify-center rounded-md text-gray-600 hover:bg-gray-200 ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white'}`;
+    prevButton.innerHTML = `<i class="fas fa-chevron-left text-xs"></i>`;
+    prevButton.disabled = currentPage === 1;
+    if (currentPage > 1) {
+        prevButton.onclick = () => onPageClick(currentPage - 1);
+    }
+    controlsContainer.appendChild(prevButton);
+
+    // Page Number Buttons (simplified example: show first, last, current, and neighbors)
+    const maxPagesToShow = 5; // Adjust as needed
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    // Adjust startPage if endPage is at the limit
+    if (endPage === totalPages) {
+        startPage = Math.max(1, totalPages - maxPagesToShow + 1);
+    }
+
+    if (startPage > 1) {
+        const firstButton = createPageButton(1, currentPage, onPageClick);
+        controlsContainer.appendChild(firstButton);
+        if (startPage > 2) {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'px-2 py-1 text-gray-500';
+            ellipsis.textContent = '...';
+            controlsContainer.appendChild(ellipsis);
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        const pageButton = createPageButton(i, currentPage, onPageClick);
+        controlsContainer.appendChild(pageButton);
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'px-2 py-1 text-gray-500';
+            ellipsis.textContent = '...';
+            controlsContainer.appendChild(ellipsis);
+        }
+        const lastButton = createPageButton(totalPages, currentPage, onPageClick);
+        controlsContainer.appendChild(lastButton);
+    }
+
+
+    // Next Button
+    const nextButton = document.createElement('button');
+    nextButton.className = `w-8 h-8 flex items-center justify-center rounded-md text-gray-600 hover:bg-gray-200 ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white'}`;
+    nextButton.innerHTML = `<i class="fas fa-chevron-right text-xs"></i>`;
+    nextButton.disabled = currentPage === totalPages;
+    if (currentPage < totalPages) {
+        nextButton.onclick = () => onPageClick(currentPage + 1);
+    }
+    controlsContainer.appendChild(nextButton);
+}
+
+/** Helper to create a single page button */
+function createPageButton(pageNumber, currentPage, onClick) {
+    const button = document.createElement('button');
+    button.className = `w-8 h-8 flex items-center justify-center rounded-md text-sm ${pageNumber === currentPage ? 'bg-blue-600 text-white font-medium' : 'bg-white text-gray-600 hover:bg-gray-100'}`;
+    button.textContent = pageNumber;
+    if (pageNumber !== currentPage) {
+        button.onclick = () => onClick(pageNumber);
+    }
+    return button;
+}
+
+
+// --- Event Listeners ---
+
+// Tab switching functionality
+function setupTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+
+            // Update button states
+            tabButtons.forEach(btn => {
+                btn.classList.remove('tab-active', 'text-blue-600', 'border-blue-600');
+                btn.classList.add('text-gray-500', 'border-transparent');
+                btn.setAttribute('aria-selected', 'false');
+            });
+            button.classList.add('tab-active', 'text-blue-600', 'border-blue-600');
+            button.classList.remove('text-gray-500', 'border-transparent');
+            button.setAttribute('aria-selected', 'true');
+
+
+            // Update panel visibility
+            tabContents.forEach(content => {
+                if (content.id === `${tabId}-panel`) {
+                    content.classList.remove('hidden');
+                } else {
+                    content.classList.add('hidden');
+                }
+            });
+
+            // Optional: Reload data for the activated tab if needed
+            /*
+            switch (tabId) {
+                case 'payments': loadPayments(); break;
+                case 'customers': loadCustomers(); break;
+                // Add other cases if needed
+            }
+            */
+        });
+    });
+}
+async function loadAdPerformance() {
+    try {
+        const adTableContainer = document.getElementById('ad-performance-table-container');
+        showMessage(adTableContainer, 'loading');
+
+        // --- Bước 1: Gọi API lấy danh sách quảng cáo đang hoạt động ---
+        const res = await fetch(`/ad/active?brand_id=${BRAND_ID}`, {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+        });
+
+        if (!res.ok) {
+            throw new Error(`Lỗi khi gọi API quảng cáo: ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        // API có thể trả về { success: true, ads: [...] } hoặc 1 array trực tiếp
+        const activeAds = Array.isArray(data)
+            ? data
+            : Array.isArray(data.ads)
+                ? data.ads
+                : [];
+
+        if (activeAds.length === 0) {
+            showMessage(adTableContainer, 'placeholder', 'Không có quảng cáo đang hoạt động.');
+            return;
+        }
+
+        // --- Bước 2: Gọi API thống kê cho từng quảng cáo ---
+        const adStatsPromises = activeAds.map(async (ad) => {
+            try {
+                const statsRes = await fetch(`/ad/${ad.ad_id}/stats`, {
+                    method: "GET",
+                    headers: { "Accept": "application/json" }
+                });
+
+                if (!statsRes.ok) throw new Error(`HTTP ${statsRes.status}`);
+
+                const stats = await statsRes.json();
+                return {
+                    ...ad,
+                    views: stats.views || 0,
+                    dismissals: stats.dismissals || 0
+                };
+            } catch (error) {
+                console.warn(`Lỗi khi lấy thống kê cho quảng cáo ${ad.ad_id}:`, error);
+                return { ...ad, views: 0, dismissals: 0 };
+            }
+        });
+
+        const adsWithStats = await Promise.all(adStatsPromises);
+
+        // --- Bước 3: Hiển thị dữ liệu ra bảng ---
+        adTableContainer.innerHTML = adsWithStats.map(ad => `
+            <tr class="hover:bg-gray-50">
+                <td class="py-3 px-4 text-sm font-medium text-gray-900">${ad.title || 'Không có tiêu đề'}</td>
+                <td class="py-3 px-4 text-sm text-gray-500">${ad.description || 'Không có mô tả'}</td>
+                <td class="py-3 px-4 text-sm text-gray-500">
+                    ${ad.start_at ? new Date(ad.start_at).toLocaleDateString('vi-VN') : 'N/A'}
+                    - ${ad.end_at ? new Date(ad.end_at).toLocaleDateString('vi-VN') : 'N/A'}
+                </td>
+                <td class="py-3 px-4 text-sm text-green-600 font-medium">${formatNumber(ad.views)}</td>
+                <td class="py-3 px-4 text-sm text-red-600 font-medium">${formatNumber(ad.dismissals)}</td>
+                <td class="py-3 px-4 text-right">
+                    <button class="text-blue-600 hover:text-blue-800 focus:outline-none" title="Xem chi tiết">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+
+    } catch (error) {
+        console.error('❌ Lỗi khi tải hiệu suất quảng cáo:', error);
+        showMessage(
+            document.getElementById('ad-performance-table-container'),
+            'error',
+            `Lỗi tải dữ liệu: ${error.message}`
+        );
+    }
+}
+
+
+
+// --- Initialization ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Set current year in footer
+    if (currentYearSpan) {
+        currentYearSpan.textContent = new Date().getFullYear();
+    }
+
+    setupTabs();
+    Promise.allSettled([
+        loadQuickStats(),      // Item 0
+        initCampaignChart(),   // Item 1
+        initRewardChart(),     // Item 2
+        loadCampaigns(),       // Item 3
+        loadPayments(),        // Item 4 (Loads page 1 by default)
+        loadCustomers(customerPage, customerLimit),       // Item 5 (Loads page 1 by default)
+        loadRewards(),          // Item 6
+        loadAdPerformance()     // Item 7
+    ]).then(results => {
+        results.forEach((result, index) => {
+            if (result.status === 'rejected') {
+                console.error(`Initial load failed for item ${index}:`, result.reason);
+                const failedItemMap = [
+                    'Quick Stats', 'Campaign Chart', 'Reward Chart', 'Campaigns',
+                    'Payments', 'Customers', 'Rewards'
+                ];
+                console.error(`--> Failed task: ${failedItemMap[index] || 'Unknown Task'}`);
+                
+            } 
+        });
+    }).catch(error => {
+        // This catch is unlikely to be hit with Promise.allSettled,
+        // but good practice to have it.
+        console.error("Unexpected error during initial data load setup:", error);
+    });
+});
+
+// --- Customers Pagination ---
+let customerPage = 1;
+const customerLimit = 10;
+let totalCustomers = 0;
+
+async function getUserPoints(userId) {
+    try {
+        const data = await fetchData(`/point/get_user_points/${userId}`);
+        return data?.total_points || 0;
+    } catch {
+        return 0;
+    }
+}
+
+async function getLastTransactionDate(userId) {
+    try {
+        const data = await fetchData(`/point/get_last_transaction/${userId}`);
+        return data?.last_transaction_date || "-";
+    } catch {
+        return "-";
+    }
+}
+
+
+// Load Customers
+async function loadCustomers(page = 1, limit = 10, search = "") {
+    try {
+        showMessage(customersTableContainer, 'loading');
+        showMessage(customerStatsContainer, 'loading');
+
+        const data = await fetchData(`/user/get_customers`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ brand_id: BRAND_ID, page: page, limit: limit, search: search, user_points: [] })
+        });
+
+        if (data && data.customers && data.customers.length > 0) {
+            totalCustomers = data.total_customers || 0;
+
+            for (let c of data.customers) {
+                [c.total_points, c.last_transaction_date] = await Promise.all([
+                    getUserPoints(c.user_id),
+                    getLastTransactionDate(c.user_id)
+                ]);
+            }
+
+            // Render danh sách khách hàng
+            customersTableContainer.innerHTML = data.customers.map(c => `
+        <tr class="hover:bg-gray-50">
+            <td class="py-3 px-4 text-sm font-medium text-gray-900">${c.name}</td>
+            <td class="py-3 px-4 text-sm text-gray-500">${c.phone || '-'}</td>
+            <td class="py-3 px-4 text-sm text-gray-500">${formatNumber(c.total_points)}</td>
+            <td class="py-3 px-4 text-sm text-gray-500">${c.last_transaction_date || '-'}</td>
+            <td class="py-3 px-4 text-sm">${c.tier || '-'}</td>
+            <td class="py-3 px-4 text-right text-sm">
+                <button onclick="openCustomerDetail(${c.user_id})" class="text-blue-600 hover:underline text-sm">Chi tiết</button>
+
+            </td>
+        </tr>
+    `).join('');
+
+            // Render thống kê
+            customerStatsContainer.innerHTML = `
+        <div class="bg-white rounded-xl p-6 shadow-md text-center">
+            <p class="text-sm text-gray-500">Tổng khách hàng</p>
+            <h3 class="text-xl font-bold text-gray-800">${formatNumber(data.total_customers)}</h3>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-md text-center">
+            <p class="text-sm text-gray-500">Khách hàng mới 30 ngày</p>
+            <h3 class="text-xl font-bold text-gray-800">${formatNumber(data.new_customers_30d)}</h3>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-md text-center">
+            <p class="text-sm text-gray-500">Khách hàng VIP</p>
+            <h3 class="text-xl font-bold text-gray-800">${formatNumber(data.vip_customers)}</h3>
+        </div>
+    `;
+
+            // Cập nhật phân trang
+            const start = (page - 1) * limit + 1;
+            const end = Math.min(page * limit, totalCustomers);
+            customersPaginationInfo.textContent = `Hiển thị ${start}-${end} của ${totalCustomers} khách hàng`;
+
+            // Enable/Disable nút
+            const [prevBtn, nextBtn] = customersPaginationControls.querySelectorAll("button");
+            prevBtn.disabled = page <= 1;
+            nextBtn.disabled = end >= totalCustomers;
+
+        } else {
+            showMessage(customersTableContainer, 'placeholder', 'Không có khách hàng.');
+        }
+    } catch (error) {
+        console.error("Error loadCustomers:", error);
+        showMessage(customersTableContainer, 'error', 'Không tải được danh sách khách hàng.');
+        showMessage(customerStatsContainer, 'error', 'Không tải được thống kê.');
+    }
+}
+
+// Gán sự kiện cho nút phân trang
+customersPaginationControls.querySelectorAll("button")[0].addEventListener("click", () => {
+    if (customerPage > 1) {
+        customerPage--;
+        loadCustomers(customerPage, customerLimit);
+    }
+});
+customersPaginationControls.querySelectorAll("button")[1].addEventListener("click", () => {
+    if (customerPage * customerLimit < totalCustomers) {
+        customerPage++;
+        loadCustomers(customerPage, customerLimit);
+    }
+});
+
+const customerSearchInput = document.querySelector("#customers-panel input[type='search']");
+let searchTimeout;
+
+customerSearchInput.addEventListener("input", (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        customerPage = 1; // reset về trang 1 khi tìm kiếm
+        loadCustomers(customerPage, customerLimit, e.target.value);
+    }, 500); // debounce 0.5s
+});
+
+async function openCustomerDetail(userId) {
+    const modal = document.getElementById("customerDetailModal");
+    const content = document.getElementById("customer-detail-content");
+    modal.classList.remove("hidden");
+    content.innerHTML = `<div class="loading-overlay"><div class="spinner"></div></div>`;
+
+    try {
+        // Gọi song song 3 API
+        const [userRes, walletRes, txRes] = await Promise.all([
+            fetchData(`/user/get_customer_detail/${userId}`),
+            fetchData(`/point/get_user_points/${userId}`),
+            fetchData(`/point/${userId}/transaction_history`)
+        ]);
+
+        if (!userRes || !userRes.customer) {
+            content.innerHTML = `<div class="error-message">Không tìm thấy khách hàng.</div>`;
+            return;
+        }
+
+        const c = userRes.customer;
+        const totalPoints = walletRes?.total_points || 0;
+        const transactions = txRes?.transactions || [];
+
+        let html = `
+    <p><strong>Tên:</strong> ${c.fullname}</p>
+    <p><strong>Email:</strong> ${c.email || '-'}</p>
+    <p><strong>SĐT:</strong> ${c.phone || '-'}</p>
+    <p><strong>Địa chỉ:</strong> ${c.address || '-'}</p>
+    <p><strong>Hạng:</strong> ${c.tier || '-'}</p>
+    <p><strong>Tổng điểm ví:</strong> ${formatNumber(totalPoints)}</p>
+    <p><strong>Ngày tham gia:</strong> ${formatDateTime(c.created_at) || '-'}</p>
+`;
+
+        // Lịch sử giao dịch
+        if (transactions.length > 0) {
+            html += `
+        <h4 class="mt-4 mb-2 font-bold text-gray-800">Lịch sử giao dịch</h4>
+        <div id="transaction-history" class="max-h-64 overflow-y-auto border rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50 sticky top-0">
+                <tr>
+                <th class="px-3 py-2 text-left">Ngày</th>
+                <th class="px-3 py-2 text-left">Loại</th>
+                <th class="px-3 py-2 text-left">Mô tả</th>
+                <th class="px-3 py-2 text-left">Điểm</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+    `;
+            html += transactions.map(t => `
+        <tr>
+            <td class="px-3 py-2">${t.date}</td>
+            <td class="px-3 py-2">${t.source_type}</td>
+            <td class="px-3 py-2">${t.description}</td>
+            <td class="px-3 py-2 ${t.points < 0 ? 'text-red-600' : 'text-green-600'}">
+            ${t.points}
+            </td>
+        </tr>
+    `).join('');
+            html += `</tbody></table></div>`;
+        } else {
+            html += `<p class="mt-4 text-gray-500 italic">Chưa có giao dịch nào.</p>`;
+        }
+
+        content.innerHTML = html;
+
+    } catch (err) {
+        console.error(err);
+        content.innerHTML = `<div class="error-message">Lỗi khi tải dữ liệu.</div>`;
+    }
+}
+
+function closeCustomerDetail() {
+    document.getElementById("customerDetailModal").classList.add("hidden");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("notificationBtn");
+    const dropdown = document.getElementById("notificationDropdown");
+    const list = document.getElementById("notificationList");
+    const badge = document.getElementById("notificationBadge");
+
+    const tabMarketing = document.getElementById("tabMarketing");
+    const tabSystem = document.getElementById("tabSystem");
+
+    let currentTab = "marketing";
+
+    // Khi mở dropdown -> load marketing mặc định
+    btn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if (dropdown.classList.contains("hidden")) {
+            dropdown.classList.remove("hidden");
+            list.innerHTML = `<div class="p-4 text-center text-gray-500">Đang tải...</div>`;
+            await loadNotifications("marketing");
+        } else {
+            dropdown.classList.add("hidden");
+        }
+    });
+
+    // Ẩn dropdown khi click ra ngoài
+    document.addEventListener("click", (e) => {
+        if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.add("hidden");
+        }
+    });
+
+    // Tab switching
+    // Khi click Marketing
+    tabMarketing.addEventListener("click", async () => {
+        currentTab = "marketing";
+
+        // Active style cho Marketing
+        tabMarketing.classList.add("text-blue-600", "border-b-2", "border-blue-600");
+        tabMarketing.classList.remove("text-gray-500");
+
+        // Reset style cho System
+        tabSystem.classList.remove("text-blue-600", "border-b-2", "border-blue-600");
+        tabSystem.classList.add("text-gray-500");
+
+        list.innerHTML = `<div class="p-4 text-center text-gray-500">Đang tải...</div>`;
+        await loadNotifications("marketing");
+    });
+
+    // Khi click System
+    tabSystem.addEventListener("click", async () => {
+        currentTab = "system";
+
+        // Active style cho System
+        tabSystem.classList.add("text-blue-600", "border-b-2", "border-blue-600");
+        tabSystem.classList.remove("text-gray-500");
+
+        // Reset style cho Marketing
+        tabMarketing.classList.remove("text-blue-600", "border-b-2", "border-blue-600");
+        tabMarketing.classList.add("text-gray-500");
+
+        list.innerHTML = `<div class="p-4 text-center text-gray-500">Đang tải...</div>`;
+        await loadNotifications("system");
+    });
+
+
+
+    // Hàm load thông báo theo tab
+    async function loadNotifications(type) {
+        try {
+            const url = type === "system"
+                ? `/notification/list/brand/system/${BRAND_ID}`
+                : `/notification/list/brand/marketing/${BRAND_ID}`;
+
+            const res = await fetch(url);
+            const data = await res.json();
+            if (!res.ok || !data.success) throw new Error(data.message || "Lỗi tải thông báo");
+
+            const notifications = data.notifications || [];
+            if (notifications.length === 0) {
+                list.innerHTML = `<div class="p-4 text-center text-gray-500">Không có thông báo</div>`;
+                return;
+            }
+
+            list.innerHTML = notifications.map(n => `
+        <div class="px-4 py-3 hover:bg-gray-50">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-800">${n.title}</p>
+                <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded ${n.type === 'system' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}">
+                    ${n.type}
+                </span>
+            </div>
+            <p class="text-xs text-gray-600 mt-1">${n.message || ""}</p>
+            <p class="text-xs text-gray-400 mt-1">${new Date(n.created_at).toLocaleString('vi-VN')}</p>
+        </div>
+    `).join("");
+
+        } catch (err) {
+            console.error("❌ Lỗi load thông báo:", err);
+            list.innerHTML = `<div class="p-4 text-center text-red-500">Không tải được thông báo</div>`;
+        }
+    }
+
+    // Hàm load tổng badge (marketing + system)
+    async function loadTotalBadge() {
+        try {
+            const [marketingRes, systemRes] = await Promise.all([
+                fetch(`/notification/list/brand/marketing/${BRAND_ID}`),
+                fetch(`/notification/list/brand/system/${BRAND_ID}`)
+            ]);
+
+            const marketingData = await marketingRes.json();
+            const systemData = await systemRes.json();
+
+            if ((marketingRes.ok && marketingData.success) || (systemRes.ok && systemData.success)) {
+                const total = (marketingData.notifications?.length || 0) + (systemData.notifications?.length || 0);
+                if (total > 0) {
+                    badge.textContent = total;
+                    badge.classList.remove("hidden");
+                } else {
+                    badge.classList.add("hidden");
+                }
+            }
+        } catch (err) {
+            console.error("❌ Lỗi load badge:", err);
+            badge.classList.add("hidden");
+        }
+    }
+
+    // Gọi load badge ngay khi vào trang
+    loadTotalBadge();
+});
