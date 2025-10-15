@@ -1,0 +1,141 @@
+#profileDropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    width: 12rem;
+    margin-right: 1rem;
+    z-index: 1000;
+}
+
+#profileDropdown a {
+    display: block;
+    padding: 0.5rem 1rem;
+    text-align: left;
+    width: 100%;
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+}
+
+.sidebar-gradient {
+    background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.tab-active {
+    border-bottom: 3px solid #1e40af;
+    color: #1e40af;
+    font-weight: 600;
+}
+
+.chart-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.sidebar-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-item.active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-content] {
+    display: none;
+}
+
+[data-content].active {
+    display: block;
+}
+
+.mobile-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+.mobile-sidebar.open {
+    transform: translateX(0);
+}
+
+/* Loading spinner */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #1e40af;
+    animation: spin 1s ease infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+}
+
+.error-message {
+    color: #ef4444;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+}
+
+.success-message {
+    color: #10b981;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 0.75rem;
+    width: 90%;
+    max-width: 600px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+#brandTypeChart {
+    max-width: 250px;
+    max-height: 250px;
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+}

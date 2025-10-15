@@ -1,0 +1,181 @@
+.gradient-bg {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.tab-active {
+    border-bottom: 3px solid #1e40af;
+    color: #1e40af;
+    font-weight: 600;
+}
+
+[data-content] {
+    display: none;
+}
+
+[data-content].active {
+    display: block;
+}
+
+.reward-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #1e40af;
+    animation: spin 1s ease infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+}
+
+.error-message {
+    color: #ef4444;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+/* Styling for the redemption code section */
+.code-container {
+    background-color: #f0f4ff;
+    border: 1px solid #d1e0ff;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.code-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e40af;
+    letter-spacing: 1px;
+}
+
+.copy-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #1e40af;
+    font-size: 1.25rem;
+    padding: 0.25rem;
+    transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.copy-button:hover {
+    color: #1e3a8a;
+    transform: scale(1.1);
+}
+
+.copy-message {
+    font-size: 0.875rem;
+    color: #10b981;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.copy-message.show {
+    opacity: 1;
+}
+
+/* Styling for other sections */
+.modal-content h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e40af;
+    margin-bottom: 0.5rem;
+}
+
+.modal-content p {
+    margin-bottom: 0.25rem;
+    color: #4b5563;
+}
+
+.modal-content p strong {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+/* Styling for the "Sử dụng" button */
+.use-voucher-button {
+    background-color: #10b981;
+    color: white;
+    font-size: 0.875rem;
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.use-voucher-button:hover {
+    background-color: #059669;
+    transform: scale(1.05);
+}
