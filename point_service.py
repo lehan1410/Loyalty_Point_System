@@ -370,7 +370,7 @@ def top_brand_chart():
                 b.brandname,
                 SUM(t.amount) AS total
             FROM Transactions t
-            JOIN Brand_Service.Brand b ON t.brand_id = b.brand_id
+            JOIN wxuszrya_brand_service.Brand b ON t.brand_id = b.brand_id
             GROUP BY t.brand_id, b.brandname
             ORDER BY total DESC
             LIMIT 3

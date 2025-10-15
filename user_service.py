@@ -200,7 +200,7 @@ def manage_account():
 def account_customer():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Users join User_Profile on Users.user_id = User_Profile.user_id join customer on Users.user_id = customer.user_id")
+    cursor.execute("SELECT * FROM Users join User_Profile on Users.user_id = User_Profile.user_id join Customer on Users.user_id = Customer.user_id")
     user = cursor.fetchall()
     conn.close()
     return jsonify({"user": user}), 200
@@ -480,8 +480,8 @@ def top_user_chart():
         cursor.execute("""
             SELECT username, pw.total_points
             FROM Users u
-            JOIN point_service.pointwallet pw ON u.user_id = pw.user_id
-            WHERE u.status = 1
+            JOIN wxuszrya_point_service.PointWallet pw ON u.user_id = pw.user_id
+            WHERE u.status = 1  
             ORDER BY pw.total_points DESC
             LIMIT 3
         """)
