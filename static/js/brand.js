@@ -76,44 +76,37 @@ async function fetchData(endpoint, options = {}, mockData = null) {
 
 
     const url = `${API_BASE_URL}${endpoint}`;
-    let response; // Declare response outside try block
+    let response; 
     try {
         response = await fetch(url, options);
         if (!response.ok) {
             let errorData = null;
             let errorText = `HTTP error ${response.status}: ${response.statusText}`;
             try {
-                // Try to read response body as text first for non-JSON errors
                 const text = await response.text();
                 console.error(`Error response body for ${url}:`, text);
-                // Try to parse as JSON if possible
                 errorData = JSON.parse(text);
                 if (errorData && errorData.detail) {
                     errorText = `API Error (${response.status}): ${errorData.detail}`;
                 }
             } catch (e) {
-                // Ignore if response body is not readable or not JSON
                 console.warn(`Could not parse error response body for ${url} as JSON.`);
             }
-            // Throw a detailed error
             const error = new Error(errorText);
-            error.status = response.status; // Attach status code to error object
-            error.data = errorData; // Attach parsed error data if available
+            error.status = response.status; 
+            error.data = errorData; 
             throw error;
         }
 
-        // Handle 204 No Content
         if (response.status === 204) {
             console.log(`Received 204 No Content for ${url}`);
             return null;
         }
 
-        // Attempt to parse JSON
         const jsonData = await response.json();
         return jsonData;
 
     } catch (error) {
-        // Log different types of errors
         if (error instanceof SyntaxError) {
             console.error(`JSON Parsing Error for ${url}:`, error.message);
             throw new Error(`Invalid JSON received from server for ${endpoint}.`);
