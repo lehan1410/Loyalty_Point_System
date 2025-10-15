@@ -1,6 +1,6 @@
 
-const USER_ID = window.CURRENT_USER.id;
-const BRAND_ID = window.CURRENT_USER.brand_id;
+const BRAND_ID = window.CURRENT_USER?.brand_id || null;
+const USER_ID = window.CURRENT_USER?.id || null;
 function formatCurrency(amount) {
     if (amount === null || amount === undefined) return "N/A";
 
