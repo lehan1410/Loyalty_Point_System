@@ -1,9 +1,8 @@
 
 // Configuration
-window.CURRENT_USER = { id: "{{ user.user_id }}", username: "{{ user.user_name }}", role: "{{ user.role }}", brand_id: "{{user.brand_id or 'null' }}" };
+const BRAND_ID = window.CURRENT_USER?.brand_id || null;
+const USER_ID = window.CURRENT_USER?.id || null;
 
-const USER_ID = window.CURRENT_USER.id;
-const BRAND_ID = window.CURRENT_USER.brand_id;
 const API_BASE_URL = 'https://loyalty-point-system.onrender.com';
 const MOCK_API = false;
 
