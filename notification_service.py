@@ -8,12 +8,12 @@ CORS(notification_bp)
 
 def get_db_connection():
     return mysql.connector.connect(
-        host="free02.123host.vn",
-        user="wxuszrya_notification_service",
-        password="12345678",
-        database="wxuszrya_notification_service"
+        host="localhost",
+        port=3307,
+        user="root",
+        password="",
+        database="notification_service"
     )
-
 # def get_db_connection():
 #     return mysql.connector.connect(
 #         host="han312.mysql.pythonanywhere-services.com",

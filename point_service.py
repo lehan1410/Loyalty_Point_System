@@ -11,10 +11,11 @@ CORS(point_bp)
 
 def get_db_connection():
     return mysql.connector.connect(
-        host="free02.123host.vn",
-        user="wxuszrya_point_service",
-        password="12345678",
-        database="wxuszrya_point_service"
+        host="localhost",
+        port=3307,
+        user="root",
+        password="",
+        database="point_service"
     )
 
 # def get_db_connection():

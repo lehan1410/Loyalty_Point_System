@@ -16,12 +16,12 @@ campaign_bp = Blueprint("campaign", __name__, template_folder='templates')
 CORS(campaign_bp)
 def get_db_connection():
     return mysql.connector.connect(
-        host="free02.123host.vn",
-        user="wxuszrya_campaign_service",
-        password="12345678",
-        database= "wxuszrya_campaign_service"
+        host="localhost",
+        port=3307,
+        user="root",
+        password="",
+        database="campaign_service"
     )
-
 # def get_db_connection():
 #     return mysql.connector.connect(
 #         host="han312.mysql.pythonanywhere-services.com",
