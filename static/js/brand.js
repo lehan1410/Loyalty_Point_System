@@ -3,7 +3,7 @@
 const BRAND_ID = window.CURRENT_USER?.brand_id || null;
 const USER_ID = window.CURRENT_USER?.id || null;
 
-const API_BASE_URL = 'https://loyalty-point-system.onrender.com';
+const API_BASE_URL = 'http://127.0.0.1:5000';
 const MOCK_API = false;
 
 // --- DOM Element References ---
@@ -57,6 +57,16 @@ function formatDateTime(dateString) {
     const minutes = String(d.getMinutes()).padStart(2, '0');
     return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
+
+const profileBtn = document.getElementById('profileBtn');
+const profileDropdown = document.getElementById('profileDropdown');
+
+
+profileBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    profileDropdown.classList.toggle('hidden');
+});
+
 
 
 async function fetchData(endpoint, options = {}, mockData = null) {
